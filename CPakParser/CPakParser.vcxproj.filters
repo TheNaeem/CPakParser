@@ -1,2 +1,57 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Dataminer">
+      <UniqueIdentifier>{6df75fb9-3f67-46fc-adaa-10526d7c7a86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal">
+      <UniqueIdentifier>{928aedde-9078-49a1-9c68-2b4ac37b9e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core">
+      <UniqueIdentifier>{e8c5e81d-2ed8-44e2-a99f-1fa9cd05f562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Serializers">
+      <UniqueIdentifier>{23e95c8a-fcfa-4bfa-820a-7aba856d46c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Pak Reading">
+      <UniqueIdentifier>{2f917995-0432-4be4-8211-0153af061133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Misc">
+      <UniqueIdentifier>{7e4cb8ca-4d75-465a-a596-1c13a3d38c1e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Dataminer.h">
+      <Filter>Dataminer</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreTypes.h">
+      <Filter>Unreal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Versioning.h">
+      <Filter>Unreal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PakFiles.h">
+      <Filter>Unreal\Pak Reading</Filter>
+    </ClInclude>
+    <ClInclude Include="IOStore.h">
+      <Filter>Unreal\Pak Reading</Filter>
+    </ClInclude>
+    <ClInclude Include="Archives.h">
+      <Filter>Unreal\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Unreal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Hashing.h">
+      <Filter>Unreal\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiThreading.h">
+      <Filter>Unreal\Misc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Dataminer.cpp">
+      <Filter>Dataminer</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
