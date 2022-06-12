@@ -93,12 +93,14 @@ public:
 
 	FName()
 	{
-	}
+	};
 
 	FName(uint32_t InValue) : Value(InValue)
 	{
-	}
+	};
 };
+
+struct FField;
 
 struct FFieldVariant
 {
@@ -106,7 +108,7 @@ struct FFieldVariant
 	{
 		FField* Field;
 		UObject* Object;
-	} Container;
+	}Container;
 
 	bool bIsUObject;
 };
