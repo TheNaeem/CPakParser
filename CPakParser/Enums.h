@@ -1,5 +1,90 @@
 #pragma once
 
+#define ENUM_CLASS_FLAGS(Enum) \
+	inline           Enum& operator|=(Enum& Lhs, Enum Rhs) { return Lhs = (Enum)((__underlying_type(Enum))Lhs | (__underlying_type(Enum))Rhs); } \
+	inline           Enum& operator&=(Enum& Lhs, Enum Rhs) { return Lhs = (Enum)((__underlying_type(Enum))Lhs & (__underlying_type(Enum))Rhs); } \
+	inline           Enum& operator^=(Enum& Lhs, Enum Rhs) { return Lhs = (Enum)((__underlying_type(Enum))Lhs ^ (__underlying_type(Enum))Rhs); } \
+	inline constexpr Enum  operator| (Enum  Lhs, Enum Rhs) { return (Enum)((__underlying_type(Enum))Lhs | (__underlying_type(Enum))Rhs); } \
+	inline constexpr Enum  operator& (Enum  Lhs, Enum Rhs) { return (Enum)((__underlying_type(Enum))Lhs & (__underlying_type(Enum))Rhs); } \
+	inline constexpr Enum  operator^ (Enum  Lhs, Enum Rhs) { return (Enum)((__underlying_type(Enum))Lhs ^ (__underlying_type(Enum))Rhs); } \
+	inline constexpr bool  operator! (Enum  E)             { return !(__underlying_type(Enum))E; } \
+	inline constexpr Enum  operator~ (Enum  E)             { return (Enum)~(__underlying_type(Enum))E; }
+
+enum class EIoStoreTocVersion : uint8_t
+{
+	Invalid = 0,
+	Initial,
+	DirectoryIndex,
+	PartitionSize,
+	PerfectHash,
+	PerfectHashWithOverflow,
+	LatestPlusOne,
+	Latest = LatestPlusOne - 1
+};
+
+enum class EIoStoreTocReadOptions
+{
+	Default,
+	ReadDirectoryIndex = (1 << 0),
+	ReadTocMeta = (1 << 1),
+	ReadAll = ReadDirectoryIndex | ReadTocMeta
+};
+
+enum class FIoStoreTocEntryMetaFlags : uint8_t
+{
+	None,
+	Compressed = (1 << 0),
+	MemoryMapped = (1 << 1)
+};
+
+enum class EIoContainerFlags : uint8_t
+{
+	None,
+	Compressed = (1 << 0),
+	Encrypted = (1 << 1),
+	Signed = (1 << 2),
+	Indexed = (1 << 3),
+};
+ENUM_CLASS_FLAGS(EIoContainerFlags);
+
+enum class EIoChunkType : uint8_t
+{
+	Invalid = 0,
+	ExportBundleData = 1,
+	BulkData = 2,
+	OptionalBulkData = 3,
+	MemoryMappedBulkData = 4,
+	ScriptObjects = 5,
+	ContainerHeader = 6,
+	ExternalFile = 7,
+	ShaderCodeLibrary = 8,
+	ShaderCode = 9,
+	PackageStoreEntry = 10,
+	DerivedData = 11,
+	EditorDerivedData = 12,
+
+	MAX
+};
+
+enum class EIoErrorCode
+{
+	Ok,
+	Unknown,
+	InvalidCode,
+	Cancelled,
+	FileOpenFailed,
+	FileNotOpen,
+	ReadError,
+	WriteError,
+	NotFound,
+	CorruptToc,
+	UnknownChunkID,
+	InvalidParameter,
+	SignatureError,
+	InvalidEncryptionKey,
+	CompressionError,
+};
+
 enum ELifetimeCondition
 {
 	COND_None = 0,		// This property has no condition, and will send anytime it changes

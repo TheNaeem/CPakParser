@@ -15,4 +15,6 @@ public:
 		static Dataminer Instance;
 		return Instance;
 	}
+
+	static void Initialize(const char* PaksFolderDir);
 };

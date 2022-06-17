@@ -2,7 +2,6 @@
 
 #include "CoreTypes.h"
 #include "Hashing.h"
-#include <unordered_map>
 #include <set>
 #include <mutex>
 
@@ -197,6 +196,7 @@ class FPakPlatformFile
 		unsigned int PakchunkIndex;
 	};
 
+	std::string PaksFolderDir;
 	FPakPlatformFile* LowerLevel;
 	std::vector<FPakListEntry> PakFiles;
 	std::vector<FPakListDeferredEntry> PendingEncryptedPakFiles;
@@ -206,4 +206,65 @@ class FPakPlatformFile
 	std::string GameUserSettingsIniFilename;
 	std::shared_ptr<FFileIoStore> IoDispatcherFileBackend;
 	std::shared_ptr<FFilePackageStoreBackend> PackageStoreBackend;
+
+public:
+	FPakPlatformFile(std::string InPaksFolderDir);
+
+	bool Initialize(FPakPlatformFile *Inner);
+};
+
+class FFilePackageStoreBackend
+{
+	void Mount(const FIoContainerHeader* ContainerHeader, uint32_t Order);
+
+/*public:
+	FFilePackageStoreBackend();
+	virtual ~FFilePackageStoreBackend();
+
+	virtual void OnMounted(TSharedRef<const FPackageStoreBackendContext>) override
+	{
+	}
+
+	virtual void BeginRead() override;
+	virtual void EndRead() override;
+	virtual EPackageStoreEntryStatus GetPackageStoreEntry(FPackageId PackageId, FPackageStoreEntry& OutPackageStoreEntry) override;
+	virtual bool GetPackageRedirectInfo(FPackageId PackageId, FName& OutSourcePackageName, FPackageId& OutRedirectedToPackageId) override;
+
+	
+	void Unmount(const FIoContainerHeader* ContainerHeader);
+
+private:
+	struct FMountedContainer
+	{
+		const FIoContainerHeader* ContainerHeader;
+		uint32_t Order;
+		uint32_t Sequence;
+	};
+
+	void Update();
+
+	FRWLock EntriesLock;
+	FCriticalSection UpdateLock;
+	TArray<FMountedContainer> MountedContainers;
+	TAtomic<uint32> NextSequence{ 0 };
+	TMap<FPackageId, const FFilePackageStoreEntry*> StoreEntriesMap;
+	TMap<FPackageId, TTuple<FName, FPackageId>> RedirectsPackageMap;
+	TMap<FPackageId, FName> LocalizedPackages;
+	bool bNeedsUpdate = false;*/
+};
+
+class FPackageStore : FNoncopyable
+{
+	FPackageStore();
+
+	std::vector<std::shared_ptr<FFilePackageStoreBackend>> Backends;
+
+public:
+	static FPackageStore& Get()
+	{
+		static FPackageStore Instance;
+		return Instance;
+	}
+
+	static void Mount(std::shared_ptr<FFilePackageStoreBackend> Backend);
 };

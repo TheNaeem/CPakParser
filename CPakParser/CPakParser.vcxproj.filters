@@ -19,6 +19,15 @@
     <Filter Include="Unreal\Misc">
       <UniqueIdentifier>{7e4cb8ca-4d75-465a-a596-1c13a3d38c1e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Pak Reading\IOStore">
+      <UniqueIdentifier>{f3d60f32-9902-41d3-8bed-7add150502bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Pak Reading\Pak Files">
+      <UniqueIdentifier>{22770491-38f0-4ec9-bac3-e89a349f20fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Binary Reader">
+      <UniqueIdentifier>{f6aad2f6-c2d0-42c8-ac2f-e0c6eff3ea1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -29,12 +38,6 @@
     </ClInclude>
     <ClInclude Include="Versioning.h">
       <Filter>Unreal\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="PakFiles.h">
-      <Filter>Unreal\Pak Reading</Filter>
-    </ClInclude>
-    <ClInclude Include="IOStore.h">
-      <Filter>Unreal\Pak Reading</Filter>
     </ClInclude>
     <ClInclude Include="Archives.h">
       <Filter>Unreal\Serializers</Filter>
@@ -48,10 +51,31 @@
     <ClInclude Include="MultiThreading.h">
       <Filter>Unreal\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="IOStore.h">
+      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="PakFiles.h">
+      <Filter>Unreal\Pak Reading\Pak Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IODispatcher.h">
+      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>Binary Reader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">
       <Filter>Dataminer</Filter>
+    </ClCompile>
+    <ClCompile Include="IOStore.cpp">
+      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    </ClCompile>
+    <ClCompile Include="PakFiles.cpp">
+      <Filter>Unreal\Pak Reading\Pak Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreDefinitions.cpp">
+      <Filter>Unreal\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

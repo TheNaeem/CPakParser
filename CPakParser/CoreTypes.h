@@ -3,13 +3,19 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "Enums.h"
 
 #define MIN_int32 ((int32_t)0x80000000)
 #define MAX_int32 ((int32_t)0x7fffffff)
+#define MAX_int64 ((int64_t)0x7fffffffffffffff)
+#define MAX_uint64 ((uint64_t)0xffffffffffffffff)
 #define NAME_None 0
+#define NETWORK_ORDER16(x) _byteswap_ushort(x)
 
 typedef uint32_t FNameEntryId;
+
+inline int32_t GIoDispatcherBufferSizeKB = 256;
 
 class UObject
 {
@@ -68,7 +74,11 @@ struct FGuid
 	int32_t C;
 	int32_t D;
 
-	FGuid()
+	FGuid() : 
+		A(0),
+		B(0),
+		C(0), 
+		D(0)
 	{
 	}
 
@@ -83,6 +93,28 @@ struct FGuid
 	{
 		return !(*this == Other);
 	}
+};
+
+struct FAESKey
+{
+	static constexpr int32_t KeySize = 32;
+
+	uint8_t Key[KeySize];
+	
+	FAESKey(std::string);
+
+	FAESKey()
+	{
+		memset(Key, 0, KeySize);
+	}
+
+	bool operator==(const FAESKey& Other) const
+	{
+		return memcmp(Key, Other.Key, KeySize) == 0;
+	}
+
+	bool IsValid();
+	std::string ToString();
 };
 
 class FName
@@ -280,3 +312,81 @@ private:
 	uint32_t Index = InvalidIndex;
 	uint32_t Number = InvalidIndex;
 };
+
+class IMappedFileRegion
+{
+	const uint8_t* MappedPtr;
+	size_t MappedSize;
+	std::string DebugFilename;
+	size_t DebugOffsetRelativeToFile;
+
+	__forceinline void CheckInvariants()
+	{
+	}
+
+public:
+
+	__forceinline IMappedFileRegion(const uint8_t* InMappedPtr, size_t InMappedSize, const std::string& InDebugFilename, size_t InDebugOffsetRelativeToFile)
+		: MappedPtr(InMappedPtr)
+		, MappedSize(InMappedSize)
+		, DebugFilename(InDebugFilename)
+		, DebugOffsetRelativeToFile(InDebugOffsetRelativeToFile)
+	{
+		CheckInvariants();
+	}
+
+	virtual ~IMappedFileRegion()
+	{
+	}
+
+	__forceinline const uint8_t* GetMappedPtr()
+	{
+		CheckInvariants();
+		return MappedPtr;
+	}
+
+	__forceinline int64_t GetMappedSize()
+	{
+		CheckInvariants();
+		return MappedSize;
+	}
+
+	virtual void PreloadHint(int64_t PreloadOffset = 0, int64_t BytesToPreload = MAX_int64)
+	{
+	}
+
+	IMappedFileRegion(const IMappedFileRegion&) = delete;
+	IMappedFileRegion& operator=(const IMappedFileRegion&) = delete;
+};
+
+class IMappedFileHandle
+{
+	size_t MappedFileSize;
+
+public:
+	IMappedFileHandle(size_t InFileSize)
+		: MappedFileSize(InFileSize)
+	{
+	}
+
+	virtual ~IMappedFileHandle()
+	{
+	}
+
+	int64_t GetFileSize()
+	{
+		return MappedFileSize;
+	}
+
+	virtual IMappedFileRegion* MapRegion(int64_t Offset = 0, int64_t BytesToMap = MAX_int64, bool bPreloadHint = false) = 0;
+
+	// Non-copyable
+	IMappedFileHandle(const IMappedFileHandle&) = delete;
+	IMappedFileHandle& operator=(const IMappedFileHandle&) = delete;
+};
+
+template<typename Enum>
+constexpr bool EnumHasAnyFlags(Enum Flags, Enum Contains)
+{
+	return (((__underlying_type(Enum))Flags) & (__underlying_type(Enum))Contains) != 0;
+}
