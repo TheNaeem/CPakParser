@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hashing.h"
+#include "AES.h"
 #include <span>
 
 class FArchive;
@@ -351,59 +352,6 @@ struct FFileIoStoreContainerFile
 	}
 };
 
-class FIoStatus;
-
-class FFileIoStoreReader
-{
-public:
-	FIoStatus Initialize(const char* InTocFilePath, int32_t Order);
-
-	uint32_t GetContainerInstanceId() const
-	{
-		return ContainerFile.ContainerInstanceId;
-	}
-
-	FIoStatus Close();
-	bool DoesChunkExist(const FIoChunkId& ChunkId) const;
-	uint64_t GetSizeForChunk(const FIoChunkId& ChunkId) const;
-	const FIoOffsetAndLength* Resolve(const FIoChunkId& ChunkId) const;
-	const FFileIoStoreContainerFile& GetContainerFile() const { return ContainerFile; }
-	IMappedFileHandle* GetMappedContainerFileHandle(uint64_t TocOffset);
-	const FIoContainerId& GetContainerId() const { return ContainerId; }
-	int32_t GetOrder() const { return Order; }
-	bool IsEncrypted() const { return EnumHasAnyFlags(ContainerFile.ContainerFlags, EIoContainerFlags::Encrypted); }
-	bool IsSigned() const { return EnumHasAnyFlags(ContainerFile.ContainerFlags, EIoContainerFlags::Signed); }
-	const FGuid& GetEncryptionKeyGuid() const { return ContainerFile.EncryptionKeyGuid; }
-	void SetEncryptionKey(const FAESKey& Key) { ContainerFile.EncryptionKey = Key; }
-	const FAESKey& GetEncryptionKey() const { return ContainerFile.EncryptionKey; }
-	FIoContainerHeader ReadContainerHeader() const;
-	void ReopenAllFileHandles();
-
-private:
-	const FIoOffsetAndLength* FindChunkInternal(const FIoChunkId& ChunkId) const;
-	uint64_t GetTocAllocatedSize() const;
-
-	//IPlatformFileIoStore& PlatformImpl;
-
-	struct FPerfectHashMap
-	{
-		std::vector<int32_t> TocChunkHashSeeds;
-		std::vector<FIoChunkId> TocChunkIds;
-		std::vector<FIoOffsetAndLength> TocOffsetAndLengths;
-	};
-
-	FPerfectHashMap PerfectHashMap;
-	std::unordered_map<FIoChunkId, FIoOffsetAndLength, FIoChunkId> TocImperfectHashMapFallback;
-	FFileIoStoreContainerFile ContainerFile;
-	FIoContainerId ContainerId;
-	int32_t Order;
-	bool bClosed = false;
-	bool bHasPerfectHashMap = false;
-
-	static std::atomic_uint32_t GlobalPartitionIndex;
-	static std::atomic_uint32_t GlobalContainerInstanceId;
-};
-
 struct FIoStoreTocHeader
 {
 	static constexpr char TocMagicImg[] = "-==--==--==--==-";
@@ -509,12 +457,24 @@ struct FIoStoreTocResource
 	std::span<FIoStoreTocEntryMeta> ChunkMetas;
 	std::span<uint8_t> DirectoryIndexBuffer;
 
-	static FIoStatus Read(const char* TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
+	static ReadStatus Read(const char* TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
 	static uint64_t Write(const char* TocFilePath, FIoStoreTocResource& TocResource, const FIoContainerSettings& ContainerSettings, const FIoStoreWriterSettings& WriterSettings);
 	static uint64_t HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId);
 };
 
-static FIoChunkId CreateIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType);
+static FIoChunkId CreateIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType)
+{
+	uint8_t Data[12] = { 0 };
+
+	*reinterpret_cast<uint64_t*>(&Data[0]) = ChunkId;
+	*reinterpret_cast<uint16_t*>(&Data[8]) = NETWORK_ORDER16(ChunkIndex);
+	*reinterpret_cast<uint8_t*>(&Data[11]) = static_cast<uint8_t>(IoChunkType);
+
+	FIoChunkId IoChunkId;
+	IoChunkId.Set(Data, 12);
+
+	return IoChunkId;
+}
 
 class FIoBuffer
 {
@@ -552,9 +512,11 @@ public:
 private:
 	struct BufCore
 	{
-		BufCore();
-		~BufCore();
+		BufCore()
+		{
+		};
 
+		~BufCore();
 		explicit BufCore(uint64_t InSize);
 		BufCore(const uint8_t* InData, uint64_t InSize, bool InOwnsMemory);
 		BufCore(const uint8_t* InData, uint64_t InSize, const BufCore* InOuter);

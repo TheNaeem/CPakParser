@@ -16,16 +16,22 @@
     <Filter Include="Unreal\Pak Reading">
       <UniqueIdentifier>{2f917995-0432-4be4-8211-0153af061133}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Misc">
-      <UniqueIdentifier>{7e4cb8ca-4d75-465a-a596-1c13a3d38c1e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Pak Reading\IOStore">
       <UniqueIdentifier>{f3d60f32-9902-41d3-8bed-7add150502bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Pak Reading\IOStore\Definitions">
+      <UniqueIdentifier>{3f6d7f89-087e-441f-8383-2501e4be38d2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Unreal\Pak Reading\Pak Files">
       <UniqueIdentifier>{22770491-38f0-4ec9-bac3-e89a349f20fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Binary Reader">
+    <Filter Include="Unreal\Core\Misc">
+      <UniqueIdentifier>{7e4cb8ca-4d75-465a-a596-1c13a3d38c1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Misc\AES">
+      <UniqueIdentifier>{dddebff6-707d-4e64-9471-d18d48aa68de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reading/Writing Util">
       <UniqueIdentifier>{f6aad2f6-c2d0-42c8-ac2f-e0c6eff3ea1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -36,9 +42,6 @@
     <ClInclude Include="CoreTypes.h">
       <Filter>Unreal\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Versioning.h">
-      <Filter>Unreal\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Archives.h">
       <Filter>Unreal\Serializers</Filter>
     </ClInclude>
@@ -46,10 +49,10 @@
       <Filter>Unreal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Hashing.h">
-      <Filter>Unreal\Misc</Filter>
+      <Filter>Unreal\Core\Misc</Filter>
     </ClInclude>
     <ClInclude Include="MultiThreading.h">
-      <Filter>Unreal\Misc</Filter>
+      <Filter>Unreal\Core\Misc</Filter>
     </ClInclude>
     <ClInclude Include="IOStore.h">
       <Filter>Unreal\Pak Reading\IOStore</Filter>
@@ -61,21 +64,42 @@
       <Filter>Unreal\Pak Reading\IOStore</Filter>
     </ClInclude>
     <ClInclude Include="BinaryReader.h">
-      <Filter>Binary Reader</Filter>
+      <Filter>Reading/Writing Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Versioning.h">
+      <Filter>Unreal\Core\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="AES.h">
+      <Filter>Unreal\Core\Misc\AES</Filter>
+    </ClInclude>
+    <ClInclude Include="IOStoreReader.h">
+      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryUtil.h">
+      <Filter>Reading/Writing Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">
       <Filter>Dataminer</Filter>
     </ClCompile>
-    <ClCompile Include="IOStore.cpp">
-      <Filter>Unreal\Pak Reading\IOStore</Filter>
-    </ClCompile>
     <ClCompile Include="PakFiles.cpp">
       <Filter>Unreal\Pak Reading\Pak Files</Filter>
     </ClCompile>
     <ClCompile Include="CoreDefinitions.cpp">
       <Filter>Unreal\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="IoStore.cpp">
+      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="IoBuffer.cpp">
+      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="AES.cpp">
+      <Filter>Unreal\Core\Misc\AES</Filter>
+    </ClCompile>
+    <ClCompile Include="IoStoreReader.cpp">
+      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

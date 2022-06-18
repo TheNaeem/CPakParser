@@ -35,6 +35,16 @@ public:
 		m_Fs.read((char*)Dst, Size);
 	}
 
+	__forceinline void Seek(size_t Offset, std::_Iosb<int>::_Seekdir Pos = std::ifstream::_Seekcur)
+	{
+		m_Fs.seekg(Offset, Pos);
+	}
+	
+	__forceinline bool IsValid()
+	{
+		return !!m_Fs;
+	}
+
 	uint32_t Size()
 	{
 		auto pos = m_Fs.tellg();

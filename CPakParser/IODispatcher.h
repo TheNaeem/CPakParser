@@ -2,40 +2,6 @@
 
 #include "IOStore.h"
 
-class FIoStatus
-{
-public:
-	FIoStatus(EIoErrorCode Code, std::string InErrorMessage) : ErrorCode(Code), ErrorMessage(InErrorMessage)
-	{
-	}
-
-	FIoStatus(EIoErrorCode Code) : ErrorCode(Code)
-	{
-	}
-
-	FIoStatus& operator=(const FIoStatus& Other);
-	FIoStatus& operator=(const EIoErrorCode InErrorCode);
-
-	bool operator==(const FIoStatus& Other) const;
-	bool operator!=(const FIoStatus& Other) const { return !operator==(Other); }
-
-	inline bool	IsOk() const { return ErrorCode == EIoErrorCode::Ok; }
-	inline bool	IsCompleted() const { return ErrorCode != EIoErrorCode::Unknown; }
-	inline EIoErrorCode	GetErrorCode() const { return ErrorCode; }
-	std::string	ToString() { return ErrorMessage; }
-
-	static const FIoStatus Ok;
-	static const FIoStatus Unknown;
-	static const FIoStatus Invalid;
-
-private:
-	EIoErrorCode ErrorCode = EIoErrorCode::Ok;
-	std::string ErrorMessage;
-
-	friend class FIoStatusBuilder;
-};
-
-
 class FIoDispatcher final : FNoncopyable
 {
 public:

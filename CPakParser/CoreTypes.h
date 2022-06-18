@@ -95,28 +95,6 @@ struct FGuid
 	}
 };
 
-struct FAESKey
-{
-	static constexpr int32_t KeySize = 32;
-
-	uint8_t Key[KeySize];
-	
-	FAESKey(std::string);
-
-	FAESKey()
-	{
-		memset(Key, 0, KeySize);
-	}
-
-	bool operator==(const FAESKey& Other) const
-	{
-		return memcmp(Key, Other.Key, KeySize) == 0;
-	}
-
-	bool IsValid();
-	std::string ToString();
-};
-
 class FName
 {
 	FNameEntryId Value;
@@ -385,8 +363,45 @@ public:
 	IMappedFileHandle& operator=(const IMappedFileHandle&) = delete;
 };
 
+class ReadStatus //TODO: log from the constructor 
+{
+public:
+	ReadStatus(EIoErrorCode Code, std::string InErrorMessage) : ErrorCode(Code), ErrorMessage(InErrorMessage)
+	{
+	}
+
+	ReadStatus(EIoErrorCode Code) : ErrorCode(Code)
+	{
+	}
+
+	ReadStatus& operator=(const ReadStatus& Other);
+	ReadStatus& operator=(const EIoErrorCode InErrorCode);
+
+	bool operator==(const ReadStatus& Other) const;
+	bool operator!=(const ReadStatus& Other) const { return !operator==(Other); }
+
+	inline bool	IsOk() const { return ErrorCode == EIoErrorCode::Ok; }
+	inline bool	IsCompleted() const { return ErrorCode != EIoErrorCode::Unknown; }
+	inline EIoErrorCode	GetErrorCode() const { return ErrorCode; }
+	std::string	ToString() { return ErrorMessage; }
+
+	static const ReadStatus Ok;
+	static const ReadStatus Unknown;
+	static const ReadStatus Invalid;
+
+private:
+	EIoErrorCode ErrorCode = EIoErrorCode::Ok;
+	std::string ErrorMessage;
+};
+
 template<typename Enum>
 constexpr bool EnumHasAnyFlags(Enum Flags, Enum Contains)
 {
 	return (((__underlying_type(Enum))Flags) & (__underlying_type(Enum))Contains) != 0;
+}
+
+template <typename T>
+__forceinline constexpr T Align(T Val, uint64_t Alignment)
+{
+	return (T)(((uint64_t)Val + Alignment - 1) & ~(Alignment - 1));
 }

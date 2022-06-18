@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AES.h" />
     <ClInclude Include="Archives.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="CoreTypes.h" />
@@ -27,14 +28,19 @@
     <ClInclude Include="Hashing.h" />
     <ClInclude Include="IODispatcher.h" />
     <ClInclude Include="IOStore.h" />
+    <ClInclude Include="IOStoreReader.h" />
+    <ClInclude Include="MemoryUtil.h" />
     <ClInclude Include="MultiThreading.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AES.cpp" />
     <ClCompile Include="CoreDefinitions.cpp" />
     <ClCompile Include="Dataminer.cpp" />
-    <ClCompile Include="IOStore.cpp" />
+    <ClCompile Include="IoBuffer.cpp" />
+    <ClCompile Include="IoStore.cpp" />
+    <ClCompile Include="IoStoreReader.cpp" />
     <ClCompile Include="PakFiles.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
