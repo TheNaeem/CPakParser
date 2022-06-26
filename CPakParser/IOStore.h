@@ -3,6 +3,9 @@
 #include "Hashing.h"
 #include "AES.h"
 #include <span>
+#include <shared_mutex>
+
+typedef std::unique_lock<std::shared_mutex> WriteLock;
 
 class FArchive;
 
@@ -54,7 +57,7 @@ private:
 
 	static constexpr uint64_t InvalidId = uint64_t(-1);
 
-	uint64_t Id = InvalidId;
+	uint64_t Id;
 };
 
 struct FIoContainerHeaderPackageRedirect
@@ -81,12 +84,22 @@ struct FIoContainerHeader
 		Signature = 0x496f436e
 	};
 
+	enum class Version : uint32_t
+	{
+		Initial = 0,
+		LocalizedPackages = 1,
+		OptionalSegmentPackages = 2,
+
+		LatestPlusOne,
+		Latest = LatestPlusOne - 1
+	};
+
 	FIoContainerId ContainerId;
 	std::vector<FPackageId> PackageIds;
 	std::vector<uint8_t> StoreEntries;
 	std::vector<FPackageId> OptionalSegmentPackageIds;
 	std::vector<uint8_t> OptionalSegmentStoreEntries;
-	std::vector<FDisplayNameEntryId> RedirectsNameMap;
+	std::vector<std::string> RedirectsNameMap;
 	std::vector<FIoContainerHeaderLocalizedPackage> LocalizedPackages;
 	std::vector<FIoContainerHeaderPackageRedirect> PackageRedirects;
 
@@ -97,22 +110,6 @@ class FIoChunkId
 {
 public:
 	static const FIoChunkId InvalidChunkId;
-
-	friend uint32_t GetTypeHash(FIoChunkId InId)
-	{
-		uint32_t Hash = 5381;
-		for (int i = 0; i < sizeof Id; ++i)
-		{
-			Hash = Hash * 33 + InId.Id[i];
-		}
-		return Hash;
-	}
-
-	/*friend FArchive& operator<<(FArchive& Ar, FIoChunkId& ChunkId)
-	{
-		Ar.Serialize(&ChunkId.Id, sizeof Id);
-		return Ar;
-	}*/
 
 	friend std::string LexToString(const FIoChunkId& Id);
 
@@ -146,11 +143,14 @@ public:
 
 	size_t operator()(FIoChunkId const& in) const noexcept
 	{
-		size_t ret = 0;
-		for (size_t i = 0; i < 12; i++)
-			ret += in.Id[i];
+		uint32_t Hash = 5381;
 
-		return std::hash<size_t>{}(ret);
+		for (int i = 0; i < sizeof Id; ++i)
+		{
+			Hash = Hash * 33 + in.Id[i];
+		}
+
+		return Hash;
 	}
 
 private:
@@ -166,42 +166,6 @@ private:
 	uint8_t Id[12];
 };
 
-
-class FFileIoStore final
-{
-
-public:
-	FIoContainerHeader Mount(const char* InTocPath, int32_t Order, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
-	void Initialize();
-
-private:
-	uint64_t ReadBufferSize = 0;
-
-	/*
-	mutable std::shared_mutex IoStoreReadersLock;
-
-	std::shared_ptr<const FIoDispatcherBackendContext> BackendContext;
-	FFileIoStoreStats Stats;
-	FFileIoStoreBlockCache BlockCache;
-	FFileIoStoreBufferAllocator BufferAllocator;
-	FFileIoStoreRequestAllocator RequestAllocator;
-	FFileIoStoreRequestQueue RequestQueue;
-	FFileIoStoreRequestTracker RequestTracker;
-	TUniquePtr<IPlatformFileIoStore> PlatformImpl;
-	FRunnableThread* Thread = nullptr;
-	bool bIsMultithreaded;
-	std::atomic_bool bStopRequested{ false };
-
-	TArray<TUniquePtr<FFileIoStoreReader>> IoStoreReaders;
-	FFileIoStoreCompressionContext* FirstFreeCompressionContext = nullptr;
-	FFileIoStoreCompressedBlock* ReadyForDecompressionHead = nullptr;
-	FFileIoStoreCompressedBlock* ReadyForDecompressionTail = nullptr;
-	FCriticalSection DecompressedBlocksCritical;
-	FFileIoStoreCompressedBlock* FirstDecompressedBlock = nullptr;
-	FIoRequestImpl* CompletedRequestsHead = nullptr;
-	FIoRequestImpl* CompletedRequestsTail = nullptr;
-	*/
-};
 struct FIoOffsetAndLength
 {
 public:
@@ -447,15 +411,15 @@ struct FIoStoreTocResource
 	enum { CompressionMethodNameLen = 32 };
 
 	FIoStoreTocHeader Header;
-	std::span<FIoChunkId> ChunkIds;
-	std::span<FIoOffsetAndLength> ChunkOffsetLengths;
-	std::span<int32_t> ChunkPerfectHashSeeds;
-	std::span<int32_t> ChunkIndicesWithoutPerfectHash;
-	std::span<FIoStoreTocCompressedBlockEntry> CompressionBlocks;
+	std::vector<FIoChunkId> ChunkIds;
+	std::vector<FIoOffsetAndLength> ChunkOffsetLengths;
+	std::vector<int32_t> ChunkPerfectHashSeeds;
+	std::vector<int32_t> ChunkIndicesWithoutPerfectHash;
+	std::vector<FIoStoreTocCompressedBlockEntry> CompressionBlocks;
 	std::vector<std::string> CompressionMethods;
 	FSHAHash SignatureHash;
-	std::span<FIoStoreTocEntryMeta> ChunkMetas;
-	std::span<uint8_t> DirectoryIndexBuffer;
+	std::vector<FIoStoreTocEntryMeta> ChunkMetas;
+	std::vector<uint8_t> DirectoryIndexBuffer;
 
 	static ReadStatus Read(const char* TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
 	static uint64_t Write(const char* TocFilePath, FIoStoreTocResource& TocResource, const FIoContainerSettings& ContainerSettings, const FIoStoreWriterSettings& WriterSettings);

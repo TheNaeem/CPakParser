@@ -26,9 +26,9 @@
     <ClInclude Include="Dataminer.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Hashing.h" />
-    <ClInclude Include="IODispatcher.h" />
     <ClInclude Include="IOStore.h" />
     <ClInclude Include="IOStoreReader.h" />
+    <ClInclude Include="MemoryReader.h" />
     <ClInclude Include="MemoryUtil.h" />
     <ClInclude Include="MultiThreading.h" />
     <ClInclude Include="Versioning.h" />
@@ -36,6 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="Archives.cpp" />
+    <ClCompile Include="ArchiveSerialization.cpp" />
     <ClCompile Include="CoreDefinitions.cpp" />
     <ClCompile Include="Dataminer.cpp" />
     <ClCompile Include="IoBuffer.cpp" />

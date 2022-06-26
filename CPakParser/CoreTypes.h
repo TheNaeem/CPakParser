@@ -16,6 +16,12 @@
 typedef uint32_t FNameEntryId;
 
 inline int32_t GIoDispatcherBufferSizeKB = 256;
+enum { INDEX_NONE = -1 };
+
+template <typename T> struct TCanBulkSerialize { enum { Value = false }; };
+template<> struct TCanBulkSerialize<unsigned int> { enum { Value = true }; };
+template<> struct TCanBulkSerialize<unsigned short> { enum { Value = true }; };
+template<> struct TCanBulkSerialize<int> { enum { Value = true }; };
 
 class UObject
 {
@@ -105,9 +111,17 @@ public:
 	{
 	};
 
+	FName(std::string& InString) //later
+	{
+	};
+
 	FName(uint32_t InValue) : Value(InValue)
 	{
 	};
+
+	std::string ToString() //later
+	{
+	}
 };
 
 struct FField;
@@ -145,8 +159,9 @@ struct FField
 	EObjectFlags FlagsPrivate;
 };
 
-struct FProperty : FField
+class FProperty : public FField
 {
+public:
 	int32_t ArrayDim;
 	int32_t ElementSize;
 	EPropertyFlags PropertyFlags;
@@ -400,8 +415,4 @@ constexpr bool EnumHasAnyFlags(Enum Flags, Enum Contains)
 	return (((__underlying_type(Enum))Flags) & (__underlying_type(Enum))Contains) != 0;
 }
 
-template <typename T>
-__forceinline constexpr T Align(T Val, uint64_t Alignment)
-{
-	return (T)(((uint64_t)Val + Alignment - 1) & ~(Alignment - 1));
-}
+std::vector<std::string> LoadNameBatch(FArchive& Ar);

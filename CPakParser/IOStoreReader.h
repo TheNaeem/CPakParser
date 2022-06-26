@@ -1,8 +1,13 @@
 #pragma once
 
+#include "IOStore.h"
+
 class FFileIoStoreReader 
 {
 public:
+	FFileIoStoreReader() = default;
+	~FFileIoStoreReader();
+
 	ReadStatus Initialize(const char* InTocFilePath, int32_t Order);
 
 	uint32_t GetContainerInstanceId() const
@@ -47,4 +52,38 @@ private:
 
 	static std::atomic_uint32_t GlobalPartitionIndex;
 	static std::atomic_uint32_t GlobalContainerInstanceId;
+};
+
+class FFileIoStore final
+{
+public:
+	FIoContainerHeader Mount(const char* InTocPath, int32_t Order, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
+	void Initialize();
+
+private:
+	uint64_t ReadBufferSize = 0;
+
+	mutable std::shared_mutex IoStoreReadersLock;
+	std::vector<std::unique_ptr<class FFileIoStoreReader>> IoStoreReaders;
+
+	/*
+	std::shared_ptr<const FIoDispatcherBackendContext> BackendContext;
+	FFileIoStoreStats Stats;
+	FFileIoStoreBlockCache BlockCache;
+	FFileIoStoreBufferAllocator BufferAllocator;
+	FFileIoStoreRequestAllocator RequestAllocator;
+	FFileIoStoreRequestQueue RequestQueue;
+	FFileIoStoreRequestTracker RequestTracker;
+	TUniquePtr<IPlatformFileIoStore> PlatformImpl;
+	FRunnableThread* Thread = nullptr;
+	bool bIsMultithreaded;
+	std::atomic_bool bStopRequested{ false };
+	FFileIoStoreCompressionContext* FirstFreeCompressionContext = nullptr;
+	FFileIoStoreCompressedBlock* ReadyForDecompressionHead = nullptr;
+	FFileIoStoreCompressedBlock* ReadyForDecompressionTail = nullptr;
+	FCriticalSection DecompressedBlocksCritical;
+	FFileIoStoreCompressedBlock* FirstDecompressedBlock = nullptr;
+	FIoRequestImpl* CompletedRequestsHead = nullptr;
+	FIoRequestImpl* CompletedRequestsTail = nullptr;
+	*/
 };

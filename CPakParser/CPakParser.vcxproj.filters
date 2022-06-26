@@ -10,9 +10,6 @@
     <Filter Include="Unreal\Core">
       <UniqueIdentifier>{e8c5e81d-2ed8-44e2-a99f-1fa9cd05f562}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Serializers">
-      <UniqueIdentifier>{23e95c8a-fcfa-4bfa-820a-7aba856d46c8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Pak Reading">
       <UniqueIdentifier>{2f917995-0432-4be4-8211-0153af061133}</UniqueIdentifier>
     </Filter>
@@ -34,6 +31,12 @@
     <Filter Include="Reading/Writing Util">
       <UniqueIdentifier>{f6aad2f6-c2d0-42c8-ac2f-e0c6eff3ea1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Archives">
+      <UniqueIdentifier>{23e95c8a-fcfa-4bfa-820a-7aba856d46c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Derived">
+      <UniqueIdentifier>{c86b2f85-3ca1-4265-a0ba-fdcd5a060514}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -43,7 +46,7 @@
       <Filter>Unreal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Archives.h">
-      <Filter>Unreal\Serializers</Filter>
+      <Filter>Unreal\Archives</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Unreal\Core</Filter>
@@ -60,9 +63,6 @@
     <ClInclude Include="PakFiles.h">
       <Filter>Unreal\Pak Reading\Pak Files</Filter>
     </ClInclude>
-    <ClInclude Include="IODispatcher.h">
-      <Filter>Unreal\Pak Reading\IOStore</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryReader.h">
       <Filter>Reading/Writing Util</Filter>
     </ClInclude>
@@ -77,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="MemoryUtil.h">
       <Filter>Reading/Writing Util</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryReader.h">
+      <Filter>Unreal\Archives\Derived</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="IoStoreReader.cpp">
       <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Archives.cpp">
+      <Filter>Unreal\Archives</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveSerialization.cpp">
+      <Filter>Unreal\Archives</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

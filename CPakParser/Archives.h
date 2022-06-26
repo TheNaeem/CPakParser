@@ -47,7 +47,7 @@ public:
 private:
 	void IncrementUpdateCount()
 	{
-		while (++SerializedPropertyChainUpdateCount == 0) {} 
+		while (++SerializedPropertyChainUpdateCount == 0) {}
 	}
 
 	std::vector<class FProperty*> SerializedPropertyChain;
@@ -56,6 +56,32 @@ private:
 
 struct FArchiveState
 {
+private:
+	friend class FArchive;
+
+	FArchiveState();
+	~FArchiveState();
+
+public:
+	virtual void Reset();
+
+	virtual void CountBytes(size_t InNum, size_t InMax) { }
+
+	__forceinline bool IsLoading() const
+	{
+		return ArIsLoading;
+	}
+
+	virtual int64_t Tell()
+	{
+		return INDEX_NONE;
+	}
+
+	virtual int64_t TotalSize()
+	{
+		return INDEX_NONE;
+	}
+
 protected:
 	uint8_t ArIsLoading : 1;
 	uint8_t ArIsLoadingFromCookedPackage : 1;
@@ -111,7 +137,7 @@ private:
 	FArchiveState* NextProxy = nullptr;
 };
 
-class FArchive : private FArchiveState
+class FArchive : public FArchiveState
 {
 public:
 	FArchive() = default;
@@ -119,9 +145,90 @@ public:
 	FArchive& operator=(const FArchive& ArchiveToCopy) = default;
 	~FArchive() = default;
 
+	virtual void Serialize(void* V, unsigned long long Length) { }
+
 	virtual FArchive& operator<<(FName& Value)
 	{
 		return *this;
 	}
 
+	virtual FArchive& operator<<(UObject*& Value)
+	{
+		return *this;
+	}
+
+	template<typename T>
+	friend FArchive& operator<<(FArchive& Ar, std::vector<T, std::allocator<T>>& InArray)
+	{
+		auto ArrayNum = InArray.size();
+		Ar << ArrayNum;
+
+		if (ArrayNum == 0)
+		{
+			InArray.clear();
+			return Ar;
+		}
+
+		InArray.resize(ArrayNum);
+
+		if constexpr (sizeof(T) == 1 || TCanBulkSerialize<T>::Value)
+		{
+			Ar.Serialize(InArray.data(), InArray.size() * sizeof(T));
+		}
+		else
+		{
+			for (auto i = 0; i < InArray.size(); i++)
+				Ar << InArray[i];
+		}
+
+		return Ar;
+	}
+
+	friend FArchive& operator<<(FArchive& Ar, std::string& InString);
+	friend FArchive& operator<<(FArchive& Ar, int32_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, uint32_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, uint64_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, int64_t& InNum);
+
+	virtual void Seek(int64_t InPos) { }
+};
+
+class FMemoryArchive : public FArchive
+{
+public:
+	virtual std::string GetArchiveName() const { return "FMemoryArchive"; }
+
+	void Seek(int64_t InPos) final
+	{
+		Offset = InPos;
+	}
+
+	int64_t Tell() final
+	{
+		return Offset;
+	}
+
+	using FArchive::operator<<;
+
+	virtual FArchive& operator<<(class FName& N) override
+	{
+		std::string StringName;
+		*this << StringName;
+		N = FName(StringName);
+
+		return *this;
+	}
+
+	virtual FArchive& operator<<(class UObject*& Res) override
+	{
+		return *this;
+	}
+
+protected:
+	FMemoryArchive()
+		: FArchive(), Offset(0)
+	{
+	}
+
+	int64_t	Offset;
 };

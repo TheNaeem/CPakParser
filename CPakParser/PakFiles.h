@@ -167,6 +167,13 @@ private:
 	bool UnderlyingCacheTrimDisabled;
 	bool bIsMounted;
 	std::unique_ptr<FIoContainerHeader> IoContainerHeader;
+
+public:
+
+	std::string& GetFilename()
+	{
+		return PakFilename;
+	}
 };
 
 class FPakPlatformFile
@@ -197,20 +204,26 @@ class FPakPlatformFile
 	};
 
 	std::string PaksFolderDir;
-	FPakPlatformFile* LowerLevel;
 	std::vector<FPakListEntry> PakFiles;
 	std::vector<FPakListDeferredEntry> PendingEncryptedPakFiles;
 	bool bSigned;
 	std::set<std::string> ExcludedNonPakExtensions;
 	std::string IniFileExtension;
 	std::string GameUserSettingsIniFilename;
-	std::shared_ptr<FFileIoStore> IoDispatcherFileBackend;
+	std::shared_ptr<class FFileIoStore> IoFileBackend;
 	std::shared_ptr<FFilePackageStoreBackend> PackageStoreBackend;
 
 public:
 	FPakPlatformFile(std::string InPaksFolderDir);
 
-	bool Initialize(FPakPlatformFile *Inner);
+	bool Initialize();
+	bool Mount(std::string InPakFilename, bool bLoadIndex = true);
+	int MountAllPakFiles();
+
+	std::vector<FPakListEntry> GetMountedPaks()
+	{
+		return PakFiles;
+	}
 };
 
 class FFilePackageStoreBackend
