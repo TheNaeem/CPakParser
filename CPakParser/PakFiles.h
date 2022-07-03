@@ -1,15 +1,49 @@
 #pragma once
 
-#include "CoreTypes.h"
+#include "Archives.h"
 #include "Hashing.h"
-#include <set>
 #include <mutex>
 
+struct FAESKey;
+struct FGuid;
 class FChunkCacheWorker;
 class IAsyncReadFileHandle;
 class FFileIoStore;
 class FFilePackageStoreBackend;
 struct FIoContainerHeader;
+
+static void MakeDirectoryFromPath(std::string& Path)
+{
+	if (Path.length() > 0 && Path[Path.length() - 1] != '/')
+	{
+		Path += "/";
+	}
+}
+
+class FSharedPakReader final
+{
+	friend class FPakFile;
+
+	FArchive* Archive = nullptr;
+	FPakFile* PakFile = nullptr; 
+
+	FSharedPakReader(FArchive* InArchive, FPakFile* InPakFile) : Archive(InArchive), PakFile(InPakFile)
+	{
+	}
+
+public:
+	~FSharedPakReader();
+
+	FSharedPakReader(const FSharedPakReader& Other) = delete;
+	FSharedPakReader& operator=(const FSharedPakReader& Other) = delete;
+
+	explicit operator bool() const { return Archive != nullptr; }
+	bool operator==(nullptr_t) { return Archive == nullptr; }
+	bool operator!=(nullptr_t) { return Archive != nullptr; }
+	FArchive* operator->() { return Archive; }
+
+	FArchive& GetArchive() { return *Archive; }
+};
 
 struct FPakInfo
 {
@@ -48,7 +82,7 @@ struct FPakInfo
 	FSHAHash IndexHash;
 	uint8_t bEncryptedIndex;
 	FGuid EncryptionKeyGuid;
-	std::vector<FName> CompressionMethods;
+	std::vector<std::string> CompressionMethods;
 
 	FPakInfo()
 		: Magic(PakFile_Magic)
@@ -57,13 +91,25 @@ struct FPakInfo
 		, IndexSize(0)
 		, bEncryptedIndex(0)
 	{
-		CompressionMethods.push_back(NAME_None);
+		CompressionMethods.push_back("None");
 	}
 
-	FName GetCompressionMethod(uint8_t Index) const
+	int64_t GetSerializedSize(int32_t InVersion = PakFile_Version_Latest) const
+	{
+		int64_t Size = sizeof(Magic) + sizeof(Version) + sizeof(IndexOffset) + sizeof(IndexSize) + sizeof(IndexHash) + sizeof(bEncryptedIndex);
+		if (InVersion >= PakFile_Version_EncryptionKeyGuid) Size += sizeof(EncryptionKeyGuid);
+		if (InVersion >= PakFile_Version_FNameBasedCompressionMethod) Size += CompressionMethodNameLen * MaxNumCompressionMethods;
+		if (InVersion >= PakFile_Version_FrozenIndex && InVersion < PakFile_Version_PathHashIndex) Size += sizeof(bool);
+
+		return Size;
+	}
+
+	std::string GetCompressionMethod(uint8_t Index) const
 	{
 		return CompressionMethods[Index];
 	}
+
+	void Serialize(FArchive& Ar, int32_t InVersion);
 };
 
 struct FPakCompressedBlock
@@ -80,10 +126,20 @@ struct FPakCompressedBlock
 	{
 		return !(*this == B);
 	}
+
+	friend FArchive& operator<<(FArchive& Ar, FPakCompressedBlock& Block)
+	{
+		Ar << Block.CompressedStart;
+		Ar << Block.CompressedEnd;
+
+		return Ar;
+	}
 };
 
 struct FPakEntry
 {
+	FPakEntry();
+
 	static const uint8_t Flag_None = 0x00;
 	static const uint8_t Flag_Encrypted = 0x01;
 	static const uint8_t Flag_Deleted = 0x02;
@@ -97,6 +153,9 @@ struct FPakEntry
 	uint32_t CompressionMethodIndex;
 	uint8_t Flags;
 	mutable bool Verified;
+
+	int64_t GetSerializedSize(int32_t Version) const;
+	void Serialize(FArchive& Ar, int32_t Version);
 };
 
 struct FPakEntryLocation
@@ -108,6 +167,21 @@ struct FPakEntryLocation
 	{
 	}
 
+	friend FArchive& operator<<(FArchive& Ar, FPakEntryLocation& Entry) 
+	{
+		return Ar << Entry.Index;
+	}
+
+	friend size_t hash_value(const FPakEntryLocation& in) 
+	{
+		return (in.Index * 0xdeece66d + 0xb);
+	}
+
+	__forceinline friend bool operator==(const FPakEntryLocation& entry1, const FPakEntryLocation& entry2) 
+	{
+		return entry1.Index == entry2.Index;
+	}
+
 private:
 	explicit FPakEntryLocation(int32_t InIndex) : Index(InIndex)
 	{
@@ -116,13 +190,15 @@ private:
 	int32_t Index;
 };
 
-typedef std::unordered_map<std::string, FPakEntryLocation> FPakDirectory;
+typedef phmap::flat_hash_map<std::string, FPakEntryLocation> FPakDirectory;
 
-class FPakFile : FNoncopyable
+class FPakFile
 {
 public:
-	typedef std::unordered_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
-	typedef std::unordered_map<std::string, FPakDirectory> FDirectoryIndex;
+	FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadIndex);
+
+	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
+	typedef phmap::flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 	enum class ECacheType : uint8_t
 	{
@@ -132,23 +208,25 @@ public:
 
 	struct FArchiveAndLastAccessTime
 	{
-		std::unique_ptr<FArchive> Archive;
-		double LastAccessTime;
+		std::unique_ptr<class FArchive> Archive;
+		time_t LastAccessTime;
 	};
 
 private:
-	friend class FPakPlatformFile;
+	void LoadIndex(class FArchive& Reader);
+	bool LoadIndexInternal(class FArchive& Reader);
+	bool TryDecryptIndex(std::vector<uint8_t>& Data);
 
-	std::string PakFilename;
-	FName PakFilenameName;
-	std::unique_ptr<class FChunkCacheWorker> Decryptor;
+	friend class FPakFileManager;
+
+	std::filesystem::path PakFilePath;
 	std::vector<FArchiveAndLastAccessTime> Readers;
 	int32_t CurrentlyUsedReaders = 0;
 	std::mutex CriticalSection;
 	FPakInfo Info;
 	std::string MountPoint;
 	std::vector<FPakEntry> Files;
-	FDirectoryIndex DirectoryIndex;
+	FDirectoryIndex FileDirectories;
 	FPathHashIndex PathHashIndex;
 	std::vector<uint8_t> EncodedPakEntries;
 	uint64_t PathHashSeed;
@@ -170,59 +248,68 @@ private:
 
 public:
 
-	std::string& GetFilename()
+	FPakInfo& GetInfo()
 	{
-		return PakFilename;
+		return Info;
 	}
+
+	std::string GetFilename()
+	{
+		return PakFilePath.filename().string();
+	}
+
+	std::filesystem::path& GetPath()
+	{
+		return PakFilePath;
+	}
+
+	bool IsMounted()
+	{
+		return bIsMounted;
+	}
+
+	FSharedPakReader GetSharedReader();
+	void ReturnSharedReader(FArchive* SharedReader);
 };
 
-class FPakPlatformFile
+class FPakFileManager
 {
-	struct FPakListEntry
-	{
-		FPakListEntry()
-			: ReadOrder(0)
-			, PakFile(nullptr)
-		{}
-
-		unsigned int ReadOrder;
-		std::shared_ptr<FPakFile> PakFile;
-
-		__forceinline bool operator <(const FPakListEntry& RHS) const
-		{
-			return ReadOrder > RHS.ReadOrder;
-		}
-	};
-
-	struct FPakListDeferredEntry
-	{
-		const char* Filename;
-		const char* Path;
-		unsigned int ReadOrder;
-		FGuid EncryptionKeyGuid;
-		unsigned int PakchunkIndex;
-	};
-
+	std::mutex CriticalSection;
 	std::string PaksFolderDir;
-	std::vector<FPakListEntry> PakFiles;
-	std::vector<FPakListDeferredEntry> PendingEncryptedPakFiles;
+	std::vector<std::shared_ptr<FPakFile>> PakFiles;
 	bool bSigned;
-	std::set<std::string> ExcludedNonPakExtensions;
+	bool bIsInitialized = false;
+	phmap::flat_hash_set<std::string> ExcludedNonPakExtensions;
 	std::string IniFileExtension;
 	std::string GameUserSettingsIniFilename;
 	std::shared_ptr<class FFileIoStore> IoFileBackend;
 	std::shared_ptr<FFilePackageStoreBackend> PackageStoreBackend;
+	phmap::flat_hash_map<FGuid, std::filesystem::path> DeferredPaks;
 
 public:
-	FPakPlatformFile(std::string InPaksFolderDir);
+	FPakFileManager();
 
-	bool Initialize();
-	bool Mount(std::string InPakFilename, bool bLoadIndex = true);
-	int MountAllPakFiles();
+	bool Initialize(std::string InPaksFolderDir);
+	bool Mount(std::filesystem::path InPakFilename, bool bLoadIndex = true);
+	void MountAllPakFiles();
 
-	std::vector<FPakListEntry> GetMountedPaks()
+	bool RegisterEncryptionKey(FGuid InGuid, FAESKey InKey);
+	static FAESKey GetRegisteredPakEncryptionKey(const FGuid& InEncryptionKeyGuid);
+
+	std::vector<std::shared_ptr<FPakFile>> GetMountedPaks()
 	{
 		return PakFiles;
+	}
+
+	void OnPakMounted(std::shared_ptr<FPakFile> Pak)
+	{
+		SCOPE_LOCK(CriticalSection);
+
+		Pak->bIsMounted = true;
+
+		ReadStatus(ReadErrorCode::Ok, "Sucessfully mounted PAK file: " + Pak->GetFilename());
+
+		PakFiles.push_back(Pak);
 	}
 };
 
@@ -280,4 +367,26 @@ public:
 	}
 
 	static void Mount(std::shared_ptr<FFilePackageStoreBackend> Backend);
+};
+
+class FEncryptionKeyManager //thread safe encryption key util
+{
+public:
+
+	static FEncryptionKeyManager& Get()
+	{
+		static FEncryptionKeyManager Inst;
+		return Inst;
+	}
+
+	static void AddKey(const FGuid& InGuid, const FAESKey InKey);
+	static bool GetKey(const FGuid& InGuid, FAESKey& OutKey);
+	static bool const HasKey(const FGuid& InGuid);
+	static const phmap::flat_hash_map<FGuid, FAESKey>& GetKeys();
+
+private:
+	FEncryptionKeyManager() = default;
+
+	phmap::flat_hash_map<FGuid, FAESKey> Keys;
+	std::mutex CriticalSection;
 };

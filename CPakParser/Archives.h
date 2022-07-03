@@ -82,6 +82,16 @@ public:
 		return INDEX_NONE;
 	}
 
+	__forceinline void SetError(bool DidError)
+	{
+		this->ArIsError = DidError;
+	}
+
+	__forceinline bool IsError()
+	{
+		return this->ArIsError;
+	}
+
 protected:
 	uint8_t ArIsLoading : 1;
 	uint8_t ArIsLoadingFromCookedPackage : 1;
@@ -140,12 +150,13 @@ private:
 class FArchive : public FArchiveState
 {
 public:
-	FArchive() = default;
-	FArchive(const FArchive&) = default;
-	FArchive& operator=(const FArchive& ArchiveToCopy) = default;
-	~FArchive() = default;
+	template<typename T>
+	__forceinline void BulkSerialize(void* V) // the idea here is to save time by reducing the amount of serialization operations done, but a few conditions have to be met before using this. i would just avoid this for now
+	{
+		Serialize(V, sizeof(T));
+	}
 
-	virtual void Serialize(void* V, unsigned long long Length) { }
+	virtual void Serialize(void* V, uint64_t Length) { }
 
 	virtual FArchive& operator<<(FName& Value)
 	{
@@ -157,10 +168,64 @@ public:
 		return *this;
 	}
 
+	template<class T1, class T2>
+	friend FArchive& operator<<(FArchive& Ar, std::pair<T1, T2>& InPair)
+	{
+		Ar << InPair.first;
+		Ar << InPair.second;
+
+		return Ar;
+	}
+
+	template<class T>
+	friend FArchive& operator<<(FArchive& Ar, phmap::flat_hash_set<T>& InSet)
+	{
+		int32_t NewNumElements = 0;
+		Ar << NewNumElements;
+
+		if (!NewNumElements) return Ar;
+
+		InSet.clear();
+		InSet.reserve(NewNumElements);
+
+		for (size_t i = 0; i < NewNumElements; i++)
+		{
+			T Element;
+			Ar << Element;
+			InSet.insert(Element);
+		}
+
+		return Ar;
+	}
+
+	template<class Key, class Value>
+	friend FArchive& operator<<(FArchive& Ar, phmap::flat_hash_map<Key, Value>& InMap)
+	{
+		auto Pairs = phmap::flat_hash_set<std::pair<Key, Value>>();
+
+		int32_t NewNumElements = 0;
+		Ar << NewNumElements;
+
+		if (!NewNumElements) return Ar;
+
+		InMap.reserve(NewNumElements);
+
+		for (size_t i = 0; i < NewNumElements; i++)
+		{
+			auto Pair = std::pair<Key, Value>();
+
+			Ar << Pair;
+
+			InMap.insert_or_assign(Pair.first, Pair.second);
+		}
+
+		return Ar;
+	}
+
 	template<typename T>
 	friend FArchive& operator<<(FArchive& Ar, std::vector<T, std::allocator<T>>& InArray)
 	{
-		auto ArrayNum = InArray.size();
+		int32_t ArrayNum;
 		Ar << ArrayNum;
 
 		if (ArrayNum == 0)
@@ -185,10 +250,12 @@ public:
 	}
 
 	friend FArchive& operator<<(FArchive& Ar, std::string& InString);
-	friend FArchive& operator<<(FArchive& Ar, int32_t& InNum);
-	friend FArchive& operator<<(FArchive& Ar, uint32_t& InNum);
-	friend FArchive& operator<<(FArchive& Ar, uint64_t& InNum);
+	__forceinline friend FArchive& operator<<(FArchive& Ar, int32_t& InNum);
+	__forceinline friend FArchive& operator<<(FArchive& Ar, uint32_t& InNum);
+	__forceinline friend FArchive& operator<<(FArchive& Ar, uint64_t& InNum);
 	friend FArchive& operator<<(FArchive& Ar, int64_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, uint8_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, bool& InBool);
 
 	virtual void Seek(int64_t InPos) { }
 };

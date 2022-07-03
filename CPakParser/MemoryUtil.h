@@ -4,10 +4,30 @@
 
 namespace MemoryUtil
 {
+	__pragma(pack(push, 1))
+		template <typename U>
+	struct TUnaligned
+	{
+		U Value;
+	};
+	__pragma(pack(pop))
+
 	template <typename T>
 	static __forceinline T Read(const void* Ptr) 
 	{
 		return *reinterpret_cast<const T*>(Ptr);
+	}
+
+	template <typename T>
+	static __forceinline T ReadUnaligned(const void* Ptr)
+	{
+		return reinterpret_cast<const TUnaligned<T>*>(Ptr)->Value;
+	}
+
+	template <typename T>
+	static __forceinline void WriteUnaligned(void* Ptr, const T& InValue)
+	{
+		reinterpret_cast<TUnaligned<T>*>(Ptr)->Value = InValue;
 	}
 
 	template <typename T>

@@ -3,28 +3,24 @@
 #include "AES.h"
 #include "IOStoreReader.h"
 
-const ReadStatus ReadStatus::Ok{ EIoErrorCode::Ok, "OK" };
-const ReadStatus ReadStatus::Unknown{ EIoErrorCode::Unknown, "Unknown Status" };
-const ReadStatus ReadStatus::Invalid{ EIoErrorCode::InvalidCode, "Invalid Code" };
-
-ReadStatus FIoStoreTocResource::Read(const char* TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource)
+ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource)
 {
-	auto TocFileReader = std::make_unique<BinaryReader>(TocFilePath);
+	auto TocFileReader = std::make_unique<BinaryReader>(TocFilePath.c_str());
 
 	if (!TocFileReader->IsValid())
-		return ReadStatus(EIoErrorCode::FileOpenFailed, "Failed to open IoStore TOC file");
+		return ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore TOC file: " + TocFilePath);
 
 	FIoStoreTocHeader& Header = OutTocResource.Header = TocFileReader->Read<FIoStoreTocHeader>();
 
 	if (!Header.CheckMagic())
-		return ReadStatus(EIoErrorCode::CorruptToc, "Could not read TOC file magic");
+		return ReadStatus(ReadErrorCode::CorruptFile, "Could not read TOC file magic: " + TocFilePath);
 
 	if (Header.TocHeaderSize != sizeof(FIoStoreTocHeader))
-		ReadStatus(EIoErrorCode::CorruptToc, "User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
+		ReadStatus(ReadErrorCode::CorruptFile, "User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
 
 
 	if (Header.TocCompressedBlockEntrySize != sizeof(FIoStoreTocCompressedBlockEntry))
-		ReadStatus(EIoErrorCode::CorruptToc, "User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
+		ReadStatus(ReadErrorCode::CorruptFile, "User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
 
 	uint64_t TotalTocSize = TocFileReader->Size() - sizeof(FIoStoreTocHeader);
 	uint64_t TocMetaSize = Header.TocEntryCount * sizeof(FIoStoreTocEntryMeta);
@@ -113,7 +109,7 @@ ReadStatus FIoStoreTocResource::Read(const char* TocFilePath, EIoStoreTocReadOpt
 		Header.PartitionSize = MAX_uint64;
 	}
 
-	return ReadStatus::Ok;
+	return ReadStatus(ReadErrorCode::Ok, "Successfully processed TOC header: " + TocFilePath);
 }
 
 uint64_t FIoStoreTocResource::HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId)
@@ -138,10 +134,12 @@ std::shared_ptr<FFileIoStore> CreateIoDispatcherFileBackend()
 	return std::make_shared<FFileIoStore>();
 }
 
-FIoContainerHeader FFileIoStore::Mount(const char* InTocPath, int32_t Order, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
+FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
 {
+	ReadStatus(ReadErrorCode::Ok, "Mounting TOC: " + InTocPath);
+
 	auto Reader = std::make_unique<FFileIoStoreReader>();
-	Reader->Initialize(InTocPath, Order);
+	Reader->Initialize(InTocPath.c_str());
 
 	if (Reader->IsEncrypted() &&
 		Reader->GetEncryptionKeyGuid() == EncryptionKeyGuid &&
@@ -150,7 +148,7 @@ FIoContainerHeader FFileIoStore::Mount(const char* InTocPath, int32_t Order, FGu
 		Reader->SetEncryptionKey(EncryptionKey);
 	}
 
-	auto ContainerHeader = Reader->ReadContainerHeader();
+	auto Ret = Reader->ReadContainerHeader();
 
 	{
 		WriteLock _(IoStoreReadersLock);
@@ -158,5 +156,5 @@ FIoContainerHeader FFileIoStore::Mount(const char* InTocPath, int32_t Order, FGu
 		IoStoreReaders.push_back(std::move(Reader));
 	}
 
-	return ContainerHeader;
+	return Ret;
 }

@@ -5,7 +5,6 @@
 #include "MemoryUtil.h"
 #include "MemoryReader.h"
 #include <sstream>
-#include <filesystem>
 #include <windows.h>
 
 std::atomic_uint32_t FFileIoStoreReader::GlobalPartitionIndex{ 0 };
@@ -33,7 +32,7 @@ bool OpenContainer(const char* ContainerFilePath, HANDLE& ContainerFileHandle, u
 {
 	auto FileSize = std::filesystem::file_size(ContainerFilePath);
 
-	if (FileSize < 0)
+	/*if (FileSize < 0)
 	{
 		return false;
 	}
@@ -52,19 +51,20 @@ bool OpenContainer(const char* ContainerFilePath, HANDLE& ContainerFileHandle, u
 		return false;
 	}
 
-	ContainerFileHandle = FileHandle;
+	ContainerFileHandle = FileHandle;*/
+
 	ContainerFileSize = FileSize;
 
 	return true;
 }
 
-ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath, int32_t InOrder)
+ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath)
 {
 	std::string_view ContainerPathView(InTocFilePath);
 
 	if (!ContainerPathView.ends_with(".utoc"))
 	{
-		return ReadStatus(EIoErrorCode::FileOpenFailed, std::string(ContainerPathView) + " was not a .utoc file.");
+		return ReadStatus(ReadErrorCode::FileOpenFailed, std::string(ContainerPathView) + " was not a .utoc file.");
 	}
 
 	auto BasePathView = ContainerPathView.substr(0, ContainerPathView.length() - 5);
@@ -97,7 +97,7 @@ ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath, int32_t InO
 
 		if (!OpenContainer(Partition.FilePath.c_str(), Partition.FileHandle, Partition.FileSize))
 		{
-			return ReadStatus(EIoErrorCode::FileOpenFailed, "Failed to open IoStore container file " + Partition.FilePath);
+			return ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore container file " + Partition.FilePath);
 		}
 
 		Partition.ContainerFileIndex = GlobalPartitionIndex++;
@@ -110,7 +110,7 @@ ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath, int32_t InO
 			auto ChunkId = TocResource.ChunkIds[ChunkIndexWithoutPerfectHash];
 			auto ChunkOffset = TocResource.ChunkOffsetLengths[ChunkIndexWithoutPerfectHash];
 
-			TocImperfectHashMapFallback.insert({ ChunkId, ChunkOffset });
+			TocImperfectHashMapFallback.insert_or_assign(ChunkId, ChunkOffset);
 		}
 
 		PerfectHashMap.TocChunkHashSeeds = TocResource.ChunkPerfectHashSeeds;
@@ -122,7 +122,7 @@ ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath, int32_t InO
 	else
 	{
 		for (auto ChunkIndex = 0; ChunkIndex < TocResource.Header.TocEntryCount; ++ChunkIndex)
-			TocImperfectHashMapFallback.insert({ TocResource.ChunkIds[ChunkIndex], TocResource.ChunkOffsetLengths[ChunkIndex] });
+			TocImperfectHashMapFallback.insert_or_assign(TocResource.ChunkIds[ChunkIndex], TocResource.ChunkOffsetLengths[ChunkIndex]);
 
 		bHasPerfectHashMap = false;
 	}
@@ -135,24 +135,24 @@ ReadStatus FFileIoStoreReader::Initialize(const char* InTocFilePath, int32_t InO
 	ContainerFile.ContainerInstanceId = ++GlobalContainerInstanceId;
 
 	ContainerId = TocResource.Header.ContainerId;
-	Order = InOrder;
 
-	return ReadStatus::Ok;
+	return ReadStatus(ReadErrorCode::Ok);
 }
 
-FIoContainerHeader FFileIoStoreReader::ReadContainerHeader() const
+FIoContainerHeader FFileIoStoreReader::ReadContainerHeader() 
 {
 	auto HeaderChunkId = CreateIoChunkId(ContainerId.Value(), 0, EIoChunkType::ContainerHeader);
 	auto OffsetAndLength = FindChunkInternal(HeaderChunkId);
 
-	if (!OffsetAndLength)
+	if (!OffsetAndLength.IsValid())
 	{
-		ReadStatus(EIoErrorCode::NotFound, "Container header chunk not found");
+		ReadStatus(ReadErrorCode::NotFound, "Container header chunk not found: " + this->ContainerFile.FilePath);
+		return FIoContainerHeader();
 	}
 
 	auto CompressionBlockSize = ContainerFile.CompressionBlockSize;
-	auto Offset = OffsetAndLength->GetOffset();
-	auto Size = OffsetAndLength->GetLength();
+	auto Offset = OffsetAndLength.GetOffset();
+	auto Size = OffsetAndLength.GetLength();
 	auto RequestEndOffset = Offset + Size;
 	auto RequestBeginBlockIndex = int32_t(Offset / CompressionBlockSize);
 	auto RequestEndBlockIndex = int32_t((RequestEndOffset - 1) / CompressionBlockSize);
@@ -162,21 +162,23 @@ FIoContainerHeader FFileIoStoreReader::ReadContainerHeader() const
 	auto RawOffset = CompressionBlockEntry->GetOffset() % ContainerFile.PartitionSize;
 	auto& Partition = ContainerFile.Partitions[PartitionIndex];
 
-	FIoBuffer IoBuffer(MemoryUtil::Align(Size, FAESKey::AESBlockSize));
+	auto BufSize = MemoryUtil::Align(Size, FAESKey::AESBlockSize);
+
+	auto IoBuffer = std::make_unique<uint8_t[]>(BufSize);
 	auto ContainerFileHandle = std::make_unique<BinaryReader>(Partition.FilePath.c_str());
 
 	if (!ContainerFileHandle || !ContainerFileHandle->IsValid())
-		ReadStatus(EIoErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
+		ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
 	
 	ContainerFileHandle->Seek(RawOffset);
-	ContainerFileHandle->Read(IoBuffer.Data(), IoBuffer.DataSize());
+	ContainerFileHandle->Read(IoBuffer.get(), BufSize);
 
 	const bool bSigned = EnumHasAnyFlags(ContainerFile.ContainerFlags, EIoContainerFlags::Signed);
 	const bool bEncrypted = ContainerFile.EncryptionKey.IsValid();
 
-	if (bSigned || bEncrypted)
+	if (bEncrypted)
 	{
-		auto BlockData = IoBuffer.Data();
+		uint8_t* BlockData = IoBuffer.get();
 
 		for (auto CompressedBlockIndex = RequestBeginBlockIndex; CompressedBlockIndex <= RequestEndBlockIndex; ++CompressedBlockIndex)
 		{
@@ -184,35 +186,32 @@ FIoContainerHeader FFileIoStoreReader::ReadContainerHeader() const
 
 			const auto BlockSize = MemoryUtil::Align(CompressionBlockEntry->GetCompressedSize(), FAESKey::AESBlockSize);
 
-			if (bEncrypted)
-			{
-				ContainerFile.EncryptionKey.DecryptData(BlockData, uint32_t(BlockSize));
-			}
+			ContainerFile.EncryptionKey.DecryptData(BlockData, uint32_t(BlockSize));
 
 			BlockData += BlockSize;
 		}
 	}
 
-	FMemoryReaderView Ar(std::span<uint8_t>{ IoBuffer.Data(), IoBuffer.DataSize() });
+	FMemoryReaderView Ar(std::span<uint8_t>{ IoBuffer.get(), BufSize });
 	FIoContainerHeader ContainerHeader;
 	Ar << ContainerHeader;
 
 	return ContainerHeader;
 }
 
-const FIoOffsetAndLength* FFileIoStoreReader::FindChunkInternal(const FIoChunkId& ChunkId) const
+FIoOffsetAndLength FFileIoStoreReader::FindChunkInternal(FIoChunkId& ChunkId) 
 {
 	if (!bHasPerfectHashMap)
-		return &TocImperfectHashMapFallback.find(ChunkId)->second;
+		return TocImperfectHashMapFallback[ChunkId];
 
 	uint32_t ChunkCount = PerfectHashMap.TocChunkIds.size();
-	if (!ChunkCount) return nullptr;
+	if (!ChunkCount) return FIoOffsetAndLength();
 
 	uint32_t SeedCount = PerfectHashMap.TocChunkHashSeeds.size();
 	uint32_t SeedIndex = FIoStoreTocResource::HashChunkIdWithSeed(0, ChunkId) % SeedCount;
 
 	int32_t Seed = PerfectHashMap.TocChunkHashSeeds[SeedIndex];
-	if (!Seed) return nullptr;
+	if (!Seed) return FIoOffsetAndLength();
 
 	uint32_t Slot;
 	if (Seed < 0)
@@ -222,9 +221,12 @@ const FIoOffsetAndLength* FFileIoStoreReader::FindChunkInternal(const FIoChunkId
 		{
 			Slot = static_cast<uint32_t>(SeedAsIndex);
 		}
-		else return &TocImperfectHashMapFallback.find(ChunkId)->second;
+		else return TocImperfectHashMapFallback[ChunkId];
 	}
 	else Slot = FIoStoreTocResource::HashChunkIdWithSeed(static_cast<uint32_t>(Seed), ChunkId) % ChunkCount;
 
-	return &PerfectHashMap.TocOffsetAndLengths[Slot];
+	if (PerfectHashMap.TocChunkIds[Slot] != ChunkId)
+		return FIoOffsetAndLength();
+
+	return PerfectHashMap.TocOffsetAndLengths[Slot];
 }

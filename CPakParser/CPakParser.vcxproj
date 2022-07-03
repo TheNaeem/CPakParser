@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES.h" />
+    <ClInclude Include="ArchiveFileReaderGeneric.h" />
     <ClInclude Include="Archives.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="CoreTypes.h" />
@@ -30,12 +31,12 @@
     <ClInclude Include="IOStoreReader.h" />
     <ClInclude Include="MemoryReader.h" />
     <ClInclude Include="MemoryUtil.h" />
-    <ClInclude Include="MultiThreading.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="ArchiveFileReaderGeneric.cpp" />
     <ClCompile Include="Archives.cpp" />
     <ClCompile Include="ArchiveSerialization.cpp" />
     <ClCompile Include="CoreDefinitions.cpp" />

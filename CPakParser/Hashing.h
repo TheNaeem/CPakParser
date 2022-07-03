@@ -83,12 +83,6 @@ public:
 	}
 
 	friend FArchive& operator<<(FArchive& Ar, FIoChunkHash& ChunkHash);
-	/*
-	{
-		Ar.Serialize(&ChunkHash.Hash, sizeof Hash);
-		return Ar;
-	}
-	*/
 
 	inline bool operator ==(const FIoChunkHash& Rhs) const
 	{

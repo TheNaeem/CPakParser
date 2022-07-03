@@ -8,7 +8,7 @@ public:
 	FFileIoStoreReader() = default;
 	~FFileIoStoreReader();
 
-	ReadStatus Initialize(const char* InTocFilePath, int32_t Order);
+	ReadStatus Initialize(const char* InTocFilePath);
 
 	uint32_t GetContainerInstanceId() const
 	{
@@ -28,11 +28,11 @@ public:
 	const FGuid& GetEncryptionKeyGuid() const { return ContainerFile.EncryptionKeyGuid; }
 	void SetEncryptionKey(const FAESKey& Key) { ContainerFile.EncryptionKey = Key; }
 	const FAESKey& GetEncryptionKey() const { return ContainerFile.EncryptionKey; }
-	FIoContainerHeader ReadContainerHeader() const;
+	FIoContainerHeader ReadContainerHeader();
 	void ReopenAllFileHandles();
 
 private:
-	const FIoOffsetAndLength* FindChunkInternal(const FIoChunkId& ChunkId) const;
+	FIoOffsetAndLength FindChunkInternal(FIoChunkId& ChunkId);
 	uint64_t GetTocAllocatedSize() const;
 
 	struct FPerfectHashMap
@@ -43,7 +43,7 @@ private:
 	};
 
 	FPerfectHashMap PerfectHashMap;
-	std::unordered_map<FIoChunkId, FIoOffsetAndLength, FIoChunkId> TocImperfectHashMapFallback;
+	phmap::flat_hash_map<FIoChunkId, FIoOffsetAndLength> TocImperfectHashMapFallback;
 	FFileIoStoreContainerFile ContainerFile;
 	FIoContainerId ContainerId;
 	int32_t Order;
@@ -57,7 +57,7 @@ private:
 class FFileIoStore final
 {
 public:
-	FIoContainerHeader Mount(const char* InTocPath, int32_t Order, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
+	FIoContainerHeader Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
 	void Initialize();
 
 private:

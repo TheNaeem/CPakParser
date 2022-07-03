@@ -12,7 +12,10 @@ class FArchive;
 class FIoContainerId
 {
 public:
-	inline FIoContainerId() = default;
+	inline FIoContainerId() : Id(InvalidId)
+	{
+	}
+
 	inline FIoContainerId(const FIoContainerId& Other) = default;
 	inline FIoContainerId(FIoContainerId&& Other) = default;
 	inline FIoContainerId& operator=(const FIoContainerId& Other) = default;
@@ -104,6 +107,11 @@ struct FIoContainerHeader
 	std::vector<FIoContainerHeaderPackageRedirect> PackageRedirects;
 
 	friend FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader);
+
+	__forceinline bool IsValid()
+	{
+		return ContainerId.IsValid();
+	}
 };
 
 class FIoChunkId
@@ -141,7 +149,7 @@ public:
 		return static_cast<EIoChunkType>(Id[11]);
 	}
 
-	size_t operator()(FIoChunkId const& in) const noexcept
+	friend size_t hash_value(FIoChunkId const& in) 
 	{
 		uint32_t Hash = 5381;
 
@@ -169,6 +177,11 @@ private:
 struct FIoOffsetAndLength
 {
 public:
+	FIoOffsetAndLength()
+	{
+		memset(&OffsetAndLength[0], 0, sizeof(OffsetAndLength));
+	}
+
 	inline uint64_t GetOffset() const
 	{
 		return OffsetAndLength[4]
@@ -203,6 +216,16 @@ public:
 		OffsetAndLength[7] = uint8_t(Length >> 16);
 		OffsetAndLength[8] = uint8_t(Length >> 8);
 		OffsetAndLength[9] = uint8_t(Length >> 0);
+	}
+
+	bool IsValid()
+	{
+		for (size_t i = 0; i < 10; i++)
+		{
+			if (OffsetAndLength[i] != 0) return true;
+		}
+
+		return false;
 	}
 
 private:
@@ -421,7 +444,7 @@ struct FIoStoreTocResource
 	std::vector<FIoStoreTocEntryMeta> ChunkMetas;
 	std::vector<uint8_t> DirectoryIndexBuffer;
 
-	static ReadStatus Read(const char* TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
+	static ReadStatus Read(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
 	static uint64_t Write(const char* TocFilePath, FIoStoreTocResource& TocResource, const FIoContainerSettings& ContainerSettings, const FIoStoreWriterSettings& WriterSettings);
 	static uint64_t HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId);
 };

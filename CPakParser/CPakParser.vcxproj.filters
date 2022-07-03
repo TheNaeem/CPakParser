@@ -37,6 +37,9 @@
     <Filter Include="Unreal\Archives\Derived">
       <UniqueIdentifier>{c86b2f85-3ca1-4265-a0ba-fdcd5a060514}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Archives\Derived\ArchiveFileReader">
+      <UniqueIdentifier>{4148ebe9-62cc-46a8-9a9b-997f17dfb021}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -52,9 +55,6 @@
       <Filter>Unreal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Hashing.h">
-      <Filter>Unreal\Core\Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="MultiThreading.h">
       <Filter>Unreal\Core\Misc</Filter>
     </ClInclude>
     <ClInclude Include="IOStore.h">
@@ -80,6 +80,9 @@
     </ClInclude>
     <ClInclude Include="MemoryReader.h">
       <Filter>Unreal\Archives\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveFileReaderGeneric.h">
+      <Filter>Unreal\Archives\Derived\ArchiveFileReader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="ArchiveSerialization.cpp">
       <Filter>Unreal\Archives</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveFileReaderGeneric.cpp">
+      <Filter>Unreal\Archives\Derived\ArchiveFileReader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

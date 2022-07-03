@@ -2,6 +2,10 @@
 
 #include <fstream>
 
+/*
+TODO: delete these once archives are fully implemented as there won't be use for these. I made these before I implemented archives so :/ 
+*/
+
 class ICPPReader
 {
 public:

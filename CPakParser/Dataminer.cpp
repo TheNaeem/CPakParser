@@ -1,9 +1,16 @@
 #include "Dataminer.h"
 
 #include "PakFiles.h"
+#include "AES.h"
+
+static FPakFileManager PakPlatformFile;
 
 void Dataminer::Initialize(const char* PaksFolderDir)
 {
-	FPakPlatformFile PakPlatformFile(PaksFolderDir);
-	PakPlatformFile.Initialize(nullptr);
+	PakPlatformFile.Initialize(PaksFolderDir);
+}
+
+bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
+{
+	return PakPlatformFile.RegisterEncryptionKey(GuidString ? FGuid(GuidString) : FGuid(), FAESKey(AesKeyString));
 }

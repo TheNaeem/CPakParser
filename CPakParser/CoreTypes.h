@@ -3,8 +3,13 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <unordered_map>
+#include <filesystem>
 #include "Enums.h"
+#include "../Dependencies/parallel_hashmap/phmap.h"
+
+#define LOGGING 1
+
+#define SCOPE_LOCK(InLock) std::lock_guard<std::mutex> _(InLock);
 
 #define MIN_int32 ((int32_t)0x80000000)
 #define MAX_int32 ((int32_t)0x7fffffff)
@@ -90,6 +95,8 @@ struct FGuid
 
 	FGuid(std::string);
 
+	friend class FArchive& operator<<(class FArchive& Ar, FGuid& Value);
+
 	bool operator==(FGuid Other) const
 	{
 		return Other.A == A && Other.B == B && Other.C == C && Other.D == D;
@@ -98,6 +105,25 @@ struct FGuid
 	bool operator!=(FGuid Other) const
 	{
 		return !(*this == Other);
+	}
+
+	bool IsValid() const
+	{
+		return ((A | B | C | D) != 0);
+	}
+
+	void Invalidate()
+	{
+		A = B = C = D = 0;
+	}
+
+	friend size_t hash_value(const FGuid& Guid) 
+	{
+		return 
+			std::hash<int32_t>{}(Guid.A) ^ 
+			std::hash<int32_t>{}(Guid.B) ^ 
+			std::hash<int32_t>{}(Guid.C) ^ 
+			std::hash<int32_t>{}(Guid.D);
 	}
 };
 
@@ -378,35 +404,35 @@ public:
 	IMappedFileHandle& operator=(const IMappedFileHandle&) = delete;
 };
 
-class ReadStatus //TODO: log from the constructor 
+//TODO: proper logging from this
+class ReadStatus //totally not an FIoStatus rip off
 {
 public:
-	ReadStatus(EIoErrorCode Code, std::string InErrorMessage) : ErrorCode(Code), ErrorMessage(InErrorMessage)
+	ReadStatus(ReadErrorCode Code, std::string InStatusMessage) : ErrorCode(Code), StatusMessage(InStatusMessage)
 	{
+#if LOGGING
+		printf("%s\n", InStatusMessage.c_str());
+#endif
 	}
 
-	ReadStatus(EIoErrorCode Code) : ErrorCode(Code)
+	ReadStatus(ReadErrorCode Code) : ErrorCode(Code)
 	{
 	}
 
 	ReadStatus& operator=(const ReadStatus& Other);
-	ReadStatus& operator=(const EIoErrorCode InErrorCode);
+	ReadStatus& operator=(const ReadErrorCode InErrorCode);
 
 	bool operator==(const ReadStatus& Other) const;
 	bool operator!=(const ReadStatus& Other) const { return !operator==(Other); }
 
-	inline bool	IsOk() const { return ErrorCode == EIoErrorCode::Ok; }
-	inline bool	IsCompleted() const { return ErrorCode != EIoErrorCode::Unknown; }
-	inline EIoErrorCode	GetErrorCode() const { return ErrorCode; }
-	std::string	ToString() { return ErrorMessage; }
-
-	static const ReadStatus Ok;
-	static const ReadStatus Unknown;
-	static const ReadStatus Invalid;
+	inline bool	IsOk() const { return ErrorCode == ReadErrorCode::Ok; }
+	inline bool	IsCompleted() const { return ErrorCode != ReadErrorCode::Unknown; }
+	inline ReadErrorCode	GetErrorCode() const { return ErrorCode; }
+	std::string	ToString() { return StatusMessage; }
 
 private:
-	EIoErrorCode ErrorCode = EIoErrorCode::Ok;
-	std::string ErrorMessage;
+	ReadErrorCode ErrorCode = ReadErrorCode::Ok;
+	std::string StatusMessage;
 };
 
 template<typename Enum>

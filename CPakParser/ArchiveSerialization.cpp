@@ -22,9 +22,9 @@ FArchive& operator<<(FArchive& Ar, std::string& InString)
 	}
 	else
 	{
-		auto StringData = std::make_unique<char[]>(SaveNum);
-		Ar.Serialize(StringData.get(), SaveNum * sizeof(char));
-		InString.assign(StringData.get());
+		InString.resize(SaveNum);
+
+		Ar.Serialize(&InString[0], InString.size());
 	}
 
 	return Ar;
@@ -54,6 +54,13 @@ FArchive& operator<<(FArchive& Ar, uint64_t& InNum)
 FArchive& operator<<(FArchive& Ar, int64_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, uint8_t& InByte)
+{
+	Ar.Serialize(&InByte, sizeof(InByte));
 
 	return Ar;
 }
@@ -101,8 +108,15 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	uint32_t Signature = FIoContainerHeader::Signature;
 	Ar << Signature;
 
-	auto Version = uint32_t(FIoContainerHeader::Version::Latest);
-	Ar << Version;
+	if (Signature != FIoContainerHeader::Signature)
+	{
+		ReadStatus(ReadErrorCode::CorruptFile, "FIoContainerHeader signature read does not match the correct one.");
+		Ar.SetError(true);
+		return Ar;
+	}
+
+	EIoContainerHeaderVersion Version = EIoContainerHeaderVersion::Latest;
+	Ar.Serialize(&Version, sizeof(Version));
 
 	Ar << ContainerHeader.ContainerId;
 	Ar << ContainerHeader.PackageIds;
@@ -115,5 +129,32 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	Ar << ContainerHeader.LocalizedPackages;
 	Ar << ContainerHeader.PackageRedirects;
 
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FGuid& Value)
+{
+	return Ar << Value.A << Value.B << Value.C << Value.D;
+}
+
+FArchive& operator<<(FArchive& Ar, bool& InBool)
+{
+	uint32_t UBool;
+	Ar.Serialize(&UBool, sizeof(UBool));
+
+	InBool = UBool;
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FSHAHash& G)
+{
+	Ar.Serialize(&G.Hash, sizeof(G.Hash));
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FIoChunkHash& ChunkHash)
+{
+	Ar.Serialize(&ChunkHash.Hash, sizeof(ChunkHash.Hash));
 	return Ar;
 }

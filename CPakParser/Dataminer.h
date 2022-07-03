@@ -17,4 +17,5 @@ public:
 	}
 
 	static void Initialize(const char* PaksFolderDir);
+	static bool SubmitKey(const char* AesKeyString, const char* GuidString = nullptr);
 };
