@@ -1,19 +1,39 @@
 #include "CoreTypes.h"
 #include "BinaryReader.h"
-#include "AES.h"
 #include "IOStoreReader.h"
 
-ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource)
+FIoChunkId::FIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType)
+{
+	*reinterpret_cast<uint64_t*>(&Id[0]) = ChunkId;
+	*reinterpret_cast<uint16_t*>(&Id[8]) = NETWORK_ORDER16(ChunkIndex);
+	*reinterpret_cast<uint8_t*>(&Id[11]) = static_cast<uint8_t>(IoChunkType);
+}
+
+void FFileIoStoreContainerFile::GetPartitionFileHandleAndOffset(uint64_t TocOffset, void*& OutFileHandle, uint64_t& OutOffset) 
+{
+	int32_t PartitionIndex = int32_t(TocOffset / TocResource->Header.PartitionSize);
+	const FFileIoStoreContainerFilePartition& Partition = Partitions[PartitionIndex];
+	OutFileHandle = Partition.FileHandle;
+	OutOffset = TocOffset % TocResource->Header.PartitionSize;
+}
+
+FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions)
 {
 	auto TocFileReader = std::make_unique<BinaryReader>(TocFilePath.c_str());
 
 	if (!TocFileReader->IsValid())
-		return ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore TOC file: " + TocFilePath);
+	{
+		ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore TOC file: " + TocFilePath);
+		return;
+	}
 
-	FIoStoreTocHeader& Header = OutTocResource.Header = TocFileReader->Read<FIoStoreTocHeader>();
+	Header = TocFileReader->Read<FIoStoreTocHeader>();
 
 	if (!Header.CheckMagic())
-		return ReadStatus(ReadErrorCode::CorruptFile, "Could not read TOC file magic: " + TocFilePath);
+	{
+		ReadStatus(ReadErrorCode::CorruptFile, "Could not read TOC file magic: " + TocFilePath);
+		return;
+	}
 
 	if (Header.TocHeaderSize != sizeof(FIoStoreTocHeader))
 		ReadStatus(ReadErrorCode::CorruptFile, "User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
@@ -41,8 +61,8 @@ ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOpt
 
 	auto TocMemReader = std::make_unique<MemoryReader>(TocBuffer.get());
 
-	OutTocResource.ChunkIds = TocMemReader->ReadArray<FIoChunkId>(Header.TocEntryCount); 
-	OutTocResource.ChunkOffsetLengths = TocMemReader->ReadArray<FIoOffsetAndLength>(Header.TocEntryCount);
+	ChunkIds = TocMemReader->ReadArray<FIoChunkId>(Header.TocEntryCount);
+	ChunkOffsetLengths = TocMemReader->ReadArray<FIoOffsetAndLength>(Header.TocEntryCount);
 
 	uint32_t PerfectHashSeedsCount = 0;
 	uint32_t ChunksWithoutPerfectHashCount = 0;
@@ -59,33 +79,33 @@ ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOpt
 
 	if (PerfectHashSeedsCount)
 	{
-		OutTocResource.ChunkPerfectHashSeeds = TocMemReader->ReadArray<int32_t>(PerfectHashSeedsCount);
+		ChunkPerfectHashSeeds = TocMemReader->ReadArray<int32_t>(PerfectHashSeedsCount);
 	}
 
 	if (ChunksWithoutPerfectHashCount)
 	{
-		OutTocResource.ChunkIndicesWithoutPerfectHash = TocMemReader->ReadArray<int32_t>(ChunksWithoutPerfectHashCount);
+		ChunkIndicesWithoutPerfectHash = TocMemReader->ReadArray<int32_t>(ChunksWithoutPerfectHashCount);
 	}
 
-	OutTocResource.CompressionBlocks = TocMemReader->ReadArray<FIoStoreTocCompressedBlockEntry>(Header.TocCompressedBlockEntryCount);
+	CompressionBlocks = TocMemReader->ReadArray<FIoStoreTocCompressedBlockEntry>(Header.TocCompressedBlockEntryCount);
 
-	OutTocResource.CompressionMethods.reserve(Header.CompressionMethodNameCount + 1);
-	OutTocResource.CompressionMethods.push_back("");
+	CompressionMethods.reserve(Header.CompressionMethodNameCount + 1);
+	CompressionMethods.push_back({});
 
 	for (auto CompressonNameIndex = 0; CompressonNameIndex < Header.CompressionMethodNameCount; CompressonNameIndex++)
 	{
 		const char* AnsiCompressionMethodName = reinterpret_cast<char*>(TocMemReader->GetBuffer()) + CompressonNameIndex * Header.CompressionMethodNameLength;
-		OutTocResource.CompressionMethods.push_back(AnsiCompressionMethodName);
+		CompressionMethods.push_back(AnsiCompressionMethodName);
 	}
 
 	TocMemReader->Seek(Header.CompressionMethodNameCount * Header.CompressionMethodNameLength);
 
-	auto DirectoryIndexBuffer = std::make_unique<MemoryReader>(TocMemReader->GetBuffer());
+	auto DirectoryIndexReader = std::make_unique<MemoryReader>(TocMemReader->GetBuffer());
 	bool bIsSigned = EnumHasAnyFlags(Header.ContainerFlags, EIoContainerFlags::Signed);
 	if (bIsSigned)
 	{
-		uint32_t HashSize = *(uint32_t*)(DirectoryIndexBuffer->GetBuffer());
-		DirectoryIndexBuffer->Seek(1 + HashSize + HashSize + Header.TocCompressedBlockEntryCount);
+		auto HashSize = DirectoryIndexReader->Read<uint32_t>();
+		DirectoryIndexReader->Seek(HashSize + HashSize + (sizeof(FSHAHash) * Header.TocCompressedBlockEntryCount));
 
 		//TODO: get chunk block signatures
 	}
@@ -94,13 +114,17 @@ ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOpt
 		EnumHasAnyFlags(Header.ContainerFlags, EIoContainerFlags::Indexed) &&
 		Header.DirectoryIndexSize > 0)
 	{
-		OutTocResource.DirectoryIndexBuffer = DirectoryIndexBuffer->ReadArray<uint8_t>(Header.DirectoryIndexSize);
+		auto Buf = DirectoryIndexReader->GetBuffer();
+
+		this->DirectoryIndexBuffer = std::vector<uint8_t>(Buf, Buf + Header.DirectoryIndexSize);
 	}
 
-	DirectoryIndexBuffer->Seek(Header.DirectoryIndexSize);
+	DirectoryIndexReader->Seek(Header.DirectoryIndexSize);
 	if (EnumHasAnyFlags(ReadOptions, EIoStoreTocReadOptions::ReadTocMeta))
 	{
-		OutTocResource.ChunkMetas = DirectoryIndexBuffer->ReadArray<FIoStoreTocEntryMeta>(Header.TocEntryCount);
+		auto Buf = (FIoStoreTocEntryMeta*)DirectoryIndexReader->GetBuffer();
+
+		ChunkMetas = std::vector<FIoStoreTocEntryMeta>(Buf, Buf + Header.TocEntryCount);
 	}
 
 	if (Header.Version < static_cast<uint8_t>(EIoStoreTocVersion::PartitionSize))
@@ -109,7 +133,7 @@ ReadStatus FIoStoreTocResource::Read(std::string TocFilePath, EIoStoreTocReadOpt
 		Header.PartitionSize = MAX_uint64;
 	}
 
-	return ReadStatus(ReadErrorCode::Ok, "Successfully processed TOC header: " + TocFilePath);
+	ReadStatus(ReadErrorCode::Ok, "Successfully processed TOC header: " + TocFilePath);
 }
 
 uint64_t FIoStoreTocResource::HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId)
@@ -117,10 +141,12 @@ uint64_t FIoStoreTocResource::HashChunkIdWithSeed(int32_t Seed, const FIoChunkId
 	const uint8_t* Data = ChunkId.GetData();
 	const uint32_t DataSize = ChunkId.GetSize();
 	uint64_t Hash = Seed ? static_cast<uint64_t>(Seed) : 0xcbf29ce484222325;
+
 	for (uint32_t Index = 0; Index < DataSize; ++Index)
 	{
 		Hash = (Hash * 0x00000100000001B3) ^ Data[Index];
 	}
+
 	return Hash;
 }
 
@@ -134,21 +160,21 @@ std::shared_ptr<FFileIoStore> CreateIoDispatcherFileBackend()
 	return std::make_shared<FFileIoStore>();
 }
 
+//TODO: refactor this, probably by removing FFileIoStoreReader and using FIoStoreReader
 FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
 {
 	ReadStatus(ReadErrorCode::Ok, "Mounting TOC: " + InTocPath);
 
-	auto Reader = std::make_unique<FFileIoStoreReader>();
-	Reader->Initialize(InTocPath.c_str());
+	auto Reader = std::make_unique<FFileIoStore::Reader>(InTocPath.c_str());
 
-	if (Reader->IsEncrypted() &&
-		Reader->GetEncryptionKeyGuid() == EncryptionKeyGuid &&
-		EncryptionKey.IsValid())
+	if (Reader->IsEncrypted() && FEncryptionKeyManager::HasKey(EncryptionKeyGuid))
 	{
 		Reader->SetEncryptionKey(EncryptionKey);
 	}
 
 	auto Ret = Reader->ReadContainerHeader();
+
+	auto T = FIoStoreReader(Reader->GetTocResource());
 
 	{
 		WriteLock _(IoStoreReadersLock);

@@ -5,6 +5,7 @@
 #include <memory>
 #include <filesystem>
 #include "Enums.h"
+#include "AES.h"
 #include "../Dependencies/parallel_hashmap/phmap.h"
 
 #define LOGGING 1
@@ -332,78 +333,6 @@ private:
 	uint32_t Number = InvalidIndex;
 };
 
-class IMappedFileRegion
-{
-	const uint8_t* MappedPtr;
-	size_t MappedSize;
-	std::string DebugFilename;
-	size_t DebugOffsetRelativeToFile;
-
-	__forceinline void CheckInvariants()
-	{
-	}
-
-public:
-
-	__forceinline IMappedFileRegion(const uint8_t* InMappedPtr, size_t InMappedSize, const std::string& InDebugFilename, size_t InDebugOffsetRelativeToFile)
-		: MappedPtr(InMappedPtr)
-		, MappedSize(InMappedSize)
-		, DebugFilename(InDebugFilename)
-		, DebugOffsetRelativeToFile(InDebugOffsetRelativeToFile)
-	{
-		CheckInvariants();
-	}
-
-	virtual ~IMappedFileRegion()
-	{
-	}
-
-	__forceinline const uint8_t* GetMappedPtr()
-	{
-		CheckInvariants();
-		return MappedPtr;
-	}
-
-	__forceinline int64_t GetMappedSize()
-	{
-		CheckInvariants();
-		return MappedSize;
-	}
-
-	virtual void PreloadHint(int64_t PreloadOffset = 0, int64_t BytesToPreload = MAX_int64)
-	{
-	}
-
-	IMappedFileRegion(const IMappedFileRegion&) = delete;
-	IMappedFileRegion& operator=(const IMappedFileRegion&) = delete;
-};
-
-class IMappedFileHandle
-{
-	size_t MappedFileSize;
-
-public:
-	IMappedFileHandle(size_t InFileSize)
-		: MappedFileSize(InFileSize)
-	{
-	}
-
-	virtual ~IMappedFileHandle()
-	{
-	}
-
-	int64_t GetFileSize()
-	{
-		return MappedFileSize;
-	}
-
-	virtual IMappedFileRegion* MapRegion(int64_t Offset = 0, int64_t BytesToMap = MAX_int64, bool bPreloadHint = false) = 0;
-
-	// Non-copyable
-	IMappedFileHandle(const IMappedFileHandle&) = delete;
-	IMappedFileHandle& operator=(const IMappedFileHandle&) = delete;
-};
-
 //TODO: proper logging from this
 class ReadStatus //totally not an FIoStatus rip off
 {
@@ -433,6 +362,29 @@ public:
 private:
 	ReadErrorCode ErrorCode = ReadErrorCode::Ok;
 	std::string StatusMessage;
+};
+
+class FEncryptionKeyManager
+{
+public:
+
+	static FEncryptionKeyManager& Get()
+	{
+		static FEncryptionKeyManager Inst;
+		return Inst;
+	}
+
+	static void AddKey(const FGuid& InGuid, const FAESKey InKey);
+	static bool GetKey(const FGuid& InGuid, FAESKey& OutKey);
+	static bool const HasKey(const FGuid& InGuid);
+	static const phmap::flat_hash_map<FGuid, FAESKey>& GetKeys();
+
+private:
+
+	FEncryptionKeyManager() = default;
+
+	phmap::flat_hash_map<FGuid, FAESKey> Keys;
+	std::mutex CriticalSection;
 };
 
 template<typename Enum>

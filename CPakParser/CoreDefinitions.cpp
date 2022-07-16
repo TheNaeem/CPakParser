@@ -127,3 +127,37 @@ std::vector<std::string> LoadNameBatch(FArchive& Ar)
 	
 	return Loader.Load();
 }
+
+void FEncryptionKeyManager::AddKey(const FGuid& InGuid, const FAESKey InKey)
+{
+	auto& KeyCache = Get();
+
+	SCOPE_LOCK(KeyCache.CriticalSection);
+
+	if (!KeyCache.Keys.contains(InGuid))
+	{
+		KeyCache.Keys.insert_or_assign(InGuid, InKey);
+	}
+}
+
+bool FEncryptionKeyManager::GetKey(const FGuid& InGuid, FAESKey& OutKey)
+{
+	auto& KeyCache = Get();
+
+	SCOPE_LOCK(KeyCache.CriticalSection);
+
+	if (!KeyCache.Keys.contains(InGuid)) return false;
+
+	OutKey = KeyCache.Keys[InGuid];
+	return true;
+}
+
+bool const FEncryptionKeyManager::HasKey(const FGuid& InGuid)
+{
+	return Get().Keys.contains(InGuid);
+}
+
+const phmap::flat_hash_map<FGuid, FAESKey>& FEncryptionKeyManager::GetKeys()
+{
+	return Get().Keys;
+}

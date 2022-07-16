@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Archives.h"
+#include "GameFileManager.h"
 #include "Hashing.h"
 #include <mutex>
 
@@ -158,47 +159,12 @@ struct FPakEntry
 	void Serialize(FArchive& Ar, int32_t Version);
 };
 
-struct FPakEntryLocation
-{
-	static const int32_t Invalid = MIN_int32;
-	static const int32_t MaxIndex = MAX_int32 - 1;
-
-	FPakEntryLocation() : Index(Invalid)
-	{
-	}
-
-	friend FArchive& operator<<(FArchive& Ar, FPakEntryLocation& Entry) 
-	{
-		return Ar << Entry.Index;
-	}
-
-	friend size_t hash_value(const FPakEntryLocation& in) 
-	{
-		return (in.Index * 0xdeece66d + 0xb);
-	}
-
-	__forceinline friend bool operator==(const FPakEntryLocation& entry1, const FPakEntryLocation& entry2) 
-	{
-		return entry1.Index == entry2.Index;
-	}
-
-private:
-	explicit FPakEntryLocation(int32_t InIndex) : Index(InIndex)
-	{
-	}
-
-	int32_t Index;
-};
-
-typedef phmap::flat_hash_map<std::string, FPakEntryLocation> FPakDirectory;
-
 class FPakFile
 {
 public:
 	FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadIndex);
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
-	typedef phmap::flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 	enum class ECacheType : uint8_t
 	{
@@ -226,7 +192,6 @@ private:
 	FPakInfo Info;
 	std::string MountPoint;
 	std::vector<FPakEntry> Files;
-	FDirectoryIndex FileDirectories;
 	FPathHashIndex PathHashIndex;
 	std::vector<uint8_t> EncodedPakEntries;
 	uint64_t PathHashSeed;
@@ -279,7 +244,6 @@ class FPakFileManager
 	std::vector<std::shared_ptr<FPakFile>> PakFiles;
 	bool bSigned;
 	bool bIsInitialized = false;
-	phmap::flat_hash_set<std::string> ExcludedNonPakExtensions;
 	std::string IniFileExtension;
 	std::string GameUserSettingsIniFilename;
 	std::shared_ptr<class FFileIoStore> IoFileBackend;
@@ -367,26 +331,4 @@ public:
 	}
 
 	static void Mount(std::shared_ptr<FFilePackageStoreBackend> Backend);
-};
-
-class FEncryptionKeyManager //thread safe encryption key util
-{
-public:
-
-	static FEncryptionKeyManager& Get()
-	{
-		static FEncryptionKeyManager Inst;
-		return Inst;
-	}
-
-	static void AddKey(const FGuid& InGuid, const FAESKey InKey);
-	static bool GetKey(const FGuid& InGuid, FAESKey& OutKey);
-	static bool const HasKey(const FGuid& InGuid);
-	static const phmap::flat_hash_map<FGuid, FAESKey>& GetKeys();
-
-private:
-	FEncryptionKeyManager() = default;
-
-	phmap::flat_hash_map<FGuid, FAESKey> Keys;
-	std::mutex CriticalSection;
 };

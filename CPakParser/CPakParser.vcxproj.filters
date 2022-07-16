@@ -84,6 +84,12 @@
     <ClInclude Include="ArchiveFileReaderGeneric.h">
       <Filter>Unreal\Archives\Derived\ArchiveFileReader</Filter>
     </ClInclude>
+    <ClInclude Include="IoDirectoryIndex.h">
+      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFileManager.h">
+      <Filter>Unreal\Core\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">

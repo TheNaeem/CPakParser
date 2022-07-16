@@ -117,16 +117,19 @@ struct FIoContainerHeader
 class FIoChunkId
 {
 public:
+	FIoChunkId() = default;
+	FIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType);
+
 	static const FIoChunkId InvalidChunkId;
 
 	friend std::string LexToString(const FIoChunkId& Id);
 
-	inline bool operator ==(const FIoChunkId& Rhs) const
+	__forceinline bool operator ==(const FIoChunkId& Rhs) const
 	{
 		return 0 == memcmp(Id, Rhs.Id, sizeof Id);
 	}
 
-	inline bool operator !=(const FIoChunkId& Rhs) const
+	__forceinline bool operator !=(const FIoChunkId& Rhs) const
 	{
 		return !(*this == Rhs);
 	}
@@ -149,7 +152,7 @@ public:
 		return static_cast<EIoChunkType>(Id[11]);
 	}
 
-	friend size_t hash_value(FIoChunkId const& in) 
+	friend size_t hash_value(FIoChunkId const& in)
 	{
 		uint32_t Hash = 5381;
 
@@ -171,7 +174,7 @@ private:
 		return ChunkId;
 	}
 
-	uint8_t Id[12];
+	uint8_t Id[12] = { 0 };
 };
 
 struct FIoOffsetAndLength
@@ -306,7 +309,6 @@ struct FFileIoStoreContainerFilePartition
 	uint64_t FileSize = 0;
 	uint32_t ContainerFileIndex = 0;
 	std::string FilePath;
-	std::unique_ptr<IMappedFileHandle> MappedFileHandle;
 };
 
 struct FFileIoStoreContainerFile
@@ -318,25 +320,14 @@ struct FFileIoStoreContainerFile
 	FFileIoStoreContainerFile& operator=(FFileIoStoreContainerFile&&) = default;
 	FFileIoStoreContainerFile& operator=(const FFileIoStoreContainerFile&) = delete;
 
-	uint64_t PartitionSize = 0;
-	uint64_t CompressionBlockSize = 0;
-	std::vector<std::string> CompressionMethods;
-	std::vector<FIoStoreTocCompressedBlockEntry> CompressionBlocks;
+	std::shared_ptr<struct FIoStoreTocResource> TocResource;
 	std::string FilePath;
-	FGuid EncryptionKeyGuid;
 	FAESKey EncryptionKey;
-	EIoContainerFlags ContainerFlags;
 	std::vector<class FSHAHash> BlockSignatureHashes;
 	std::vector<FFileIoStoreContainerFilePartition> Partitions;
 	uint32_t ContainerInstanceId = 0;
 
-	void GetPartitionFileHandleAndOffset(uint64_t TocOffset, void*& OutFileHandle, uint64_t& OutOffset) const
-	{
-		int32_t PartitionIndex = int32_t(TocOffset / PartitionSize);
-		const FFileIoStoreContainerFilePartition& Partition = Partitions[PartitionIndex];
-		OutFileHandle = Partition.FileHandle;
-		OutOffset = TocOffset % PartitionSize;
-	}
+	void GetPartitionFileHandleAndOffset(uint64_t TocOffset, void*& OutFileHandle, uint64_t& OutOffset);
 };
 
 struct FIoStoreTocHeader
@@ -375,6 +366,11 @@ struct FIoStoreTocHeader
 	bool CheckMagic() const
 	{
 		return memcpy((void*)TocMagic, TocMagicImg, sizeof TocMagic);
+	}
+
+	__forceinline bool IsEncrypted()
+	{
+		return EnumHasAnyFlags(ContainerFlags, EIoContainerFlags::Encrypted);
 	}
 };
 
@@ -431,6 +427,8 @@ struct FIoContainerSettings
 
 struct FIoStoreTocResource
 {
+	FIoStoreTocResource(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions);
+
 	enum { CompressionMethodNameLen = 32 };
 
 	FIoStoreTocHeader Header;
@@ -444,24 +442,8 @@ struct FIoStoreTocResource
 	std::vector<FIoStoreTocEntryMeta> ChunkMetas;
 	std::vector<uint8_t> DirectoryIndexBuffer;
 
-	static ReadStatus Read(std::string TocFilePath, EIoStoreTocReadOptions ReadOptions, FIoStoreTocResource& OutTocResource);
-	static uint64_t Write(const char* TocFilePath, FIoStoreTocResource& TocResource, const FIoContainerSettings& ContainerSettings, const FIoStoreWriterSettings& WriterSettings);
 	static uint64_t HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId);
 };
-
-static FIoChunkId CreateIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType)
-{
-	uint8_t Data[12] = { 0 };
-
-	*reinterpret_cast<uint64_t*>(&Data[0]) = ChunkId;
-	*reinterpret_cast<uint16_t*>(&Data[8]) = NETWORK_ORDER16(ChunkIndex);
-	*reinterpret_cast<uint8_t*>(&Data[11]) = static_cast<uint8_t>(IoChunkType);
-
-	FIoChunkId IoChunkId;
-	IoChunkId.Set(Data, 12);
-
-	return IoChunkId;
-}
 
 class FIoBuffer
 {

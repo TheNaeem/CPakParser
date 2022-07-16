@@ -8,40 +8,6 @@
 
 //TODO: right now im just directly porting engine code, but once I have everything laid out, I should refactor it to be more practical for my usage of it
 
-void FEncryptionKeyManager::AddKey(const FGuid& InGuid, const FAESKey InKey)
-{
-	auto& KeyCache = Get();
-
-	SCOPE_LOCK(KeyCache.CriticalSection);
-
-	if (!KeyCache.Keys.contains(InGuid))
-	{
-		KeyCache.Keys.insert_or_assign(InGuid, InKey);
-	}
-}
-
-bool FEncryptionKeyManager::GetKey(const FGuid& InGuid, FAESKey& OutKey)
-{
-	auto& KeyCache = Get();
-
-	SCOPE_LOCK(KeyCache.CriticalSection);
-
-	if (!KeyCache.Keys.contains(InGuid)) return false;
-
-	OutKey = KeyCache.Keys[InGuid];
-	return true;
-}
-
-bool const FEncryptionKeyManager::HasKey(const FGuid& InGuid)
-{
-	return Get().Keys.contains(InGuid);
-}
-
-const phmap::flat_hash_map<FGuid, FAESKey>& FEncryptionKeyManager::GetKeys()
-{
-	return Get().Keys;
-}
-
 FPakEntry::FPakEntry() :
 	Offset(-1),
 	Size(0),
@@ -410,7 +376,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (!bReadFullDirectoryIndex)
 	{
-		PathHashIndexReader << FileDirectories;
+		PathHashIndexReader << FGameFileManager::Get();
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -428,7 +394,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		SecondaryIndexReader << FileDirectories;
+		SecondaryIndexReader << FGameFileManager::Get();
 		bHasFullDirectoryIndex = true;
 	}
 
@@ -550,13 +516,6 @@ bool FPakFileManager::Initialize(std::string InPaksFolderDir)
 
 	PaksFolderDir = InPaksFolderDir;
 
-	ExcludedNonPakExtensions.insert("uasset");
-	ExcludedNonPakExtensions.insert("umap");
-	ExcludedNonPakExtensions.insert("ubulk");
-	ExcludedNonPakExtensions.insert("uexp");
-	ExcludedNonPakExtensions.insert("uptnl");
-	ExcludedNonPakExtensions.insert("ushaderbytecode");
-
 	auto GlobalUTocPath = std::filesystem::path(PaksFolderDir) /= "global.utoc";
 
 	if (std::filesystem::exists(GlobalUTocPath))
@@ -596,6 +555,7 @@ bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex
 
 		if (std::filesystem::exists(TocPath))
 		{
+			//auto T = FIoStoreReader(TocPath.string().c_str());
 			auto Container = IoFileBackend->Mount(TocPath.string(), PakGuid, Key);
 
 			if (Container.IsValid())

@@ -15,7 +15,7 @@ public:
 		return std::min((int64_t)Bytes.size(), LimitSize);
 	}
 
-	void Serialize(void* Data, uint64_t Num) override
+	void Serialize(void* Data, int64_t Num) override
 	{
 		if (Num)
 		{
@@ -62,7 +62,7 @@ public:
 		return std::min(static_cast<int64_t>(Bytes.size()), LimitSize);
 	}
 
-	void Serialize(void* Data, uint64_t Num) override
+	void Serialize(void* Data, int64_t Num) override
 	{
 		if (Offset + Num <= TotalSize())
 		{
@@ -71,7 +71,13 @@ public:
 		}
 	}
 
-	explicit FMemoryReaderView(std::span<uint8_t> InBytes, bool bIsPersistent = false)
+	FMemoryReaderView(std::vector<uint8_t>& InBytes)
+		: Bytes(std::span<uint8_t>{InBytes.data(), InBytes.size()})
+		, LimitSize(INT64_MAX)
+	{
+	}
+
+	FMemoryReaderView(std::span<uint8_t> InBytes)
 		: Bytes(InBytes)
 		, LimitSize(INT64_MAX)
 	{

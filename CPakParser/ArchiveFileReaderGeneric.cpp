@@ -37,7 +37,7 @@ bool FArchiveFileReaderGeneric::Close()
 	return !FileStream.is_open();
 }
 
-void FArchiveFileReaderGeneric::Serialize(void* V, uint64_t Length)
+void FArchiveFileReaderGeneric::Serialize(void* V, int64_t Length)
 {
 	FileStream.read(static_cast<char*>(V), Length);
 }

@@ -1,7 +1,6 @@
 #include "Dataminer.h"
 
 #include "PakFiles.h"
-#include "AES.h"
 
 static FPakFileManager PakPlatformFile;
 

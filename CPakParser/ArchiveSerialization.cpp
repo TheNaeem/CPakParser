@@ -1,4 +1,4 @@
-#include "CoreTypes.h"
+#include "GameFileManager.h"
 #include "Archives.h"
 #include "IOStore.h"
 
@@ -119,9 +119,9 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	Ar.Serialize(&Version, sizeof(Version));
 
 	Ar << ContainerHeader.ContainerId;
-	Ar << ContainerHeader.PackageIds;
+	Ar.BulkSerializeArray(ContainerHeader.PackageIds);
 	Ar << ContainerHeader.StoreEntries;
-	Ar << ContainerHeader.OptionalSegmentPackageIds;
+	Ar.BulkSerializeArray(ContainerHeader.OptionalSegmentPackageIds);
 	Ar << ContainerHeader.OptionalSegmentStoreEntries;
 
 	ContainerHeader.RedirectsNameMap = LoadNameBatch(Ar);
@@ -156,5 +156,46 @@ FArchive& operator<<(FArchive& Ar, FSHAHash& G)
 FArchive& operator<<(FArchive& Ar, FIoChunkHash& ChunkHash)
 {
 	Ar.Serialize(&ChunkHash.Hash, sizeof(ChunkHash.Hash));
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FGameFileManager& Manager)
+{
+	SCOPE_LOCK(Manager.CriticalSection);
+
+	return Ar << Manager.FileLibrary;
+}
+
+FArchive& operator<<(FArchive& Ar, FPakEntryLocation& Entry)
+{
+	return Ar << Entry.Index;
+}
+
+FArchive& operator<<(FArchive& Ar, FDirectoryIndex& InMap)
+{
+	auto Pairs = phmap::flat_hash_set<std::pair<std::string, FPakDirectory>>();
+
+	int32_t NewNumElements = 0;
+	Ar << NewNumElements;
+
+	if (!NewNumElements) return Ar;
+
+	InMap.reserve(NewNumElements);
+
+	for (size_t i = 0; i < NewNumElements; i++)
+	{
+		auto Pair = std::pair<std::string, FPakDirectory>();
+
+		Ar << Pair;
+
+		if (!InMap.contains(Pair.first))
+		{
+			InMap.insert_or_assign(Pair.first, Pair.second);
+			continue;
+		}
+
+		InMap[Pair.first].merge(Pair.second);
+	}
+
 	return Ar;
 }

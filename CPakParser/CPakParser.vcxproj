@@ -26,7 +26,9 @@
     <ClInclude Include="CoreTypes.h" />
     <ClInclude Include="Dataminer.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="GameFileManager.h" />
     <ClInclude Include="Hashing.h" />
+    <ClInclude Include="IoDirectoryIndex.h" />
     <ClInclude Include="IOStore.h" />
     <ClInclude Include="IOStoreReader.h" />
     <ClInclude Include="MemoryReader.h" />

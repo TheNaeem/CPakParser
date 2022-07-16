@@ -15,7 +15,7 @@ public:
 	virtual __forceinline int64_t Tell() override;
 	virtual int64_t TotalSize() override;
 	__forceinline bool Close();
-	virtual void Serialize(void* V, uint64_t Length) override;
+	virtual void Serialize(void* V, int64_t Length) override;
 
 protected:
 

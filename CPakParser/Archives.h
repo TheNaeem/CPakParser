@@ -36,7 +36,7 @@ public:
 
 	uint32_t GetNumProperties() const
 	{
-		return SerializedPropertyChain.size();
+		return uint32_t(SerializedPropertyChain.size());
 	}
 
 	uint32_t GetUpdateCount() const
@@ -150,13 +150,8 @@ private:
 class FArchive : public FArchiveState
 {
 public:
-	template<typename T>
-	__forceinline void BulkSerialize(void* V) // the idea here is to save time by reducing the amount of serialization operations done, but a few conditions have to be met before using this. i would just avoid this for now
-	{
-		Serialize(V, sizeof(T));
-	}
 
-	virtual void Serialize(void* V, uint64_t Length) { }
+	virtual void Serialize(void* V, int64_t Length) { }
 
 	virtual FArchive& operator<<(FName& Value)
 	{
@@ -223,8 +218,13 @@ public:
 	}
 
 	template<typename T>
-	friend FArchive& operator<<(FArchive& Ar, std::vector<T, std::allocator<T>>& InArray)
+	friend FArchive& operator<<(FArchive& Ar, std::vector<T>& InArray)
 	{
+		if constexpr (sizeof(T) == 1 || TCanBulkSerialize<T>::Value)
+		{
+			return Ar.BulkSerializeArray(InArray);
+		}
+
 		int32_t ArrayNum;
 		Ar << ArrayNum;
 
@@ -236,17 +236,35 @@ public:
 
 		InArray.resize(ArrayNum);
 
-		if constexpr (sizeof(T) == 1 || TCanBulkSerialize<T>::Value)
-		{
-			Ar.Serialize(InArray.data(), InArray.size() * sizeof(T));
-		}
-		else
-		{
-			for (auto i = 0; i < InArray.size(); i++)
-				Ar << InArray[i];
-		}
+		for (auto i = 0; i < InArray.size(); i++)
+			Ar << InArray[i];
 
 		return Ar;
+	}
+
+	template<typename T>
+	__forceinline FArchive& BulkSerializeArray(std::vector<T>& InArray)
+	{
+		int32_t ArrayNum;
+		*this << ArrayNum;
+
+		if (ArrayNum == 0)
+		{
+			InArray.clear();
+			return *this;
+		}
+
+		InArray.resize(ArrayNum);
+
+		this->Serialize(InArray.data(), InArray.size() * sizeof(T));
+
+		return *this;
+	}
+
+	template<typename T>
+	__forceinline void BulkSerialize(void* V) // the idea here is to save time by reducing the amount of serialization operations done, but a few conditions have to be met before using this. i would just avoid this for now
+	{
+		Serialize(V, sizeof(T));
 	}
 
 	friend FArchive& operator<<(FArchive& Ar, std::string& InString);
