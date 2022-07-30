@@ -554,3 +554,9 @@ private:
 
 	std::shared_ptr<BufCore> CorePtr;
 };
+
+struct FIoStoreTocChunkInfo : public FFileEntryInfo
+{
+	uint64_t Offset;
+	uint64_t Size;
+};

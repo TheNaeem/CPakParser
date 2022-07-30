@@ -159,28 +159,23 @@ FArchive& operator<<(FArchive& Ar, FIoChunkHash& ChunkHash)
 	return Ar;
 }
 
-FArchive& operator<<(FArchive& Ar, FGameFileManager& Manager)
+FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
 {
-	SCOPE_LOCK(Manager.CriticalSection);
-
-	return Ar << Manager.FileLibrary;
+	return Ar << Info.Entry.PakIndex;
 }
 
-FArchive& operator<<(FArchive& Ar, FPakEntryLocation& Entry)
+void FGameFileManager::Serialize(FArchive& Ar)
 {
-	return Ar << Entry.Index;
-}
+	auto& DirectoryIndex = Get().FileLibrary;
 
-FArchive& operator<<(FArchive& Ar, FDirectoryIndex& InMap)
-{
 	auto Pairs = phmap::flat_hash_set<std::pair<std::string, FPakDirectory>>();
 
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
 
-	if (!NewNumElements) return Ar;
+	if (!NewNumElements) return;
 
-	InMap.reserve(NewNumElements);
+	DirectoryIndex.reserve(NewNumElements);
 
 	for (size_t i = 0; i < NewNumElements; i++)
 	{
@@ -188,14 +183,12 @@ FArchive& operator<<(FArchive& Ar, FDirectoryIndex& InMap)
 
 		Ar << Pair;
 
-		if (!InMap.contains(Pair.first))
+		if (!DirectoryIndex.contains(Pair.first))
 		{
-			InMap.insert_or_assign(Pair.first, Pair.second);
+			DirectoryIndex.insert_or_assign(Pair.first, Pair.second);
 			continue;
 		}
 
-		InMap[Pair.first].merge(Pair.second);
+		DirectoryIndex[Pair.first].merge(Pair.second);
 	}
-
-	return Ar;
 }

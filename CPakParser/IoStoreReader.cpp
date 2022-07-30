@@ -218,7 +218,21 @@ FIoOffsetAndLength FFileIoStore::Reader::FindChunkInternal(FIoChunkId& ChunkId)
 	return ContainerFile.TocResource->ChunkOffsetLengths[Slot];
 }
 
-void ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle = 0)
+FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
+{
+	auto TocResource = Toc.GetResource();
+
+	auto& Meta = TocResource->ChunkMetas[TocEntryIndex];
+	auto& OffsetLength = TocResource->ChunkOffsetLengths[TocEntryIndex]; // TODO: come back and see how much of this data we actually need
+
+	FIoStoreTocChunkInfo Ret(TocEntryIndex);
+	Ret.Offset = OffsetLength.GetOffset();
+	Ret.Size = OffsetLength.GetLength();
+
+	return Ret;
+}
+
+void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle)
 {
 	static constexpr uint32_t InvalidHandle = ~uint32_t(0);
 
@@ -229,7 +243,7 @@ void ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, std::string&
 		auto& FileEntry = DirectoryIndex.FileEntries[File];
 		auto& FileName = DirectoryIndex.StringTable[FileEntry.Name];
 
-		FGameFileManager::AddFile(Path, FileName);
+		FGameFileManager::AddFile(Path, FileName, CreateTocChunkInfo(FileEntry.UserData));
 
 		File = FileEntry.NextFileEntry;
 	}
@@ -271,6 +285,6 @@ void FIoStoreReader::Initialize(std::shared_ptr<FIoStoreTocResource> TocResource
 		if (!DirectoryIndex.DirectoryEntries.size()) return;
 
 		std::string _ = "";
-		ParseDirectoryIndex(DirectoryIndex, _);
+		this->ParseDirectoryIndex(DirectoryIndex, _);
 	}
 }

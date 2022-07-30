@@ -2,36 +2,34 @@
 
 #include "CoreTypes.h"
 
-struct FPakEntryLocation // i dont like that i have to include this here but whatever
+struct FPakEntryLocation : public FFileEntryInfo // i dont like that i have to include this here but whatever
 {
 	static const int32_t Invalid = MIN_int32;
 	static const int32_t MaxIndex = MAX_int32 - 1;
 
-	FPakEntryLocation() : Index(Invalid)
+	FPakEntryLocation() : FFileEntryInfo(Invalid)
 	{
 	}
 
-	friend FArchive& operator<<(FArchive& Ar, FPakEntryLocation& Entry);
-
 	friend size_t hash_value(const FPakEntryLocation& in)
 	{
-		return (in.Index * 0xdeece66d + 0xb);
+		return (in.Entry.PakIndex * 0xdeece66d + 0xb);
 	}
 
 	__forceinline friend bool operator==(const FPakEntryLocation& entry1, const FPakEntryLocation& entry2)
 	{
-		return entry1.Index == entry2.Index;
+		return entry1.Entry.PakIndex == entry2.Entry.PakIndex;
 	}
 
 private:
-	explicit FPakEntryLocation(int32_t InIndex) : Index(InIndex)
-	{
-	}
 
-	int32_t Index;
+	explicit FPakEntryLocation(int32_t InIndex)
+	{
+		Entry.PakIndex = InIndex;
+	}
 };
 
-typedef phmap::flat_hash_map<std::string, struct FPakEntryLocation> FPakDirectory;
+typedef phmap::flat_hash_map<std::string, FFileEntryInfo> FPakDirectory;
 typedef phmap::flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 class FGameFileManager
@@ -65,17 +63,17 @@ public:
 		return Get().FileLibrary[dir];
 	}
 
-	__forceinline static void AddFile(std::string& FileDir, std::string& FileName)
+	__forceinline static void AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo)
 	{
 		if (!Get().FileLibrary.contains(FileDir))
 		{
 			Get().FileLibrary.insert_or_assign(FileDir, FPakDirectory());
 		}
 
-		Get().FileLibrary[FileDir].insert_or_assign(FileName, FPakEntryLocation());
+		Get().FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
 	}
 
-	friend class FArchive& operator<<(class FArchive& Ar, FGameFileManager& Manager);
+	static void Serialize(FArchive& Ar);
 
 private:
 

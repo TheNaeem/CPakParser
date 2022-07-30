@@ -68,9 +68,14 @@ public:
 		Initialize();
 	}
 
-	FAESKey& GetEncryptionKey()
+	__forceinline FAESKey& GetEncryptionKey()
 	{
 		return Key;
+	}
+
+	__forceinline std::shared_ptr<FIoStoreTocResource> GetResource()
+	{
+		return Toc;
 	}
 
 private:
@@ -101,7 +106,11 @@ public:
 		this->Initialize(TocResourcePtr);
 	}
 
+	FIoStoreTocChunkInfo CreateTocChunkInfo(uint32_t TocEntryIndex);
+
 private:
+
+	void ParseDirectoryIndex(struct FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle = 0);
 	void Initialize(std::shared_ptr<FIoStoreTocResource> TocResource);
 
 	FIoStoreToc Toc;

@@ -333,6 +333,24 @@ private:
 	uint32_t Number = InvalidIndex;
 };
 
+struct FFileEntryInfo
+{
+	FFileEntryInfo() = default;
+
+	FFileEntryInfo(uint32_t InIndex) { Entry.TocIndex = InIndex; }
+	FFileEntryInfo(int32_t InIndex) { Entry.PakIndex = InIndex; }
+
+	friend FArchive& operator<<(FArchive& Ar, FFileEntryInfo& EntryInfo);
+
+protected:
+
+	union 
+	{
+		int32_t PakIndex;
+		uint32_t TocIndex;
+	}Entry;
+};
+
 //TODO: proper logging from this
 class ReadStatus //totally not an FIoStatus rip off
 {

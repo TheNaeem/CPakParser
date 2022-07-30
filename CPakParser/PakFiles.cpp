@@ -376,7 +376,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (!bReadFullDirectoryIndex)
 	{
-		PathHashIndexReader << FGameFileManager::Get();
+		FGameFileManager::Serialize(PathHashIndexReader);
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -394,7 +394,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		SecondaryIndexReader << FGameFileManager::Get();
+		FGameFileManager::Serialize(SecondaryIndexReader);
 		bHasFullDirectoryIndex = true;
 	}
 
@@ -601,7 +601,7 @@ void FPakFileManager::MountAllPakFiles()
 		MountedPakNames.insert(Pak->GetPath());
 	}
 
-#define ASYNC_MOUNT 1
+#define ASYNC_MOUNT 0
 
 	{
 #if ASYNC_MOUNT
