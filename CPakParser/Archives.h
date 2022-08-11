@@ -254,7 +254,13 @@ public:
 			return *this;
 		}
 
-		InArray.resize(ArrayNum);
+		return BulkSerializeArray(InArray, ArrayNum);
+	}
+
+	template<typename T>
+	FArchive& BulkSerializeArray(std::vector<T>& InArray, int32_t Count)
+	{
+		InArray.resize(Count);
 
 		this->Serialize(InArray.data(), InArray.size() * sizeof(T));
 
@@ -276,44 +282,9 @@ public:
 	friend FArchive& operator<<(FArchive& Ar, bool& InBool);
 
 	virtual void Seek(int64_t InPos) { }
-};
 
-class FMemoryArchive : public FArchive
-{
-public:
-	virtual std::string GetArchiveName() const { return "FMemoryArchive"; }
-
-	void Seek(int64_t InPos) final
+	__forceinline void SeekCur(int64_t InAdvanceCount)
 	{
-		Offset = InPos;
+		Seek(Tell() + InAdvanceCount);
 	}
-
-	int64_t Tell() final
-	{
-		return Offset;
-	}
-
-	using FArchive::operator<<;
-
-	virtual FArchive& operator<<(class FName& N) override
-	{
-		std::string StringName;
-		*this << StringName;
-		N = FName(StringName);
-
-		return *this;
-	}
-
-	virtual FArchive& operator<<(class UObject*& Res) override
-	{
-		return *this;
-	}
-
-protected:
-	FMemoryArchive()
-		: FArchive(), Offset(0)
-	{
-	}
-
-	int64_t	Offset;
 };

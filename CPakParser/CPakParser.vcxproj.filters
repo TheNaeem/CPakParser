@@ -10,26 +10,11 @@
     <Filter Include="Unreal\Core">
       <UniqueIdentifier>{e8c5e81d-2ed8-44e2-a99f-1fa9cd05f562}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Pak Reading">
-      <UniqueIdentifier>{2f917995-0432-4be4-8211-0153af061133}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unreal\Pak Reading\IOStore">
-      <UniqueIdentifier>{f3d60f32-9902-41d3-8bed-7add150502bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unreal\Pak Reading\IOStore\Definitions">
-      <UniqueIdentifier>{3f6d7f89-087e-441f-8383-2501e4be38d2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unreal\Pak Reading\Pak Files">
-      <UniqueIdentifier>{22770491-38f0-4ec9-bac3-e89a349f20fc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Core\Misc">
       <UniqueIdentifier>{7e4cb8ca-4d75-465a-a596-1c13a3d38c1e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Unreal\Core\Misc\AES">
       <UniqueIdentifier>{dddebff6-707d-4e64-9471-d18d48aa68de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Reading/Writing Util">
-      <UniqueIdentifier>{f6aad2f6-c2d0-42c8-ac2f-e0c6eff3ea1b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Unreal\Archives">
       <UniqueIdentifier>{23e95c8a-fcfa-4bfa-820a-7aba856d46c8}</UniqueIdentifier>
@@ -37,8 +22,47 @@
     <Filter Include="Unreal\Archives\Derived">
       <UniqueIdentifier>{c86b2f85-3ca1-4265-a0ba-fdcd5a060514}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Archives\Derived\ArchiveFileReader">
+    <Filter Include="Unreal\Paks">
+      <UniqueIdentifier>{2da37229-19f3-4d21-b44f-5d082d69ff35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading">
+      <UniqueIdentifier>{2f917995-0432-4be4-8211-0153af061133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading\Pak Files">
+      <UniqueIdentifier>{22770491-38f0-4ec9-bac3-e89a349f20fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading\Loading">
+      <UniqueIdentifier>{5bfb7d87-1c9a-40ad-a125-7a40e6fd9490}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading\Types">
+      <UniqueIdentifier>{4895a2e1-ecae-47c7-b7d8-66b16cc0838f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\Pak File Manager">
+      <UniqueIdentifier>{9956e8e4-a57c-431c-af6c-407a13b70273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore">
+      <UniqueIdentifier>{64e8506f-603e-4383-ab90-b447c84b0067}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Derived\Memory Reader">
+      <UniqueIdentifier>{ba0b99c0-3741-4491-a83b-2b81f98af8b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore\IOStore Reader">
+      <UniqueIdentifier>{34543123-bcf8-411a-9813-69aec2101c72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Base Archive">
+      <UniqueIdentifier>{e7937fd7-62c7-460e-a450-fa7de51ffe67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Derived\File Reader">
       <UniqueIdentifier>{4148ebe9-62cc-46a8-9a9b-997f17dfb021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore\IOStore Toc Resource">
+      <UniqueIdentifier>{7e4bcca2-5835-4d6b-a06c-54484fd970d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore\IO Chunk Id">
+      <UniqueIdentifier>{aa278de4-1a90-454d-8d5d-62fcab4e4b50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore\IOStore Container">
+      <UniqueIdentifier>{f3c0fc40-578a-43d3-8f86-93a1d7c7a552}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,23 +72,14 @@
     <ClInclude Include="CoreTypes.h">
       <Filter>Unreal\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Archives.h">
-      <Filter>Unreal\Archives</Filter>
-    </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Unreal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Hashing.h">
       <Filter>Unreal\Core\Misc</Filter>
     </ClInclude>
-    <ClInclude Include="IOStore.h">
-      <Filter>Unreal\Pak Reading\IOStore</Filter>
-    </ClInclude>
     <ClInclude Include="PakFiles.h">
-      <Filter>Unreal\Pak Reading\Pak Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BinaryReader.h">
-      <Filter>Reading/Writing Util</Filter>
+      <Filter>Unreal\Paks\Pak Reading\Pak Files</Filter>
     </ClInclude>
     <ClInclude Include="Versioning.h">
       <Filter>Unreal\Core\Misc</Filter>
@@ -72,23 +87,44 @@
     <ClInclude Include="AES.h">
       <Filter>Unreal\Core\Misc\AES</Filter>
     </ClInclude>
-    <ClInclude Include="IOStoreReader.h">
-      <Filter>Unreal\Pak Reading\IOStore</Filter>
-    </ClInclude>
-    <ClInclude Include="MemoryUtil.h">
-      <Filter>Reading/Writing Util</Filter>
-    </ClInclude>
-    <ClInclude Include="MemoryReader.h">
-      <Filter>Unreal\Archives\Derived</Filter>
-    </ClInclude>
-    <ClInclude Include="ArchiveFileReaderGeneric.h">
-      <Filter>Unreal\Archives\Derived\ArchiveFileReader</Filter>
-    </ClInclude>
-    <ClInclude Include="IoDirectoryIndex.h">
-      <Filter>Unreal\Pak Reading\IOStore</Filter>
+    <ClInclude Include="FileReader.h">
+      <Filter>Unreal\Archives\Derived\File Reader</Filter>
     </ClInclude>
     <ClInclude Include="GameFileManager.h">
       <Filter>Unreal\Core\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.h">
+      <Filter>Unreal\Paks\Pak Reading\Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="Package.h">
+      <Filter>Unreal\Paks\Pak Reading\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="PakFileManager.h">
+      <Filter>Unreal\Paks\Pak File Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="IoContainerHeader.h">
+      <Filter>Unreal\Paks\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryReader.h">
+      <Filter>Unreal\Archives\Derived\Memory Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="IoDirectoryIndex.h">
+      <Filter>Unreal\Paks\IOStore</Filter>
+    </ClInclude>
+    <ClInclude Include="IoStoreReader.h">
+      <Filter>Unreal\Paks\IOStore\IOStore Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="Archives.h">
+      <Filter>Unreal\Archives\Base Archive</Filter>
+    </ClInclude>
+    <ClInclude Include="IoTocResource.h">
+      <Filter>Unreal\Paks\IOStore\IOStore Toc Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="IoChunkId.h">
+      <Filter>Unreal\Paks\IOStore\IO Chunk Id</Filter>
+    </ClInclude>
+    <ClInclude Include="IoContainer.h">
+      <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,31 +132,40 @@
       <Filter>Dataminer</Filter>
     </ClCompile>
     <ClCompile Include="PakFiles.cpp">
-      <Filter>Unreal\Pak Reading\Pak Files</Filter>
+      <Filter>Unreal\Paks\Pak Reading\Pak Files</Filter>
     </ClCompile>
     <ClCompile Include="CoreDefinitions.cpp">
       <Filter>Unreal\Core</Filter>
     </ClCompile>
-    <ClCompile Include="IoStore.cpp">
-      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
-    </ClCompile>
-    <ClCompile Include="IoBuffer.cpp">
-      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
-    </ClCompile>
     <ClCompile Include="AES.cpp">
       <Filter>Unreal\Core\Misc\AES</Filter>
-    </ClCompile>
-    <ClCompile Include="IoStoreReader.cpp">
-      <Filter>Unreal\Pak Reading\IOStore\Definitions</Filter>
-    </ClCompile>
-    <ClCompile Include="Archives.cpp">
-      <Filter>Unreal\Archives</Filter>
     </ClCompile>
     <ClCompile Include="ArchiveSerialization.cpp">
       <Filter>Unreal\Archives</Filter>
     </ClCompile>
-    <ClCompile Include="ArchiveFileReaderGeneric.cpp">
-      <Filter>Unreal\Archives\Derived\ArchiveFileReader</Filter>
+    <ClCompile Include="FileReader.cpp">
+      <Filter>Unreal\Archives\Derived\File Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="Loading.cpp">
+      <Filter>Unreal\Paks\Pak Reading\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="PakFileManager.cpp">
+      <Filter>Unreal\Paks\Pak File Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="IoStoreReader.cpp">
+      <Filter>Unreal\Paks\IOStore\IOStore Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="Archives.cpp">
+      <Filter>Unreal\Archives\Base Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="IoTocResource.cpp">
+      <Filter>Unreal\Paks\IOStore\IOStore Toc Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="IoChunkId.cpp">
+      <Filter>Unreal\Paks\IOStore\IO Chunk Id</Filter>
+    </ClCompile>
+    <ClCompile Include="IoContainer.cpp">
+      <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

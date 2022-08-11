@@ -1,6 +1,8 @@
 #include "GameFileManager.h"
 #include "Archives.h"
-#include "IOStore.h"
+#include "PakFiles.h"
+#include "IoContainer.h"
+#include "Hashing.h"
 
 FArchive& operator<<(FArchive& Ar, std::string& InString)
 {
@@ -164,11 +166,9 @@ FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
 	return Ar << Info.Entry.PakIndex;
 }
 
-void FGameFileManager::Serialize(FArchive& Ar)
+void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::shared_ptr<FPakFile> AssociatedPak)
 {
 	auto& DirectoryIndex = Get().FileLibrary;
-
-	auto Pairs = phmap::flat_hash_set<std::pair<std::string, FPakDirectory>>();
 
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
@@ -179,16 +179,43 @@ void FGameFileManager::Serialize(FArchive& Ar)
 
 	for (size_t i = 0; i < NewNumElements; i++)
 	{
-		auto Pair = std::pair<std::string, FPakDirectory>();
+		/* 
+		* FYI: I don't like this either. 
+		* But it's important for assigning the FFileEntryInfo as an FPakEntryLocation, 
+		* as well as for assigning the shared pak pointer. 
+		* I would of course prefer reducing this to much less lines and making it cleaner by just directly serializing the FPakDirectory. 
+		* But it is what it is.
+		* Will revisit this another time, so it is a TODO, but for now this will do. At least it doesn't affect speed. 
+		*/
 
-		Ar << Pair;
+		std::string DirectoryName;
+		FPakDirectory DirIdx;
 
-		if (!DirectoryIndex.contains(Pair.first))
+		Ar << DirectoryName;
+
+		int32_t DirIdxNum = 0;
+		Ar << DirIdxNum;
+
+		if (!DirIdxNum) continue;
+
+		DirIdx.reserve(DirIdxNum);
+
+		for (size_t i = 0; i < DirIdxNum; i++)
 		{
-			DirectoryIndex.insert_or_assign(Pair.first, Pair.second);
+			auto File = std::pair<std::string, FPakEntryLocation>();
+			Ar << File;
+
+			File.second.SetOwningFile(AssociatedPak);
+
+			DirIdx.insert_or_assign(File.first, File.second);
+		}
+
+		if (!DirectoryIndex.contains(DirectoryName))
+		{
+			DirectoryIndex.insert_or_assign(DirectoryName, DirIdx);
 			continue;
 		}
 
-		DirectoryIndex[Pair.first].merge(Pair.second);
+		DirectoryIndex[DirectoryName].merge(DirIdx);
 	}
 }

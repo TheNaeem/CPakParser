@@ -1,7 +1,6 @@
 #include <sstream>
 #include <iomanip>
 #include "AES.h"
-#include "MemoryUtil.h"
 
 #define AES256_ROUND_COUNT 14
 
@@ -215,14 +214,14 @@ static inline void AesEncryptExpand(FAesExpandedKey* EncryptKey, const uint8_t* 
 {
 	auto EKey = EncryptKey->Key;
 
-	EKey[0] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 0);
-	EKey[1] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 4);
-	EKey[2] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 8);
-	EKey[3] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 12);
-	EKey[4] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 16);
-	EKey[5] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 20);
-	EKey[6] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 24);
-	EKey[7] = MemoryUtil::ReadUnaligned<uint32_t>(Key + 28);
+	EKey[0] = *(uint32_t*)(Key + 0);
+	EKey[1] = *(uint32_t*)(Key + 4);
+	EKey[2] = *(uint32_t*)(Key + 8);
+	EKey[3] = *(uint32_t*)(Key + 12);
+	EKey[4] = *(uint32_t*)(Key + 16);
+	EKey[5] = *(uint32_t*)(Key + 20);
+	EKey[6] = *(uint32_t*)(Key + 24);
+	EKey[7] = *(uint32_t*)(Key + 28);
 
 	for (int Index = 0; Index < AES256_ROUND_COUNT / 2; Index++, EKey += 8)
 	{
@@ -347,10 +346,10 @@ void FAESKey::DecryptData(uint8_t* Contents, uint32_t NumBytes) const
 	{
 		auto Block = Contents + Offset;
 
-		uint32_t s0 = MemoryUtil::ReadUnaligned<uint32_t>(Block + 0) ^ DKey[0];
-		uint32_t s1 = MemoryUtil::ReadUnaligned<uint32_t>(Block + 4) ^ DKey[1];
-		uint32_t s2 = MemoryUtil::ReadUnaligned<uint32_t>(Block + 8) ^ DKey[2];
-		uint32_t s3 = MemoryUtil::ReadUnaligned<uint32_t>(Block + 12) ^ DKey[3];
+		uint32_t s0 = *(uint32_t*)(Block + 0)^ DKey[0];
+		uint32_t s1 = *(uint32_t*)(Block + 4) ^ DKey[1];
+		uint32_t s2 = *(uint32_t*)(Block + 8) ^ DKey[2];
+		uint32_t s3 = *(uint32_t*)(Block + 12) ^ DKey[3];
 
 		for (int Round = 1; Round < AES256_ROUND_COUNT; Round++)
 		{
@@ -375,9 +374,9 @@ void FAESKey::DecryptData(uint8_t* Contents, uint32_t NumBytes) const
 		s2 = t2 ^ DKey[4 * AES256_ROUND_COUNT + 2];
 		s3 = t3 ^ DKey[4 * AES256_ROUND_COUNT + 3];
 
-		MemoryUtil::WriteUnaligned<uint32_t>(Block + 0, s0);
-		MemoryUtil::WriteUnaligned<uint32_t>(Block + 4, s1);
-		MemoryUtil::WriteUnaligned<uint32_t>(Block + 8, s2);
-		MemoryUtil::WriteUnaligned<uint32_t>(Block + 12, s3);
+		*(uint32_t*)(Block + 0) = s0;
+		*(uint32_t*)(Block + 4) = s1;
+		*(uint32_t*)(Block + 8) = s2;
+		*(uint32_t*)(Block + 12) = s3;
 	}
 }

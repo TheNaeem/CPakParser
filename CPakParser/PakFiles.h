@@ -2,16 +2,7 @@
 
 #include "Archives.h"
 #include "GameFileManager.h"
-#include "Hashing.h"
-#include <mutex>
-
-struct FAESKey;
-struct FGuid;
-class FChunkCacheWorker;
-class IAsyncReadFileHandle;
-class FFileIoStore;
-class FFilePackageStoreBackend;
-struct FIoContainerHeader;
+#include "IoContainerHeader.h"
 
 static void MakeDirectoryFromPath(std::string& Path)
 {
@@ -80,7 +71,6 @@ struct FPakInfo
 	int32_t Version;
 	int64_t IndexOffset;
 	int64_t IndexSize;
-	FSHAHash IndexHash;
 	uint8_t bEncryptedIndex;
 	FGuid EncryptionKeyGuid;
 	std::vector<std::string> CompressionMethods;
@@ -95,15 +85,7 @@ struct FPakInfo
 		CompressionMethods.push_back("None");
 	}
 
-	int64_t GetSerializedSize(int32_t InVersion = PakFile_Version_Latest) const
-	{
-		int64_t Size = sizeof(Magic) + sizeof(Version) + sizeof(IndexOffset) + sizeof(IndexSize) + sizeof(IndexHash) + sizeof(bEncryptedIndex);
-		if (InVersion >= PakFile_Version_EncryptionKeyGuid) Size += sizeof(EncryptionKeyGuid);
-		if (InVersion >= PakFile_Version_FNameBasedCompressionMethod) Size += CompressionMethodNameLen * MaxNumCompressionMethods;
-		if (InVersion >= PakFile_Version_FrozenIndex && InVersion < PakFile_Version_PathHashIndex) Size += sizeof(bool);
-
-		return Size;
-	}
+	int64_t GetSerializedSize(int32_t InVersion = PakFile_Version_Latest) const;
 
 	std::string GetCompressionMethod(uint8_t Index) const
 	{
@@ -159,10 +141,10 @@ struct FPakEntry
 	void Serialize(FArchive& Ar, int32_t Version);
 };
 
-class FPakFile
+class FPakFile final : public std::enable_shared_from_this<FPakFile>, public IDiskFile
 {
 public:
-	FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadIndex);
+	FPakFile(std::filesystem::path FilePath, bool bIsSigned);
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
 
@@ -178,8 +160,10 @@ public:
 		time_t LastAccessTime;
 	};
 
+	bool Initialize(bool bLoadIndex);
+
 private:
-	void LoadIndex(class FArchive& Reader);
+	bool LoadIndex(class FArchive& Reader);
 	bool LoadIndexInternal(class FArchive& Reader);
 	bool TryDecryptIndex(std::vector<uint8_t>& Data);
 
@@ -223,7 +207,7 @@ public:
 		return PakFilePath.filename().string();
 	}
 
-	std::filesystem::path& GetPath()
+	std::filesystem::path GetDiskPath() override
 	{
 		return PakFilePath;
 	}
@@ -237,46 +221,7 @@ public:
 	void ReturnSharedReader(FArchive* SharedReader);
 };
 
-class FPakFileManager
-{
-	std::mutex CriticalSection;
-	std::string PaksFolderDir;
-	std::vector<std::shared_ptr<FPakFile>> PakFiles;
-	bool bSigned;
-	bool bIsInitialized = false;
-	std::string IniFileExtension;
-	std::string GameUserSettingsIniFilename;
-	std::shared_ptr<class FFileIoStore> IoFileBackend;
-	std::shared_ptr<FFilePackageStoreBackend> PackageStoreBackend;
-	phmap::flat_hash_map<FGuid, std::filesystem::path> DeferredPaks;
-
-public:
-	FPakFileManager();
-
-	bool Initialize(std::string InPaksFolderDir);
-	bool Mount(std::filesystem::path InPakFilename, bool bLoadIndex = true);
-	void MountAllPakFiles();
-
-	bool RegisterEncryptionKey(FGuid InGuid, FAESKey InKey);
-	static FAESKey GetRegisteredPakEncryptionKey(const FGuid& InEncryptionKeyGuid);
-
-	std::vector<std::shared_ptr<FPakFile>> GetMountedPaks()
-	{
-		return PakFiles;
-	}
-
-	void OnPakMounted(std::shared_ptr<FPakFile> Pak)
-	{
-		SCOPE_LOCK(CriticalSection);
-
-		Pak->bIsMounted = true;
-
-		ReadStatus(ReadErrorCode::Ok, "Sucessfully mounted PAK file: " + Pak->GetFilename());
-
-		PakFiles.push_back(Pak);
-	}
-};
-
+// TODO: do i really need this?
 class FFilePackageStoreBackend
 {
 	void Mount(const FIoContainerHeader* ContainerHeader, uint32_t Order);

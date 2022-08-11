@@ -17,7 +17,6 @@
 #define MAX_int64 ((int64_t)0x7fffffffffffffff)
 #define MAX_uint64 ((uint64_t)0xffffffffffffffff)
 #define NAME_None 0
-#define NETWORK_ORDER16(x) _byteswap_ushort(x)
 
 typedef uint32_t FNameEntryId;
 
@@ -333,14 +332,39 @@ private:
 	uint32_t Number = InvalidIndex;
 };
 
+class IDiskFile
+{
+public:
+
+	virtual std::filesystem::path GetDiskPath() = 0;
+};
+
 struct FFileEntryInfo
 {
-	FFileEntryInfo() = default;
+	FFileEntryInfo()
+	{
+		Entry.TocIndex = NULL;
+	};
 
 	FFileEntryInfo(uint32_t InIndex) { Entry.TocIndex = InIndex; }
 	FFileEntryInfo(int32_t InIndex) { Entry.PakIndex = InIndex; }
 
 	friend FArchive& operator<<(FArchive& Ar, FFileEntryInfo& EntryInfo);
+
+	__forceinline bool IsValid() 
+	{
+		return Entry.PakIndex;
+	}
+
+	__forceinline void SetOwningFile(std::shared_ptr<IDiskFile> DiskFile)
+	{
+		AssociatedFile = DiskFile;
+	}
+
+	__forceinline std::filesystem::path GetDiskFilePath()
+	{
+		return AssociatedFile->GetDiskPath();
+	}
 
 protected:
 
@@ -349,6 +373,8 @@ protected:
 		int32_t PakIndex;
 		uint32_t TocIndex;
 	}Entry;
+
+	std::shared_ptr<IDiskFile> AssociatedFile;
 };
 
 //TODO: proper logging from this

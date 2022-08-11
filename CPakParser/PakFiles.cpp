@@ -1,10 +1,8 @@
 #include "PakFiles.h"
 
-#include "IOStoreReader.h"
-#include "ArchiveFileReaderGeneric.h"
+#include "FileReader.h"
 #include "MemoryReader.h"
-
-#include <future>
+#include "Hashing.h"
 
 //TODO: right now im just directly porting engine code, but once I have everything laid out, I should refactor it to be more practical for my usage of it
 
@@ -96,6 +94,16 @@ void FPakEntry::Serialize(FArchive& Ar, int32_t Version)
 	}
 }
 
+int64_t FPakInfo::GetSerializedSize(int32_t InVersion) const
+{
+	int64_t Size = sizeof(Magic) + sizeof(Version) + sizeof(IndexOffset) + sizeof(IndexSize) + sizeof(FSHAHash) + sizeof(bEncryptedIndex);
+	if (InVersion >= PakFile_Version_EncryptionKeyGuid) Size += sizeof(EncryptionKeyGuid);
+	if (InVersion >= PakFile_Version_FNameBasedCompressionMethod) Size += CompressionMethodNameLen * MaxNumCompressionMethods;
+	if (InVersion >= PakFile_Version_FrozenIndex && InVersion < PakFile_Version_PathHashIndex) Size += sizeof(bool);
+
+	return Size;
+}
+
 void FPakInfo::Serialize(FArchive& Ar, int32_t InVersion)
 {
 	if (Ar.TotalSize() < (Ar.Tell() + GetSerializedSize(InVersion)))
@@ -118,7 +126,7 @@ void FPakInfo::Serialize(FArchive& Ar, int32_t InVersion)
 	Ar << Version;
 	Ar << IndexOffset;
 	Ar << IndexSize;
-	Ar << IndexHash;
+	Ar.Seek(Ar.Tell() + sizeof(FSHAHash)); // IndexHash
 
 	if (Version < PakFile_Version_IndexEncryption)
 	{
@@ -173,10 +181,6 @@ FSharedPakReader::~FSharedPakReader()
 	}
 }
 
-FPakFileManager::FPakFileManager() : bSigned(false)
-{
-}
-
 int32_t GetPakchunkIndexFromPakFile(std::string InFilename)
 {
 	const std::string ChunkIdentifier = "pakchunk";
@@ -218,7 +222,7 @@ FSharedPakReader FPakFile::GetSharedReader()
 		}
 		else
 		{
-			PakReader = std::make_unique<FArchiveFileReaderGeneric>(PakFilePath.string().c_str()).release();
+			PakReader = std::make_unique<FFileReader>(PakFilePath.string().c_str()).release();
 		}
 
 		++CurrentlyUsedReaders;
@@ -374,9 +378,11 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 		bHasPathHashIndex = true;
 	}
 
+	auto SharedThis = shared_from_this();
+
 	if (!bReadFullDirectoryIndex)
 	{
-		FGameFileManager::Serialize(PathHashIndexReader);
+		FGameFileManager::SerializePakIndexes(PathHashIndexReader, SharedThis);
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -394,26 +400,26 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		FGameFileManager::Serialize(SecondaryIndexReader);
+		FGameFileManager::SerializePakIndexes(SecondaryIndexReader, SharedThis);
 		bHasFullDirectoryIndex = true;
 	}
 
 	return true;
 }
 
-void FPakFile::LoadIndex(FArchive& Reader)
+bool FPakFile::LoadIndex(FArchive& Reader)
 {
 	if (Info.Version >= FPakInfo::PakFile_Version_PathHashIndex)
 	{
-		LoadIndexInternal(Reader);
+		return LoadIndexInternal(Reader);
 	}
-	else
-	{
-		//TODO: LoadLegacyIndex
-	}
+	
+	//TODO: LoadLegacyIndex
+
+	return false;
 }
 
-FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadIndex)
+FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned)
 	: PakFilePath(FilePath)
 	, PathHashSeed(0)
 	, NumEntries(0)
@@ -429,9 +435,13 @@ FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadInd
 	, UnderlyingCacheTrimDisabled(false)
 	, bIsMounted(false)
 {
+}
+
+bool FPakFile::Initialize(bool bLoadIndex)
+{
 	auto Reader = GetSharedReader();
 
-	if (!Reader) return;
+	if (!Reader) return false;
 
 	CachedTotalSize = Reader->TotalSize();
 
@@ -455,12 +465,15 @@ FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned, bool bLoadInd
 		}
 	} while (CompatibleVersion >= FPakInfo::PakFile_Version_Initial);
 
-	if (Info.Magic != FPakInfo::PakFile_Magic) return;
+	if (Info.Magic != FPakInfo::PakFile_Magic) return false;
 
 	if (!Info.EncryptionKeyGuid.IsValid() || FEncryptionKeyManager::HasKey(Info.EncryptionKeyGuid))
 	{
-		if (bLoadIndex) LoadIndex(Reader.GetArchive());
+		if (bLoadIndex) 
+			return LoadIndex(Reader.GetArchive());
 	}
+
+	return true;
 }
 
 FPackageStore::FPackageStore()
@@ -470,162 +483,4 @@ FPackageStore::FPackageStore()
 void FPackageStore::Mount(std::shared_ptr<FFilePackageStoreBackend> Backend)
 {
 	Get().Backends.push_back(Backend);
-}
-
-bool FPakFileManager::RegisterEncryptionKey(FGuid InGuid, FAESKey InKey)
-{
-	if (FEncryptionKeyManager::HasKey(InGuid))
-	{
-		ReadStatus(ReadErrorCode::InvalidEncryptionKey, "Attempting to register a key with a GUID that has already been registered.");
-		return false;
-	}
-
-	FEncryptionKeyManager::AddKey(InGuid, InKey);
-
-	if (!bIsInitialized) return true; // if the pak manager hasn't been initialized yet, the key will get cached and used when the dataminer gets initialized
-
-	if (!DeferredPaks.contains(InGuid)) return false;
-
-	auto DynamicPakPath = DeferredPaks[InGuid];
-
-	if (Mount(DynamicPakPath))
-	{
-		SCOPE_LOCK(CriticalSection);
-		DeferredPaks.erase(InGuid);
-	}
-	else return false;
-
-	return true;
-}
-
-FAESKey FPakFileManager::GetRegisteredPakEncryptionKey(const FGuid& InEncryptionKeyGuid)
-{
-	FAESKey Ret;
-
-	if (!FEncryptionKeyManager::GetKey(InEncryptionKeyGuid, Ret))
-	{
-		//
-	}
-
-	return Ret;
-}
-
-bool FPakFileManager::Initialize(std::string InPaksFolderDir)
-{
-	if (bIsInitialized) return true;
-
-	PaksFolderDir = InPaksFolderDir;
-
-	auto GlobalUTocPath = std::filesystem::path(PaksFolderDir) /= "global.utoc";
-
-	if (std::filesystem::exists(GlobalUTocPath))
-	{
-		ReadStatus(ReadErrorCode::Ok, "Mounting Global");
-
-		IoFileBackend = std::make_shared<FFileIoStore>();
-		PackageStoreBackend = std::make_shared<FFilePackageStoreBackend>();
-		FPackageStore::Mount(PackageStoreBackend);
-
-		IoFileBackend->Mount(GlobalUTocPath.string(), FGuid(), FAESKey());
-
-		ReadStatus(ReadErrorCode::Ok, "Successfully mounted Global TOC");
-	}
-
-	this->MountAllPakFiles();
-
-	return bIsInitialized = true;
-}
-
-bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex) //TODO: attempt to mount a toc even 
-{
-	auto PakFilename = InPakFilePath.filename().string();
-
-	ReadStatus(ReadErrorCode::Ok, "Mounting PAK file: " + PakFilename);
-
-	auto Pak = std::make_shared<FPakFile>(InPakFilePath, bSigned, bLoadIndex);
-
-	auto PakGuid = Pak->GetInfo().EncryptionKeyGuid;
-
-	if (FEncryptionKeyManager::HasKey(PakGuid) || !PakGuid.IsValid())
-	{
-		FAESKey Key;
-		FEncryptionKeyManager::GetKey(PakGuid, Key);
-
-		auto TocPath = InPakFilePath.replace_extension(".utoc");
-
-		if (std::filesystem::exists(TocPath))
-		{
-			//auto T = FIoStoreReader(TocPath.string().c_str());
-			auto Container = IoFileBackend->Mount(TocPath.string(), PakGuid, Key);
-
-			if (Container.IsValid())
-			{
-				Pak->IoContainerHeader = std::make_unique<FIoContainerHeader>(Container);
-			}
-		}
-	}
-	else
-	{
-		SCOPE_LOCK(CriticalSection);
-
-		if (!DeferredPaks.contains(PakGuid))
-		{
-			DeferredPaks.insert_or_assign(PakGuid, InPakFilePath);
-		}
-
-		ReadStatus(ReadErrorCode::Cancelled, "Encryption key could not be found for " + PakFilename + " so it will be deferred until it's registered");
-
-		return false;
-	}
-
-	OnPakMounted(Pak);
-
-	return true;
-}
-
-void FPakFileManager::MountAllPakFiles() 
-{
-	std::vector<std::filesystem::path> PakFiles;
-	for (auto& File : std::filesystem::directory_iterator(PaksFolderDir))
-	{
-		if (File.path().extension() == ".pak")
-			PakFiles.push_back(File.path());
-	}
-
-	auto MountedPaks = GetMountedPaks();
-
-	phmap::flat_hash_set<std::filesystem::path> MountedPakNames;
-
-	for (auto Pak : MountedPaks)
-	{
-		MountedPakNames.insert(Pak->GetPath());
-	}
-
-#define ASYNC_MOUNT 0
-
-	{
-#if ASYNC_MOUNT
-		std::vector<std::future<void>> Futures;
-#endif
-
-		for (auto PakPath : PakFiles)
-		{
-			if (MountedPakNames.contains(PakPath))
-				continue;
-
-#if ASYNC_MOUNT
-			Futures.push_back(std::async(std::launch::async, [=]
-				{
-#endif
-					if (!Mount(PakPath)) 
-					{
-						ReadStatus(ReadErrorCode::Cancelled, "Could not mount PAK file: " + PakPath.filename().string());
-					}
-#if ASYNC_MOUNT
-				}));
-#endif
-		}
-	}
-
-	ReadStatus(ReadErrorCode::Ok, "Mounted all available PAK files");
 }

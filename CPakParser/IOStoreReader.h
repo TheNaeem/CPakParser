@@ -1,10 +1,13 @@
 #pragma once
 
-#include "IOStore.h"
+#include "IoContainerHeader.h"
+#include "IoTocResource.h"
+#include "GameFileManager.h"
 
 class FFileIoStore final
 {
 public:
+
 	FIoContainerHeader Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
 	void Initialize();
 
@@ -49,13 +52,12 @@ private:
 	std::vector<std::unique_ptr<Reader>> IoStoreReaders;
 };
 
-class FIoStoreToc //TODO: revisit this and see if these index maps are necessary 
+class FIoStoreToc : public IDiskFile
 {
 public:
 
-	FIoStoreToc() //never use this
+	FIoStoreToc() // never use this
 	{
-
 	}
 
 	FIoStoreToc(FIoStoreTocResource& TocRsrc) : Toc(std::make_shared<FIoStoreTocResource>(TocRsrc))
@@ -76,6 +78,11 @@ public:
 	__forceinline std::shared_ptr<FIoStoreTocResource> GetResource()
 	{
 		return Toc;
+	}
+
+	std::filesystem::path GetDiskPath() override
+	{
+		return Toc->TocPath;
 	}
 
 private:
@@ -113,5 +120,5 @@ private:
 	void ParseDirectoryIndex(struct FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle = 0);
 	void Initialize(std::shared_ptr<FIoStoreTocResource> TocResource);
 
-	FIoStoreToc Toc;
+	std::shared_ptr<FIoStoreToc> Toc;
 };

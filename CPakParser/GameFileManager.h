@@ -21,12 +21,19 @@ struct FPakEntryLocation : public FFileEntryInfo // i dont like that i have to i
 		return entry1.Entry.PakIndex == entry2.Entry.PakIndex;
 	}
 
+
 private:
 
 	explicit FPakEntryLocation(int32_t InIndex)
 	{
 		Entry.PakIndex = InIndex;
 	}
+};
+
+struct FIoStoreTocChunkInfo : public FFileEntryInfo
+{
+	uint64_t Offset;
+	uint64_t Size;
 };
 
 typedef phmap::flat_hash_map<std::string, FFileEntryInfo> FPakDirectory;
@@ -73,7 +80,22 @@ public:
 		Get().FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
 	}
 
-	static void Serialize(FArchive& Ar);
+	__forceinline static FFileEntryInfo FindFile(std::string& Directory, std::string& FileName)
+	{
+		auto& Lib = Get().FileLibrary;
+
+		if (!Lib.contains(Directory))
+			return FFileEntryInfo();
+
+		auto Dir = Lib[Directory];
+
+		if (!Dir.contains(FileName))
+			return FFileEntryInfo();
+
+		return Dir[FileName];
+	}
+
+	static void SerializePakIndexes(FArchive& Ar, std::shared_ptr<class FPakFile> AssociatedPak);
 
 private:
 

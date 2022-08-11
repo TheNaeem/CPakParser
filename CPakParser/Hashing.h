@@ -33,24 +33,6 @@ public:
 	}
 };
 
-struct FBlake3Hash
-{
-public:
-	using ByteArray = uint8_t[32];
-
-	FBlake3Hash() = default;
-
-	inline ByteArray& GetBytes() { return Hash; }
-	inline const ByteArray& GetBytes() const { return Hash; }
-
-	/** A zero hash. */
-	static const FBlake3Hash Zero;
-
-private:
-	alignas(uint32_t) ByteArray Hash{};
-};
-
-
 struct FIoHash
 {
 public:

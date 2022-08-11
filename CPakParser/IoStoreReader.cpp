@@ -1,17 +1,20 @@
-#include "GameFileManager.h"
-#include "IOStore.h"
 #include "IOStoreReader.h"
-#include "BinaryReader.h"
-#include "MemoryUtil.h"
 #include "MemoryReader.h"
 #include "IoDirectoryIndex.h"
 #include <sstream>
 #include <windows.h>
+#include "FileReader.h"
 
 std::atomic_uint32_t FFileIoStore::Reader::GlobalPartitionIndex{ 0 };
 std::atomic_uint32_t FFileIoStore::Reader::GlobalContainerInstanceId{ 0 };
 
 static constexpr bool bPerfectHashingEnabled = true;
+
+template <typename T>
+static __forceinline constexpr T Align(T Val, uint64_t Alignment)
+{
+	return (T)(((uint64_t)Val + Alignment - 1) & ~(Alignment - 1));
+}
 
 __forceinline void FIoStoreToc::Initialize()
 {
@@ -22,41 +25,63 @@ FFileIoStore::Reader::~Reader()
 {
 	for (auto& Partition : ContainerFile.Partitions)
 	{
-		CloseHandle(Partition.FileHandle);
+		Partition.FileHandle->close();
 	}
 
 	TocImperfectHashMapFallback.clear();
 	ContainerFile = FFileIoStoreContainerFile();
 }
 
-bool OpenContainer(const char* ContainerFilePath, HANDLE& ContainerFileHandle, uint64_t& ContainerFileSize)
+// TODO: give this another look
+bool FFileIoStoreContainerFilePartition::OpenContainer(const char* ContainerFilePath)
 {
-	auto FileSize = std::filesystem::file_size(ContainerFilePath);
+	FileSize = std::filesystem::file_size(ContainerFilePath);
 
-	/*if (FileSize < 0)
+	if (FileSize < 0)
 	{
 		return false;
 	}
 
-	auto FileHandle = CreateFileA(
-		ContainerFilePath,
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
+	FileHandle = std::make_unique<std::ifstream>();
+	FileHandle->rdbuf()->pubsetbuf(NULL, NULL);
+	FileHandle->open(ContainerFilePath, std::ios::in);
 
 	if (!FileHandle)
 	{
 		return false;
 	}
 
-	ContainerFileHandle = FileHandle;*/
-
-	ContainerFileSize = FileSize;
-
 	return true;
+}
+
+void FFileIoStore::Initialize()
+{
+	ReadBufferSize = (GIoDispatcherBufferSizeKB > 0 ? uint64_t(GIoDispatcherBufferSizeKB) << 10 : 256 << 10);
+}
+
+//TODO: refactor this, probably by removing FFileIoStoreReader and using FIoStoreReader
+FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
+{
+	ReadStatus(ReadErrorCode::Ok, "Mounting TOC: " + InTocPath);
+
+	auto Reader = std::make_unique<FFileIoStore::Reader>(InTocPath.c_str());
+
+	if (Reader->IsEncrypted() && FEncryptionKeyManager::HasKey(EncryptionKeyGuid))
+	{
+		Reader->SetEncryptionKey(EncryptionKey);
+	}
+
+	auto Ret = Reader->ReadContainerHeader();
+
+	auto T = FIoStoreReader(Reader->GetTocResource());
+
+	{
+		std::unique_lock _(IoStoreReadersLock);
+
+		IoStoreReaders.push_back(std::move(Reader));
+	}
+
+	return Ret;
 }
 
 FFileIoStore::Reader::Reader(const char* InTocFilePath)
@@ -93,7 +118,7 @@ FFileIoStore::Reader::Reader(const char* InTocFilePath)
 
 		ContainerFilePath.flush();
 
-		if (!OpenContainer(Partition.FilePath.c_str(), Partition.FileHandle, Partition.FileSize))
+		if (!Partition.OpenContainer(Partition.FilePath.c_str()))
 		{
 			ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore container file " + Partition.FilePath);
 			return;
@@ -148,16 +173,16 @@ FIoContainerHeader FFileIoStore::Reader::ReadContainerHeader()
 	auto PartitionIndex = int32_t(CompressionBlockEntry->GetOffset() / TocRsrc->Header.PartitionSize);
 	auto RawOffset = CompressionBlockEntry->GetOffset() % TocRsrc->Header.PartitionSize;
 
-	auto BufSize = MemoryUtil::Align(Size, FAESKey::AESBlockSize);
+	auto BufSize = Align(Size, FAESKey::AESBlockSize);
 
 	auto IoBuffer = std::make_unique<uint8_t[]>(BufSize);
-	auto ContainerFileHandle = std::make_unique<BinaryReader>(ContainerFile.Partitions[PartitionIndex].FilePath.c_str());
+	auto ContainerFileHandle = FFileReader(ContainerFile.Partitions[PartitionIndex].FilePath.c_str());
 
-	if (!ContainerFileHandle || !ContainerFileHandle->IsValid())
+	if (!ContainerFileHandle.IsValid())
 		ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
 
-	ContainerFileHandle->Seek(RawOffset);
-	ContainerFileHandle->Read(IoBuffer.get(), BufSize);
+	ContainerFileHandle.Seek(RawOffset);
+	ContainerFileHandle.Serialize(IoBuffer.get(), BufSize);
 
 	const bool bSigned = EnumHasAnyFlags(TocRsrc->Header.ContainerFlags, EIoContainerFlags::Signed);
 	const bool bEncrypted = ContainerFile.EncryptionKey.IsValid();
@@ -170,7 +195,7 @@ FIoContainerHeader FFileIoStore::Reader::ReadContainerHeader()
 		{
 			CompressionBlockEntry = &TocRsrc->CompressionBlocks[CompressedBlockIndex];
 
-			const auto BlockSize = MemoryUtil::Align(CompressionBlockEntry->GetCompressedSize(), FAESKey::AESBlockSize);
+			const auto BlockSize = Align(CompressionBlockEntry->GetCompressedSize(), FAESKey::AESBlockSize);
 
 			ContainerFile.EncryptionKey.DecryptData(BlockData, uint32_t(BlockSize));
 
@@ -220,7 +245,7 @@ FIoOffsetAndLength FFileIoStore::Reader::FindChunkInternal(FIoChunkId& ChunkId)
 
 FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
 {
-	auto TocResource = Toc.GetResource();
+	auto TocResource = Toc->GetResource();
 
 	auto& Meta = TocResource->ChunkMetas[TocEntryIndex];
 	auto& OffsetLength = TocResource->ChunkOffsetLengths[TocEntryIndex]; // TODO: come back and see how much of this data we actually need
@@ -228,6 +253,7 @@ FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
 	FIoStoreTocChunkInfo Ret(TocEntryIndex);
 	Ret.Offset = OffsetLength.GetOffset();
 	Ret.Size = OffsetLength.GetLength();
+	Ret.SetOwningFile(Toc);
 
 	return Ret;
 }
@@ -267,14 +293,14 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 
 void FIoStoreReader::Initialize(std::shared_ptr<FIoStoreTocResource> TocResource)
 {
-	Toc = TocResource;
+	Toc = std::make_shared<FIoStoreToc>(TocResource);
 
 	if (EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
 		TocResource->DirectoryIndexBuffer.size() > 0)
 	{
 		if (TocResource->Header.IsEncrypted() && FEncryptionKeyManager::HasKey(TocResource->Header.EncryptionKeyGuid))
 		{
-			Toc.GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), TocResource->DirectoryIndexBuffer.size());
+			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), TocResource->DirectoryIndexBuffer.size());
 		}
 
 		FMemoryReaderView Ar(TocResource->DirectoryIndexBuffer);
