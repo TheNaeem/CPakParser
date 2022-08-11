@@ -54,10 +54,7 @@ public:
 
 	virtual int64_t TotalSize() override
 	{
-		if (LimitSize < Bytes.size())
-			return LimitSize;
-
-		return Bytes.size();
+		return LimitSize;
 	}
 
 	void Serialize(void* Data, int64_t Num) override
@@ -66,42 +63,43 @@ public:
 		{
 			if (Offset + Num <= TotalSize())
 			{
-				memcpy(Data, &Bytes[Offset], Num);
+				memcpy(Data, Bytes + Offset, Num);
 				Offset += Num;
 			}
 		}
 	}
 
 	explicit FMemoryReader(const std::vector<uint8_t>& InBytes)
-		: Bytes(InBytes)
-		, LimitSize(INT64_MAX)
+		: Bytes(InBytes.data())
+		, LimitSize(InBytes.size())
 	{
 	}
 
 	FMemoryReader(uint8_t* InBytes, uint32_t Size)
-		: Bytes(std::vector<uint8_t>(InBytes, InBytes + Size))
-		, LimitSize(INT64_MAX)
+		: Bytes(InBytes)
+		, LimitSize(Size)
 	{
 	}
 
-	void SetLimitSize(int64_t NewLimitSize)
+	void SetLimitSize(int32_t NewLimitSize)
 	{
 		LimitSize = NewLimitSize;
 	}
 
 	__forceinline const uint8_t* GetBuffer() const
 	{
-		return Bytes.data();
+		return Bytes;
 	}
 
 	__forceinline const uint8_t* GetBufferCur() const
 	{
-		return Bytes.data() + Offset;
+		return Bytes + Offset;
 	}
 
 private:
-	const std::vector<uint8_t>& Bytes;
-	int64_t LimitSize;
+
+	const uint8_t* Bytes;
+	int32_t LimitSize;
 };
 
 class FMemoryReaderView : public FMemoryArchive

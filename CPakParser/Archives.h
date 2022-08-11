@@ -262,7 +262,7 @@ public:
 	{
 		InArray.resize(Count);
 
-		this->Serialize(InArray.data(), InArray.size() * sizeof(T));
+		this->Serialize(InArray.data(), Count * sizeof(T));
 
 		return *this;
 	}
