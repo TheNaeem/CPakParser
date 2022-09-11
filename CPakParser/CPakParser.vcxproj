@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES.h" />
+    <ClInclude Include="Compression.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Archives.h" />
     <ClInclude Include="CoreTypes.h" />
@@ -35,13 +36,16 @@
     <ClInclude Include="IoTocResource.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="MemoryReader.h" />
+    <ClInclude Include="Oodle.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="PakFileManager.h" />
+    <ClInclude Include="PakReaders.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="Compression.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Archives.cpp" />
     <ClCompile Include="ArchiveSerialization.cpp" />
@@ -54,6 +58,7 @@
     <ClCompile Include="Loading.cpp" />
     <ClCompile Include="PakFileManager.cpp" />
     <ClCompile Include="PakFiles.cpp" />
+    <ClCompile Include="PakReaders.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

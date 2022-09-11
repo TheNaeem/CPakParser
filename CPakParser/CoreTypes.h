@@ -337,6 +337,7 @@ class IDiskFile
 public:
 
 	virtual std::filesystem::path GetDiskPath() = 0;
+	virtual std::ifstream CreateEntryHandle(struct FFileEntryInfo EntryInfo) = 0;
 };
 
 struct FFileEntryInfo
@@ -364,6 +365,11 @@ struct FFileEntryInfo
 	__forceinline std::filesystem::path GetDiskFilePath()
 	{
 		return AssociatedFile->GetDiskPath();
+	}
+
+	__forceinline std::shared_ptr<IDiskFile> GetAssociatedFile()
+	{
+		return AssociatedFile;
 	}
 
 protected:
@@ -435,6 +441,12 @@ template<typename Enum>
 constexpr bool EnumHasAnyFlags(Enum Flags, Enum Contains)
 {
 	return (((__underlying_type(Enum))Flags) & (__underlying_type(Enum))Contains) != 0;
+}
+
+template <typename T>
+static __forceinline constexpr T Align(T Val, uint64_t Alignment)
+{
+	return (T)(((uint64_t)Val + Alignment - 1) & ~(Alignment - 1));
 }
 
 std::vector<std::string> LoadNameBatch(FArchive& Ar);

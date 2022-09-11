@@ -64,6 +64,12 @@
     <Filter Include="Unreal\Paks\IOStore\IOStore Container">
       <UniqueIdentifier>{f3c0fc40-578a-43d3-8f86-93a1d7c7a552}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading\Pak Reader">
+      <UniqueIdentifier>{e53847bb-c35a-45df-bd82-da73a9775f91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Compression">
+      <UniqueIdentifier>{8eaf07a2-125f-4808-b1cb-2e0ae06efdac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -126,6 +132,15 @@
     <ClInclude Include="IoContainer.h">
       <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
     </ClInclude>
+    <ClInclude Include="PakReaders.h">
+      <Filter>Unreal\Paks\Pak Reading\Pak Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="Oodle.h">
+      <Filter>Unreal\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="Compression.h">
+      <Filter>Unreal\Compression</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">
@@ -166,6 +181,12 @@
     </ClCompile>
     <ClCompile Include="IoContainer.cpp">
       <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
+    </ClCompile>
+    <ClCompile Include="PakReaders.cpp">
+      <Filter>Unreal\Paks\Pak Reading\Pak Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="Compression.cpp">
+      <Filter>Unreal\Compression</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

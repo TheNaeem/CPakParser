@@ -85,6 +85,11 @@ public:
 		return Toc->TocPath;
 	}
 
+	std::ifstream CreateEntryHandle(FFileEntryInfo EntryInfo) override
+	{
+		return std::ifstream();
+	}
+
 private:
 
 	__forceinline void Initialize();

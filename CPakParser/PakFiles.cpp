@@ -47,6 +47,128 @@ int64_t FPakEntry::GetSerializedSize(int32_t Version) const
 	return SerializedSize;
 }
 
+static void DecodePakEntry(const uint8_t* SourcePtr, FPakEntry& OutEntry, FPakInfo& InInfo)
+{
+	auto Val = *(uint32_t*)SourcePtr;
+	SourcePtr += sizeof(uint32_t);
+
+	uint32_t CompressionBlockSize = 0;
+	if ((Val & 0x3f) == 0x3f)
+	{
+		CompressionBlockSize = *(uint32_t*)SourcePtr;
+		SourcePtr += sizeof(uint32_t);
+	}
+	else
+	{
+		CompressionBlockSize = ((Val & 0x3f) << 11);
+	}
+
+	OutEntry.CompressionMethodIndex = (Val >> 23) & 0x3f;
+
+	bool bIsOffset32BitSafe = (Val & (1 << 31)) != 0;
+	if (bIsOffset32BitSafe)
+	{
+		OutEntry.Offset = *(uint32_t*)SourcePtr;
+		SourcePtr += sizeof(uint32_t);
+	}
+	else
+	{
+		memcpy(&OutEntry.Offset, SourcePtr, sizeof(int64_t));
+		SourcePtr += sizeof(int64_t);
+	}
+
+	bool bIsUncompressedSize32BitSafe = (Val & (1 << 30)) != 0;
+	if (bIsUncompressedSize32BitSafe)
+	{
+		OutEntry.UncompressedSize = *(uint32_t*)SourcePtr;
+		SourcePtr += sizeof(uint32_t);
+	}
+	else
+	{
+		memcpy(&OutEntry.UncompressedSize, SourcePtr, sizeof(int64_t));
+		SourcePtr += sizeof(int64_t);
+	}
+
+	if (OutEntry.CompressionMethodIndex != 0)
+	{
+		bool bIsSize32BitSafe = (Val & (1 << 29)) != 0;
+		if (bIsSize32BitSafe)
+		{
+			OutEntry.Size = *(uint32_t*)SourcePtr;
+			SourcePtr += sizeof(uint32_t);
+		}
+		else
+		{
+			memcpy(&OutEntry.Size, SourcePtr, sizeof(int64_t));
+			SourcePtr += sizeof(int64_t);
+		}
+	}
+	else
+	{
+		OutEntry.Size = OutEntry.UncompressedSize;
+	}
+
+	OutEntry.SetEncrypted((Val & (1 << 22)) != 0);
+
+	uint32_t CompressionBlocksCount = (Val >> 6) & 0xffff;
+	OutEntry.CompressionBlocks.resize(CompressionBlocksCount);
+
+	OutEntry.CompressionBlockSize = 0;
+	if (CompressionBlocksCount > 0)
+	{
+		OutEntry.CompressionBlockSize = CompressionBlockSize;
+
+		if (CompressionBlocksCount == 1)
+		{
+			OutEntry.CompressionBlockSize = OutEntry.UncompressedSize;
+		}
+	}
+
+	OutEntry.SetDeleteRecord(false);
+
+	int64_t BaseOffset = InInfo.HasRelativeCompressedChunkOffsets() ? 0 : OutEntry.Offset;
+
+	if (OutEntry.CompressionBlocks.size() == 1 && !OutEntry.IsEncrypted())
+	{
+		FPakCompressedBlock& CompressedBlock = OutEntry.CompressionBlocks[0];
+		CompressedBlock.CompressedStart = BaseOffset + OutEntry.GetSerializedSize(InInfo.Version);
+		CompressedBlock.CompressedEnd = CompressedBlock.CompressedStart + OutEntry.Size;
+	}
+	else if (OutEntry.CompressionBlocks.size() > 0)
+	{
+		auto CompressionBlockSizePtr = (uint32_t*)SourcePtr;
+
+		uint64_t CompressedBlockAlignment = OutEntry.IsEncrypted() ? FAESKey::AESBlockSize : 1;
+
+		int64_t CompressedBlockOffset = BaseOffset + OutEntry.GetSerializedSize(InInfo.Version);
+		for (int CompressionBlockIndex = 0; CompressionBlockIndex < OutEntry.CompressionBlocks.size(); ++CompressionBlockIndex)
+		{
+			FPakCompressedBlock& CompressedBlock = OutEntry.CompressionBlocks[CompressionBlockIndex];
+			CompressedBlock.CompressedStart = CompressedBlockOffset;
+			CompressedBlock.CompressedEnd = CompressedBlockOffset + *CompressionBlockSizePtr++;
+			CompressedBlockOffset += Align(CompressedBlock.CompressedEnd - CompressedBlock.CompressedStart, CompressedBlockAlignment);
+		}
+	}
+}
+
+FPakEntry FPakFile::CreateEntry(FPakEntryLocation& Location)
+{
+	if (Location.IsInvalid())
+		return FPakEntry();
+
+	auto EncodedOffset = Location.GetAsOffsetIntoEncoded();
+
+	if (EncodedOffset >= 0)
+	{
+		FPakEntry Ret;
+		DecodePakEntry(EncodedPakEntries.data() + EncodedOffset, Ret, Info);
+		return Ret;
+	}
+
+	auto ListIdx = Location.GetAsListIndex();
+	return Files[ListIdx];
+}
+
 void FPakEntry::Serialize(FArchive& Ar, int32_t Version)
 {
 	struct OffsetSizeProps
@@ -208,6 +330,27 @@ void FPakFile::ReturnSharedReader(FArchive* SharedReader)
 		});
 }
 
+std::ifstream FPakFile::CreateEntryHandle(FFileEntryInfo EntryInfo)
+{
+	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
+
+	auto Entry = CreateEntry(PakEntryLoc);
+
+	if (Entry.CompressionMethodIndex != 0 && Info.Version >= FPakInfo::PakFile_Version_CompressionEncryption)
+	{
+		if (Entry.IsEncrypted())
+		{
+
+		}
+		else
+		{
+
+		}
+	}
+
+	return std::ifstream();
+}
+
 FSharedPakReader FPakFile::GetSharedReader()
 {
 	FArchive* PakReader = nullptr;
@@ -281,7 +424,15 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	NumEntries = 0;
 	PrimaryIndexReader << MountPoint;
-	MakeDirectoryFromPath(MountPoint);
+
+	if (MountPoint.back() == '\0')
+		MountPoint.pop_back();
+
+	if (MountPoint.length() > 0 && MountPoint[MountPoint.length() - 1] != '/')
+	{
+		MountPoint += "/";
+	}
+
 	PrimaryIndexReader << NumEntries;
 	PrimaryIndexReader << PathHashSeed;
 
@@ -382,7 +533,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (!bReadFullDirectoryIndex)
 	{
-		FGameFileManager::SerializePakIndexes(PathHashIndexReader, SharedThis);
+		FGameFileManager::SerializePakIndexes(PathHashIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -400,7 +551,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		FGameFileManager::SerializePakIndexes(SecondaryIndexReader, SharedThis);
+		FGameFileManager::SerializePakIndexes(SecondaryIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = true;
 	}
 

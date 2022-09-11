@@ -25,8 +25,7 @@ FArchive& operator<<(FArchive& Ar, std::string& InString)
 	else
 	{
 		InString.resize(SaveNum);
-
-		Ar.Serialize(&InString[0], InString.size());
+		Ar.Serialize(&InString[0], SaveNum);
 	}
 
 	return Ar;
@@ -166,7 +165,7 @@ FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
 	return Ar << Info.Entry.PakIndex;
 }
 
-void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::shared_ptr<FPakFile> AssociatedPak)
+void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint, std::shared_ptr<FPakFile> AssociatedPak)
 {
 	auto& DirectoryIndex = Get().FileLibrary;
 
@@ -198,6 +197,7 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::shared_ptr<FPakFil
 
 		if (!DirIdxNum) continue;
 
+		DirectoryName = MountPoint + DirectoryName;
 		DirIdx.reserve(DirIdxNum);
 
 		for (size_t i = 0; i < DirIdxNum; i++)

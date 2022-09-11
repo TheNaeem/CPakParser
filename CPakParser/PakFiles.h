@@ -6,6 +6,8 @@
 
 static void MakeDirectoryFromPath(std::string& Path)
 {
+	//Path.erase(Path.find('\0'));
+
 	if (Path.length() > 0 && Path[Path.length() - 1] != '/')
 	{
 		Path += "/";
@@ -87,9 +89,14 @@ struct FPakInfo
 
 	int64_t GetSerializedSize(int32_t InVersion = PakFile_Version_Latest) const;
 
-	std::string GetCompressionMethod(uint8_t Index) const
+	__forceinline std::string GetCompressionMethod(uint8_t Index) const
 	{
 		return CompressionMethods[Index];
+	}
+
+	__forceinline int64_t HasRelativeCompressedChunkOffsets() const
+	{
+		return Version >= PakFile_Version_RelativeChunkOffsets;
 	}
 
 	void Serialize(FArchive& Ar, int32_t InVersion);
@@ -137,6 +144,29 @@ struct FPakEntry
 	uint8_t Flags;
 	mutable bool Verified;
 
+	__forceinline void SetFlag(uint8_t InFlag, bool bValue)
+	{
+		if (bValue)
+		{
+			Flags |= InFlag;
+		}
+		else
+		{
+			Flags &= ~InFlag;
+		}
+	}
+
+	__forceinline bool GetFlag(uint8_t InFlag) const
+	{
+		return (Flags & InFlag) == InFlag;
+	}
+
+	__forceinline bool IsEncrypted() const { return GetFlag(Flag_Encrypted); }
+	__forceinline void SetEncrypted(bool bEncrypted) { SetFlag(Flag_Encrypted, bEncrypted); }
+
+	__forceinline bool IsDeleteRecord() const { return GetFlag(Flag_Deleted); }
+	__forceinline void SetDeleteRecord(bool bDeleteRecord) { SetFlag(Flag_Deleted, bDeleteRecord); }
+
 	int64_t GetSerializedSize(int32_t Version) const;
 	void Serialize(FArchive& Ar, int32_t Version);
 };
@@ -144,6 +174,7 @@ struct FPakEntry
 class FPakFile final : public std::enable_shared_from_this<FPakFile>, public IDiskFile
 {
 public:
+
 	FPakFile(std::filesystem::path FilePath, bool bIsSigned);
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
@@ -163,9 +194,11 @@ public:
 	bool Initialize(bool bLoadIndex);
 
 private:
+
 	bool LoadIndex(class FArchive& Reader);
 	bool LoadIndexInternal(class FArchive& Reader);
 	bool TryDecryptIndex(std::vector<uint8_t>& Data);
+	FPakEntry CreateEntry(FPakEntryLocation& Location);
 
 	friend class FPakFileManager;
 
@@ -197,7 +230,7 @@ private:
 
 public:
 
-	FPakInfo& GetInfo()
+	__forceinline FPakInfo& GetInfo()
 	{
 		return Info;
 	}
@@ -217,6 +250,7 @@ public:
 		return bIsMounted;
 	}
 
+	std::ifstream CreateEntryHandle(FFileEntryInfo EntryInfo) override;
 	FSharedPakReader GetSharedReader();
 	void ReturnSharedReader(FArchive* SharedReader);
 };

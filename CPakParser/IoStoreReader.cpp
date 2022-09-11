@@ -10,12 +10,6 @@ std::atomic_uint32_t FFileIoStore::Reader::GlobalContainerInstanceId{ 0 };
 
 static constexpr bool bPerfectHashingEnabled = true;
 
-template <typename T>
-static __forceinline constexpr T Align(T Val, uint64_t Alignment)
-{
-	return (T)(((uint64_t)Val + Alignment - 1) & ~(Alignment - 1));
-}
-
 __forceinline void FIoStoreToc::Initialize()
 {
 	FEncryptionKeyManager::GetKey(Toc->Header.EncryptionKeyGuid, Key);

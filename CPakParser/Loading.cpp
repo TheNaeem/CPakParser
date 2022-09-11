@@ -10,7 +10,9 @@ void FLoader::CreateLoader()
 {
 	// TODO: async loader https://github.com/EpicGames/UnrealEngine/blob/ue5-main/Engine/Source/Runtime/CoreUObject/Private/UObject/LinkerLoad.cpp#L1064
 
-	this->Reader = FFileReader(Package.GetOwningFileName().c_str());
+	auto EntryInfo = Package.GetPath().GetEntryInfo();
+
+	EntryInfo.GetAssociatedFile()->CreateEntryHandle(EntryInfo);
 }
 
 void FLoader::LoadAllObjects()

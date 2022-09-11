@@ -2,7 +2,7 @@
 
 #include "CoreTypes.h"
 
-struct FPakEntryLocation : public FFileEntryInfo // i dont like that i have to include this here but whatever
+struct FPakEntryLocation : public FFileEntryInfo
 {
 	static const int32_t Invalid = MIN_int32;
 	static const int32_t MaxIndex = MAX_int32 - 1;
@@ -21,6 +21,40 @@ struct FPakEntryLocation : public FFileEntryInfo // i dont like that i have to i
 		return entry1.Entry.PakIndex == entry2.Entry.PakIndex;
 	}
 
+	bool IsInvalid() const
+	{
+		return Entry.PakIndex <= Invalid || MaxIndex < Entry.PakIndex;
+	}
+
+	bool IsOffsetIntoEncoded() const
+	{
+		return 0 <= Entry.PakIndex && Entry.PakIndex <= MaxIndex;
+	}
+
+	bool IsListIndex() const
+	{
+		return (-MaxIndex - 1) <= Entry.PakIndex && Entry.PakIndex <= -1;
+	}
+
+	int32_t  GetAsOffsetIntoEncoded() const
+	{
+		if (IsOffsetIntoEncoded())
+		{
+			return Entry.PakIndex;
+		}
+		
+		return -1;
+	}
+
+	int32_t GetAsListIndex() const
+	{
+		if (IsListIndex())
+		{
+			return -(Entry.PakIndex + 1);
+		}
+		
+		return -1;
+	}
 
 private:
 
@@ -39,7 +73,7 @@ struct FIoStoreTocChunkInfo : public FFileEntryInfo
 typedef phmap::flat_hash_map<std::string, FFileEntryInfo> FPakDirectory;
 typedef phmap::flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
-class FGameFileManager
+class FGameFileManager // TODO: FDirectoryIterator
 {
 public:
 
@@ -55,10 +89,7 @@ public:
 
 		for (auto i : Files)
 		{
-			for (auto x : i.second)
-			{
-				printf("%s%s\n", i.first.c_str(), x.first.c_str());
-			}
+			printf("%s\n", i.first.c_str());
 		}
 	}
 
@@ -80,6 +111,11 @@ public:
 		Get().FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
 	}
 
+	/// <summary>
+	/// </summary>
+	/// <param name="Directory">Null terminated directory name with extension.</param>
+	/// <param name="FileName">Null terminated file name with extension.</param>
+	/// <returns></returns>
 	__forceinline static FFileEntryInfo FindFile(std::string& Directory, std::string& FileName)
 	{
 		auto& Lib = Get().FileLibrary;
@@ -95,7 +131,17 @@ public:
 		return Dir[FileName];
 	}
 
-	static void SerializePakIndexes(FArchive& Ar, std::shared_ptr<class FPakFile> AssociatedPak);
+	/// <summary>
+	/// Returns a list of file entries by directory.
+	/// </summary>
+	/// <param name="Directory">Null terminated directory string.</param>
+	/// <returns></returns>
+	__forceinline static FPakDirectory GetDirectory(std::string Directory)
+	{
+		return Get().FileLibrary[Directory];
+	}
+
+	static void SerializePakIndexes(FArchive& Ar, std::string& MountPoint, std::shared_ptr<class FPakFile> AssociatedPak);
 
 private:
 
