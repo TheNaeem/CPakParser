@@ -176,6 +176,7 @@ class FPakFile final : public std::enable_shared_from_this<FPakFile>, public IDi
 public:
 
 	FPakFile(std::filesystem::path FilePath, bool bIsSigned);
+	~FPakFile();
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
 
@@ -183,12 +184,6 @@ public:
 	{
 		Shared,
 		Individual,
-	};
-
-	struct FArchiveAndLastAccessTime
-	{
-		std::unique_ptr<class FArchive> Archive;
-		time_t LastAccessTime;
 	};
 
 	bool Initialize(bool bLoadIndex);
@@ -203,7 +198,7 @@ private:
 	friend class FPakFileManager;
 
 	std::filesystem::path PakFilePath;
-	std::vector<FArchiveAndLastAccessTime> Readers;
+	std::vector<FArchive*> Readers;
 	int32_t CurrentlyUsedReaders = 0;
 	std::mutex CriticalSection;
 	FPakInfo Info;
@@ -250,7 +245,7 @@ public:
 		return bIsMounted;
 	}
 
-	std::ifstream CreateEntryHandle(FFileEntryInfo EntryInfo) override;
+	FArchive* CreateEntryHandle(FFileEntryInfo EntryInfo) override;
 	FSharedPakReader GetSharedReader();
 	void ReturnSharedReader(FArchive* SharedReader);
 };

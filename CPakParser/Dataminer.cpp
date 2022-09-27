@@ -2,6 +2,7 @@
 
 #include "PakFileManager.h"
 #include "Loader.h"
+#include "Oodle.h"
 
 static FPakFileManager PakPlatformFile;
 
@@ -13,6 +14,11 @@ void Dataminer::Initialize(const char* PaksFolderDir)
 bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 {
 	return PakPlatformFile.RegisterEncryptionKey(GuidString ? FGuid(GuidString) : FGuid(), FAESKey(AesKeyString));
+}
+
+void Dataminer::WithOodleCompressor(const char* OodleDllPath)
+{
+	Oodle::LoadDLL(OodleDllPath);
 }
 
 bool Dataminer::Test(const char* FileDirectory, const char* FileName)

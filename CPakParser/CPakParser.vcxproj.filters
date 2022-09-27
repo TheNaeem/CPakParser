@@ -64,11 +64,17 @@
     <Filter Include="Unreal\Paks\IOStore\IOStore Container">
       <UniqueIdentifier>{f3c0fc40-578a-43d3-8f86-93a1d7c7a552}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Paks\Pak Reading\Pak Reader">
-      <UniqueIdentifier>{e53847bb-c35a-45df-bd82-da73a9775f91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Compression">
       <UniqueIdentifier>{8eaf07a2-125f-4808-b1cb-2e0ae06efdac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Derived\Pak Reader">
+      <UniqueIdentifier>{7a7521a8-1287-4d09-b4d7-7fa0490b1d29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Compression\Formats">
+      <UniqueIdentifier>{1ab02063-7def-4e68-9090-a25390a46dba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Misc\Versioning">
+      <UniqueIdentifier>{092885e2-b2de-4735-9b1d-6b49c8fa74f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +92,6 @@
     </ClInclude>
     <ClInclude Include="PakFiles.h">
       <Filter>Unreal\Paks\Pak Reading\Pak Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Versioning.h">
-      <Filter>Unreal\Core\Misc</Filter>
     </ClInclude>
     <ClInclude Include="AES.h">
       <Filter>Unreal\Core\Misc\AES</Filter>
@@ -132,14 +135,20 @@
     <ClInclude Include="IoContainer.h">
       <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
     </ClInclude>
-    <ClInclude Include="PakReaders.h">
-      <Filter>Unreal\Paks\Pak Reading\Pak Reader</Filter>
-    </ClInclude>
-    <ClInclude Include="Oodle.h">
-      <Filter>Unreal\Compression</Filter>
-    </ClInclude>
     <ClInclude Include="Compression.h">
       <Filter>Unreal\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="PakReader.h">
+      <Filter>Unreal\Archives\Derived\Pak Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="Oodle.h">
+      <Filter>Unreal\Compression\Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageSummary.h">
+      <Filter>Unreal\Paks\Pak Reading\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Versioning.h">
+      <Filter>Unreal\Core\Misc\Versioning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,11 +191,17 @@
     <ClCompile Include="IoContainer.cpp">
       <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
     </ClCompile>
-    <ClCompile Include="PakReaders.cpp">
-      <Filter>Unreal\Paks\Pak Reading\Pak Reader</Filter>
-    </ClCompile>
     <ClCompile Include="Compression.cpp">
       <Filter>Unreal\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="PakReader.cpp">
+      <Filter>Unreal\Archives\Derived\Pak Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="Oodle.cpp">
+      <Filter>Unreal\Compression\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="Versioning.cpp">
+      <Filter>Unreal\Core\Misc\Versioning</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

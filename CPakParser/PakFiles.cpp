@@ -3,6 +3,7 @@
 #include "FileReader.h"
 #include "MemoryReader.h"
 #include "Hashing.h"
+#include "PakReader.h"
 
 //TODO: right now im just directly porting engine code, but once I have everything laid out, I should refactor it to be more practical for my usage of it
 
@@ -322,36 +323,23 @@ void FPakFile::ReturnSharedReader(FArchive* SharedReader)
 
 	--CurrentlyUsedReaders;
 
-	Readers.push_back(
-		FArchiveAndLastAccessTime
-		{
-			std::make_unique<FArchive>(*SharedReader),
-			time(NULL)
-		});
+	Readers.push_back(SharedReader);
 }
 
-std::ifstream FPakFile::CreateEntryHandle(FFileEntryInfo EntryInfo)
+FArchive* FPakFile::CreateEntryHandle(FFileEntryInfo EntryInfo)
 {
 	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
-
 	auto Entry = CreateEntry(PakEntryLoc);
 
-	if (Entry.CompressionMethodIndex != 0 && Info.Version >= FPakInfo::PakFile_Version_CompressionEncryption)
+	if (Entry.IsEncrypted())
 	{
-		if (Entry.IsEncrypted())
-		{
-
-		}
-		else
-		{
-
-		}
+		return new FPakReader<FPakSimpleEncryption>(shared_from_this(), Entry);
 	}
 
-	return std::ifstream();
+	return new FPakReader(shared_from_this(), Entry);
 }
 
-FSharedPakReader FPakFile::GetSharedReader()
+FSharedPakReader FPakFile::GetSharedReader() // TODO: refactor
 {
 	FArchive* PakReader = nullptr;
 
@@ -360,12 +348,12 @@ FSharedPakReader FPakFile::GetSharedReader()
 
 		if (Readers.size() > 0)
 		{
-			PakReader = Readers.back().Archive.release();
+			PakReader = Readers.back();
 			Readers.pop_back();
 		}
 		else
 		{
-			PakReader = std::make_unique<FFileReader>(PakFilePath.string().c_str()).release();
+			PakReader = new FFileReader(PakFilePath.string().c_str());
 		}
 
 		++CurrentlyUsedReaders;
@@ -586,6 +574,12 @@ FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned)
 	, UnderlyingCacheTrimDisabled(false)
 	, bIsMounted(false)
 {
+}
+
+FPakFile::~FPakFile()
+{
+	for (auto Reader : Readers)
+		delete Reader;
 }
 
 bool FPakFile::Initialize(bool bLoadIndex)

@@ -22,37 +22,3 @@ public:
 	}
 };
 
-class FPakReader
-{
-protected:
-
-	std::shared_ptr<FPakFile> Pak;
-	FPakEntry Entry;
-	int64_t ReadPos;
-	FPakDefaultEncryption Encryption;
-
-public:
-
-	FPakReader(std::shared_ptr<FPakFile> PakFile, FPakEntry InEntry, bool bEncrypted) :
-		Pak(PakFile),
-		Entry(InEntry),
-		ReadPos(0),
-		Encryption(bEncrypted ? FPakDefaultEncryption() : FPakDefaultEncryption()) 
-	{
-	}
-
-	virtual void Serialize(int64_t DesiredPosition, void* V, int64_t Length) = 0;
-
-	__forceinline void Read(uint8_t* Destination, int64_t BytesToRead)
-	{
-		Serialize(ReadPos, Destination, BytesToRead);
-		ReadPos += BytesToRead;
-	}
-};
-
-class FCompressedPakReader : public FPakReader
-{
-public:
-
-	virtual void Serialize(int64_t DesiredPosition, void* V, int64_t Length) override;
-};

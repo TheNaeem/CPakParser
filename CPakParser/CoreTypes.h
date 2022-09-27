@@ -337,7 +337,7 @@ class IDiskFile
 public:
 
 	virtual std::filesystem::path GetDiskPath() = 0;
-	virtual std::ifstream CreateEntryHandle(struct FFileEntryInfo EntryInfo) = 0;
+	virtual class FArchive* CreateEntryHandle(struct FFileEntryInfo EntryInfo) = 0;
 };
 
 struct FFileEntryInfo

@@ -19,7 +19,7 @@ int64_t FFileReader::Tell()
 	return FileStream.tellg();
 }
 
-int64_t FFileReader::TotalSize()
+int64_t FFileReader::TotalSize() 
 {
 	auto Pos = FileStream.tellg();
 	FileStream.seekg(0, FileStream._Seekend);

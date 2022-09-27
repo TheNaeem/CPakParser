@@ -9,8 +9,11 @@ FArchiveState::FArchiveState()
 
 FArchiveState::~FArchiveState()
 {
-	delete CustomVersionContainer;
-	delete SerializedPropertyChain;
+	if (CustomVersionContainer)
+		delete CustomVersionContainer;
+
+	if (SerializedPropertyChain)
+		delete SerializedPropertyChain;
 }
 
 void FArchiveState::Reset()

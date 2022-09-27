@@ -5,7 +5,9 @@
 
 int main()
 {
-    Dataminer::SubmitKey("0x5311BD9BAE787F968F3870764131FB907C23D6BFAC4FA7F3AD4F2BF599CC5842");
+    Dataminer::WithOodleCompressor("oo2core_9_win64.dll");
+
+    Dataminer::SubmitKey("0x235F62E68E0205802D946747BCBF56EF28406B310936A31481D9DA94F28C4F76");
     Dataminer::Initialize("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
     Dataminer::Test("../../../FortniteGame/Content/Localization/Fortnite_locchunk10/en/", "Fortnite_locchunk10.locres");

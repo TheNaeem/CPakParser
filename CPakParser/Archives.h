@@ -77,7 +77,7 @@ public:
 		return INDEX_NONE;
 	}
 
-	virtual int64_t TotalSize()
+	virtual int64_t TotalSize() 
 	{
 		return INDEX_NONE;
 	}
@@ -286,5 +286,11 @@ public:
 	__forceinline void SeekCur(int64_t InAdvanceCount)
 	{
 		Seek(Tell() + InAdvanceCount);
+	}
+
+	template <typename T>
+	__forceinline void SeekCur()
+	{
+		SeekCur(sizeof(T));
 	}
 };

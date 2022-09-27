@@ -7,6 +7,7 @@ class Dataminer
 	}
 
 public:
+
 	Dataminer& operator=(const Dataminer&) = delete;
 	Dataminer(const Dataminer&) = delete; 
 
@@ -18,5 +19,6 @@ public:
 
 	static void Initialize(const char* PaksFolderDir);
 	static bool SubmitKey(const char* AesKeyString, const char* GuidString = nullptr);
+	static void WithOodleCompressor(const char* OodleDllPath);
 	static bool Test(const char* FileDirectory, const char* FileName);
 };

@@ -697,88 +697,24 @@ struct FPackageFileVersion
 		: FileVersionUE4(UE4Version)
 		, FileVersionUE5((int32_t)UE5Version)
 	{
-
 	}
 
-	/** Set all versions to the default state */
-	void Reset()
-	{
-		FileVersionUE4 = 0;
-		FileVersionUE5 = 0;
-	}
+	void Reset();
 
-	/** Creates and returns a FPackageFileVersion based on a single EUnrealEngineObjectUEVersion and no other versions. */
 	static FPackageFileVersion CreateUE4Version(int32_t Version);
 	static FPackageFileVersion CreateUE4Version(EUnrealEngineObjectUE4Version Version);
 
-	/** Returns the highest valid version number which is considered to be the 'true' version number */
-	int32_t ToValue() const
-	{
-		if (FileVersionUE5 >= (int32_t)EUnrealEngineObjectUE5Version::INITIAL_VERSION)
-		{
-			return FileVersionUE5;
-		}
-		else
-		{
-			return FileVersionUE4;
-		}
-	}
+	int32_t ToValue() const;
 
-	/** UE4 version comparisons */
-	bool operator !=(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 != Version;
-	}
-
-	/** UE4 version comparisons */
-	bool operator <(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 < Version;
-	}
-
-	/** UE4 version comparisons */
-	bool operator >=(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 >= Version;
-	}
-
-	/** UE5 version comparisons */
-	bool operator !=(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 != (int32_t)Version;
-	}
-
-	/** UE5 version comparisons  */
-	bool operator <(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 < (int32_t)Version;
-	}
-
-	/** UE5 version comparisons */
-	bool operator >=(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 >= (int32_t)Version;
-	}
-
-	/**
-	 * Returns true if this object is compatible with the FPackageFileVersion passed in as the parameter.
-	 * This means that  all version numbers for the current object are equal or greater than the
-	 * corresponding version numbers of the other structure.
-	 */
-	bool IsCompatible(const FPackageFileVersion& Other) const
-	{
-		return FileVersionUE4 >= Other.FileVersionUE4 && FileVersionUE5 >= Other.FileVersionUE5;
-	}
-
-	bool operator==(const FPackageFileVersion& Other) const
-	{
-		return FileVersionUE4 == Other.FileVersionUE4 && FileVersionUE5 == Other.FileVersionUE5;
-	}
-
-	bool operator!=(const FPackageFileVersion& Other) const
-	{
-		return !(*this == Other);
-	}
+	bool operator !=(EUnrealEngineObjectUE4Version Version) const;
+	bool operator <(EUnrealEngineObjectUE4Version Version) const;
+	bool operator >=(EUnrealEngineObjectUE4Version Version) const;
+	bool operator !=(EUnrealEngineObjectUE5Version Version) const;
+	bool operator <(EUnrealEngineObjectUE5Version Version) const;
+	bool operator >=(EUnrealEngineObjectUE5Version Version) const;
+	bool IsCompatible(const FPackageFileVersion& Other) const;
+	bool operator==(const FPackageFileVersion& Other) const;
+	bool operator!=(const FPackageFileVersion& Other) const;
 
 	friend FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version);
 
@@ -806,65 +742,24 @@ enum class EVersionComparison
 };
 
 
-/** Base class for the EngineVersion class. Holds basic version numbers. */
 class FEngineVersionBase
 {
 public:
 
-	/** Empty constructor. Initializes the version to 0.0.0-0. */
 	FEngineVersionBase() = default;
-
-	/** Constructs a version from the given components. */
 	FEngineVersionBase(uint16_t InMajor, uint16_t InMinor, uint16_t InPatch = 0, uint32_t InChangelist = 0);
 
-	/** Returns the changelist number corresponding to this version. */
-	uint32_t GetChangelist() const;
-
-	/** Returns the Major version number corresponding to this version. */
-	__forceinline uint16_t GetMajor() const
-	{
-		return Major;
-	}
-
-	/** Returns the Minor version number corresponding to this version. */
-	__forceinline uint16_t GetMinor() const
-	{
-		return Minor;
-	}
-
-	/** Returns the Patch version number corresponding to this version. */
-	__forceinline uint16_t GetPatch() const
-	{
-		return Patch;
-	}
-
-	/** Checks if the changelist number represents licensee changelist number. */
-	bool IsLicenseeVersion() const;
-
-	/** Returns whether the current version is empty. */
-	bool IsEmpty() const;
-
-	/** Returns whether the engine version has a changelist component. */
-	bool HasChangelist() const;
-
-	/** Returns the newest of two versions, and the component at which they differ */
-	static EVersionComparison GetNewest(const FEngineVersionBase& First, const FEngineVersionBase& Second, EVersionComponent* OutComponent);
-
-	/** Encodes a licensee changelist number (by setting the top bit) */
-	static uint32_t EncodeLicenseeChangelist(uint32_t Changelist);
+	__forceinline uint16_t GetMajor() const;
+	__forceinline uint16_t GetMinor() const;
+	__forceinline uint16_t GetPatch() const;
+	__forceinline uint16_t GetChangelist() const;
+	__forceinline bool IsLicenseeVersion() const;
 
 protected:
 
-	/** Major version number. */
 	uint16_t Major = 0;
-
-	/** Minor version number. */
 	uint16_t Minor = 0;
-
-	/** Patch version number. */
 	uint16_t Patch = 0;
-
-	/** Changelist number. This is used to arbitrate when Major/Minor/Patch version numbers match. Use GetChangelist() instead of using this member directly. */
 	uint32_t Changelist = 0;
 };
 
@@ -879,39 +774,16 @@ struct FCustomVersion
 {
 	friend class FCustomVersionContainer;
 
-	/** Unique custom key. */
 	FGuid Key;
-
-	/** Custom version. */
 	int32_t Version;
-
-	/** Number of times this GUID has been registered */
 	int32_t ReferenceCount;
 
-	/** Helper constructor. */
-	__forceinline FCustomVersion(FGuid InKey, int32_t InVersion, FName InFriendlyName)
-		: Key(InKey)
-		, Version(InVersion)
-		, ReferenceCount(1)
-		, FriendlyName(InFriendlyName)
-	{
-	}
+	__forceinline FCustomVersion(FGuid InKey, int32_t InVersion, FName InFriendlyName);
 
-	/** Equality comparison operator for Key */
-	__forceinline bool operator==(FGuid InKey) const
-	{
-		return Key == InKey;
-	}
-
-	/** Inequality comparison operator for Key */
-	__forceinline bool operator!=(FGuid InKey) const
-	{
-		return Key != InKey;
-	}
+	__forceinline bool operator==(FGuid InKey) const;
+	__forceinline bool operator!=(FGuid InKey) const;
 
 	friend FArchive& operator<<(FArchive& Ar, FCustomVersion& Version);
-
-	/** Gets the friendly name for error messages or whatever */
 	const FName GetFriendlyName() const;
 
 private:
@@ -919,3 +791,19 @@ private:
 	/** Friendly name for error messages or whatever. Lazy initialized for serialized versions */
 	mutable FName FriendlyName;
 };
+
+class FEngineVersion : public FEngineVersionBase
+{
+public:
+
+	friend FArchive& operator<<(class FArchive& Ar, FEngineVersion& Version);
+
+	__forceinline const std::string GetBranch() const;
+	void Set(uint16_t InMajor, uint16_t InMinor, uint16_t InPatch, uint32_t InChangelist, const std::string& InBranch);
+
+private:
+
+	std::string Branch;
+};
+
+void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, FEngineVersion& Version);

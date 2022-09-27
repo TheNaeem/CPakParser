@@ -85,9 +85,9 @@ public:
 		return Toc->TocPath;
 	}
 
-	std::ifstream CreateEntryHandle(FFileEntryInfo EntryInfo) override
+	FArchive* CreateEntryHandle(FFileEntryInfo EntryInfo) override
 	{
-		return std::ifstream();
+		return 0;
 	}
 
 private:

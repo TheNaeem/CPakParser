@@ -59,25 +59,24 @@ public:
 
 	void Serialize(void* Data, int64_t Num) override
 	{
-		if (Num)
+		if (Num && Offset + Num <= TotalSize())
 		{
-			if (Offset + Num <= TotalSize())
-			{
-				memcpy(Data, Bytes + Offset, Num);
-				Offset += Num;
-			}
+			memcpy(Data, Bytes + Offset, Num);
+			Offset += Num;
 		}
 	}
 
-	explicit FMemoryReader(const std::vector<uint8_t>& InBytes)
+	explicit FMemoryReader(const std::vector<uint8_t>& InBytes, bool bFreeBuffer = false)
 		: Bytes(InBytes.data())
 		, LimitSize(InBytes.size())
+		, bFree(bFreeBuffer)
 	{
 	}
 
-	FMemoryReader(uint8_t* InBytes, uint32_t Size)
+	FMemoryReader(uint8_t* InBytes, uint32_t Size, bool bFreeBuffer = false)
 		: Bytes(InBytes)
 		, LimitSize(Size)
+		, bFree(bFreeBuffer)
 	{
 	}
 
@@ -96,10 +95,17 @@ public:
 		return Bytes + Offset;
 	}
 
+	~FMemoryReader()
+	{
+		if (bFree && Bytes)
+			delete Bytes;
+	}
+
 private:
 
 	const uint8_t* Bytes;
 	int32_t LimitSize;
+	bool bFree;
 };
 
 class FMemoryReaderView : public FMemoryArchive
