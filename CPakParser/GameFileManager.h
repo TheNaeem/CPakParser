@@ -150,3 +150,80 @@ private:
 	FDirectoryIndex FileLibrary;
 	std::mutex CriticalSection;
 };
+
+static const std::string BaseMountPoint("../../../");
+
+struct FGameFilePath
+{
+	FGameFilePath()
+	{
+	}
+
+	FGameFilePath(const char* FilePath) : FGameFilePath(std::string(FilePath))
+	{
+	}
+
+	FGameFilePath(const char* FileDirectory, const char* FileName) 
+		: FGameFilePath(std::string(FileDirectory), std::string(FileName))
+	{
+	}
+
+	FGameFilePath(std::string InFilePath)
+	{
+		auto idx = InFilePath.find_last_of('/');
+
+		if (idx == std::string::npos)
+			return;
+
+		idx++;
+
+		FileName = InFilePath.substr(idx);
+		Directory = InFilePath.substr(0, idx);
+
+		if (!Directory.starts_with(BaseMountPoint)) // TODO: a better less lazier way
+			Directory = BaseMountPoint + Directory;
+
+		if (Directory.back() != '\0')
+			Directory += '\0';
+
+		if (FileName.back() != '\0')
+			FileName += '\0';
+	}
+
+	FGameFilePath(std::string InFileDirectory, std::string InFileName)
+		: Directory(InFileDirectory), FileName(InFileName)
+	{
+		if (Directory.back() == '\0')
+			Directory[Directory.size() - 1] = '/';
+		else if (Directory.back() != '/')
+			Directory += '/';
+
+		if (FileName.back() != '\0')
+			FileName += '\0';
+
+		if (!Directory.starts_with(BaseMountPoint)) // TODO: a better less lazier way
+			Directory = BaseMountPoint + Directory;
+
+		Directory += '\0';
+	}
+
+	__forceinline bool IsValid()
+	{
+		return (!Directory.empty() && !FileName.empty());
+	}
+
+	__forceinline FFileEntryInfo GetEntryInfo()
+	{
+		return FGameFileManager::FindFile(Directory, FileName);
+	}
+
+private:
+
+	/*
+	* FPackagePath has to have null terminated directory and filename strings in order to grab
+	* them from the directory index because serialized strings are null terminated.
+	*/
+
+	std::string Directory;
+	std::string FileName;
+};

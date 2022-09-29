@@ -85,6 +85,10 @@ struct FGuid
 	int32_t C;
 	int32_t D;
 
+	constexpr FGuid(uint32_t InA, uint32_t InB, uint32_t InC, uint32_t InD)
+		: A(InA), B(InB), C(InC), D(InD)
+	{ }
+
 	FGuid() : 
 		A(0),
 		B(0),

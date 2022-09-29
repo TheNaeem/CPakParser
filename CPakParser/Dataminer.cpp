@@ -3,6 +3,7 @@
 #include "PakFileManager.h"
 #include "Loader.h"
 #include "Oodle.h"
+#include "Localization.h"
 
 static FPakFileManager PakPlatformFile;
 
@@ -21,13 +22,22 @@ void Dataminer::WithOodleCompressor(const char* OodleDllPath)
 	Oodle::LoadDLL(OodleDllPath);
 }
 
-bool Dataminer::Test(const char* FileDirectory, const char* FileName)
+bool Dataminer::Test(FGameFilePath FilePath)
 {
-	auto PackagePath = FPackagePath(FileDirectory, FileName);
-	auto Package = UPackage(PackagePath);
+	/*auto Package = UPackage(FilePath);
 	auto Loader = FLoader::FromPackage(Package);
 
-	Loader->LoadAllObjects();
+	Loader->LoadAllObjects();*/
+
+	auto Reader = FLoader::CreateFileReader(FilePath);
+	
+	if (!Reader)
+		return false;
+
+	FLocalization LocRes;
+	*Reader << LocRes;
+
+	delete Reader;
 
 	return true;
 }

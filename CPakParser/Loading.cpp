@@ -6,7 +6,6 @@
 FLoader::FLoader(UPackage& InPackage) 
 	: Package(InPackage), bHasSerializedPackageFileSummary(false)
 {
-	this->CreateLoader(true);
 }
 
 FLoader::~FLoader()
@@ -15,11 +14,15 @@ FLoader::~FLoader()
 		delete Reader;
 }
 
-void FLoader::CreateLoader(bool bMemoryPreload)
+FArchive* FLoader::CreateFileReader(FGameFilePath Path, bool bMemoryPreload)
 {
 	// TODO: async loader https://github.com/EpicGames/UnrealEngine/blob/ue5-main/Engine/Source/Runtime/CoreUObject/Private/UObject/LinkerLoad.cpp#L1064
 
-	auto EntryInfo = Package.GetPath().GetEntryInfo();
+	auto EntryInfo = Path.GetEntryInfo();
+
+	if (!EntryInfo.IsValid())
+		return nullptr;
+
 	auto File = EntryInfo.GetAssociatedFile()->CreateEntryHandle(EntryInfo);
 
 	if (bMemoryPreload)
@@ -30,9 +33,10 @@ void FLoader::CreateLoader(bool bMemoryPreload)
 
 		delete File;
 
-		Reader = new FMemoryReader(static_cast<uint8_t*>(Buffer), Size, true);
+		return new FMemoryReader(static_cast<uint8_t*>(Buffer), Size, true);
 	}
-	else Reader = File;
+
+	return File;
 }
 
 __forceinline bool FLoader::IsValid()
@@ -64,5 +68,11 @@ void FLoader::SerializePackageSummary()
 
 void FLoader::LoadAllObjects()
 {
+	if (!Reader)
+		Reader = CreateFileReader(Package.GetPath());
+
+	if (!Reader)
+		return;
+
 	SerializePackageSummary();
 }

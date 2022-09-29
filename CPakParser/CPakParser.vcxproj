@@ -35,12 +35,14 @@
     <ClInclude Include="IoStoreReader.h" />
     <ClInclude Include="IoTocResource.h" />
     <ClInclude Include="Loader.h" />
+    <ClInclude Include="Localization.h" />
     <ClInclude Include="MemoryReader.h" />
     <ClInclude Include="Oodle.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="PackageSummary.h" />
     <ClInclude Include="PakFileManager.h" />
     <ClInclude Include="PakReader.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
   </ItemGroup>
@@ -61,6 +63,7 @@
     <ClCompile Include="PakFileManager.cpp" />
     <ClCompile Include="PakFiles.cpp" />
     <ClCompile Include="PakReader.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Versioning.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

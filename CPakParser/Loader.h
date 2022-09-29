@@ -16,7 +16,6 @@ private:
 
 	FLoader(UPackage& InPackage);
 
-	void CreateLoader(bool bMemoryPreload);
 	void SerializePackageSummary();
 
 public:
@@ -25,6 +24,7 @@ public:
 
 	__forceinline bool IsValid();
 	static std::shared_ptr<FLoader> FromPackage(UPackage& Package);
+	static FArchive* CreateFileReader(FGameFilePath Path, bool bMemoryPreload = true);
 	void LoadAllObjects();
 
 	FPackageFileSummary	Summary;

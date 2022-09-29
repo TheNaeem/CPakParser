@@ -1,5 +1,5 @@
 #include "GameFileManager.h"
-#include "Archives.h"
+#include "Localization.h"
 #include "PakFiles.h"
 #include "IoContainer.h"
 #include "Hashing.h"
@@ -419,6 +419,118 @@ FArchive& operator<<(FArchive& Ar, FPackageFileSummary& Summary)
 		Ar << Summary.PayloadTocOffset;
 	}
 	else Summary.PayloadTocOffset = INDEX_NONE;
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FTextLocalizationResourceString& A)
+{
+	Ar << A.String;
+	Ar.SeekCur<uint32_t>();
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FLocalization& Loc)
+{
+	FGuid Magic;
+	Ar << Magic;
+
+	auto VersionNumber = ELocResVersion::Legacy;
+
+	if (Magic != LOCRES_MAGIC)
+	{
+		Ar.Seek(0);
+	}
+	else
+	{
+		Ar.Serialize(&VersionNumber, sizeof(VersionNumber));
+	}
+
+	if (VersionNumber > ELocResVersion::Latest)
+	{
+		return Ar;
+	}
+
+	std::vector<FTextLocalizationResourceString> LocalizedStringArray;
+
+	if (VersionNumber >= ELocResVersion::Compact)
+	{
+		int64_t LocalizedStringArrayOffset = INDEX_NONE;
+		Ar << LocalizedStringArrayOffset;
+
+		if (LocalizedStringArrayOffset != INDEX_NONE)
+		{
+			const auto CurrentFileOffset = Ar.Tell();
+			Ar.Seek(LocalizedStringArrayOffset);
+
+			if (VersionNumber >= ELocResVersion::Optimized_CRC32)
+			{
+				Ar << LocalizedStringArray;
+			}
+			else
+			{
+				std::vector<std::string> TmpLocalizedStringArray;
+				Ar << TmpLocalizedStringArray;
+
+				LocalizedStringArray.reserve(TmpLocalizedStringArray.size());
+
+				for (auto LocalizedString : TmpLocalizedStringArray)
+				{
+					LocalizedStringArray.push_back(FTextLocalizationResourceString(LocalizedString));
+				}
+			}
+
+			Ar.Seek(CurrentFileOffset);
+		}
+	}
+
+	if (VersionNumber >= ELocResVersion::Optimized_CRC32)
+	{
+		uint32_t EntriesCount;
+		Ar << EntriesCount;
+
+		Loc.Entries.reserve(Loc.Entries.size() + EntriesCount);
+	}
+
+	uint32_t NamespaceCount;
+	Ar << NamespaceCount;
+
+	for (uint32_t i = 0; i < NamespaceCount; ++i)
+	{
+		FTextKey Namespace;
+		Namespace.Serialize(Ar, VersionNumber);
+
+		uint32_t KeyCount;
+		Ar << KeyCount;
+
+		for (uint32_t j = 0; j < KeyCount; ++j)
+		{
+			FTextKey Key;
+			Key.Serialize(Ar, VersionNumber);
+
+			Ar.SeekCur<uint32_t>();
+
+			std::string Val;
+
+			if (VersionNumber >= ELocResVersion::Compact)
+			{
+				int32_t LocalizedStringIndex = INDEX_NONE;
+				Ar << LocalizedStringIndex;
+
+				if (LocalizedStringIndex < LocalizedStringArray.size())
+				{
+					Val = LocalizedStringArray[LocalizedStringIndex].String;
+				}
+			}
+			else
+			{
+				Ar << Val;
+			}
+
+			Loc.Entries.insert_or_assign(FTextId(Namespace, Key), Val);
+		}
+	}
 
 	return Ar;
 }
