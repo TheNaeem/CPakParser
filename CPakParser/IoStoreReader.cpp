@@ -262,8 +262,12 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 	{
 		auto& FileEntry = DirectoryIndex.FileEntries[File];
 		auto& FileName = DirectoryIndex.StringTable[FileEntry.Name];
+		auto FullDir = DirectoryIndex.MountPoint + Path;
 
-		FGameFileManager::AddFile(Path, FileName, CreateTocChunkInfo(FileEntry.UserData));
+		if (FileName.ends_with('\0'))
+			FileName.pop_back();
+
+		FGameFileManager::AddFile(FullDir, FileName, CreateTocChunkInfo(FileEntry.UserData));
 
 		File = FileEntry.NextFileEntry;
 	}
@@ -303,6 +307,8 @@ void FIoStoreReader::Initialize(std::shared_ptr<FIoStoreTocResource> TocResource
 		Ar << DirectoryIndex;
 
 		if (!DirectoryIndex.DirectoryEntries.size()) return;
+
+		DirectoryIndex.MountPoint.pop_back();
 
 		std::string _ = "";
 		this->ParseDirectoryIndex(DirectoryIndex, _);

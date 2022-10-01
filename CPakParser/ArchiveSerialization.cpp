@@ -168,7 +168,7 @@ FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
 
 void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint, std::shared_ptr<FPakFile> AssociatedPak)
 {
-	auto& DirectoryIndex = Get().FileLibrary;
+	auto& DirectoryIndex = Inst().FileLibrary;
 
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
@@ -201,10 +201,14 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint
 		DirectoryName = MountPoint + DirectoryName;
 		DirIdx.reserve(DirIdxNum);
 
+		DirectoryName.pop_back(); // remove the null terminator
+
 		for (size_t i = 0; i < DirIdxNum; i++)
 		{
 			auto File = std::pair<std::string, FPakEntryLocation>();
 			Ar << File;
+
+			File.first.pop_back(); // remove the null terminator
 
 			File.second.SetOwningFile(AssociatedPak);
 
@@ -431,7 +435,7 @@ FArchive& operator<<(FArchive& Ar, FTextLocalizationResourceString& A)
 	return Ar;
 }
 
-FArchive& operator<<(FArchive& Ar, FLocalization& Loc)
+FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this instead of making it 1:1 with UE source
 {
 	FGuid Magic;
 	Ar << Magic;

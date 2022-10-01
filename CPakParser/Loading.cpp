@@ -4,26 +4,25 @@
 #include "MemoryReader.h"
 
 FLoader::FLoader(UPackage& InPackage) 
-	: Package(InPackage), bHasSerializedPackageFileSummary(false)
+	: Package(InPackage), bHasSerializedPackageFileSummary(false), Reader(nullptr)
 {
 }
 
 FLoader::~FLoader()
 {
-	if (Reader)
-		delete Reader;
 }
 
-FArchive* FLoader::CreateFileReader(FGameFilePath Path, bool bMemoryPreload)
+FUniqueAr FLoader::CreateFileReader(FGameFilePath Path, bool bMemoryPreload)
 {
-	// TODO: async loader https://github.com/EpicGames/UnrealEngine/blob/ue5-main/Engine/Source/Runtime/CoreUObject/Private/UObject/LinkerLoad.cpp#L1064
+	return CreateFileReader(Path.GetEntryInfo(), bMemoryPreload);
+}
 
-	auto EntryInfo = Path.GetEntryInfo();
-
-	if (!EntryInfo.IsValid())
+FUniqueAr FLoader::CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload)
+{
+	if (!Entry.IsValid())
 		return nullptr;
 
-	auto File = EntryInfo.GetAssociatedFile()->CreateEntryHandle(EntryInfo);
+	auto File = Entry.GetAssociatedFile()->CreateEntryArchive(Entry);
 
 	if (bMemoryPreload)
 	{
@@ -31,9 +30,7 @@ FArchive* FLoader::CreateFileReader(FGameFilePath Path, bool bMemoryPreload)
 		auto Buffer = malloc(Size);
 		File->Serialize(Buffer, Size);
 
-		delete File;
-
-		return new FMemoryReader(static_cast<uint8_t*>(Buffer), Size, true);
+		return std::make_unique<FMemoryReader>(static_cast<uint8_t*>(Buffer), Size, true);
 	}
 
 	return File;

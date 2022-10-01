@@ -326,17 +326,17 @@ void FPakFile::ReturnSharedReader(FArchive* SharedReader)
 	Readers.push_back(SharedReader);
 }
 
-FArchive* FPakFile::CreateEntryHandle(FFileEntryInfo EntryInfo)
+FUniqueAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 {
 	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
 	auto Entry = CreateEntry(PakEntryLoc);
 
 	if (Entry.IsEncrypted())
 	{
-		return new FPakReader<FPakSimpleEncryption>(shared_from_this(), Entry);
+		return std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry);
 	}
 
-	return new FPakReader(shared_from_this(), Entry);
+	return std::make_unique<FPakReader<>>(shared_from_this(), Entry);
 }
 
 FSharedPakReader FPakFile::GetSharedReader() // TODO: refactor

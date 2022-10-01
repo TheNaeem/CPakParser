@@ -294,3 +294,5 @@ public:
 		SeekCur(sizeof(T));
 	}
 };
+
+typedef std::unique_ptr<FArchive> FUniqueAr;

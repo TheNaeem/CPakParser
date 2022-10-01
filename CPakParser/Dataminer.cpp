@@ -17,27 +17,33 @@ bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 	return PakPlatformFile.RegisterEncryptionKey(GuidString ? FGuid(GuidString) : FGuid(), FAESKey(AesKeyString));
 }
 
-void Dataminer::WithOodleCompressor(const char* OodleDllPath)
+void Dataminer::WithOodleDecompressor(const char* OodleDllPath)
 {
 	Oodle::LoadDLL(OodleDllPath);
 }
 
-bool Dataminer::Test(FGameFilePath FilePath)
+FLocalization Dataminer::ReadLocRes(FGameFilePath FilePath)
 {
-	/*auto Package = UPackage(FilePath);
-	auto Loader = FLoader::FromPackage(Package);
+	return ReadLocRes(FilePath.GetEntryInfo());
+}
 
-	Loader->LoadAllObjects();*/
+FLocalization Dataminer::ReadLocRes(FFileEntryInfo Entry)
+{
+	FLocalization Ret;
 
-	auto Reader = FLoader::CreateFileReader(FilePath);
-	
+	auto Reader = FLoader::CreateFileReader(Entry);
+
 	if (!Reader)
-		return false;
+		return Ret;
 
 	FLocalization LocRes;
 	*Reader << LocRes;
 
-	delete Reader;
+	return Ret;
+}
 
-	return true;
+void Dataminer::Test(FGameFilePath Path)
+{
+	if (!Path.GetEntryInfo().IsValid())
+		return;
 }

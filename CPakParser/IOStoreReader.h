@@ -85,7 +85,7 @@ public:
 		return Toc->TocPath;
 	}
 
-	FArchive* CreateEntryHandle(FFileEntryInfo EntryInfo) override
+	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override
 	{
 		return 0;
 	}

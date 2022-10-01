@@ -245,7 +245,7 @@ public:
 		return bIsMounted;
 	}
 
-	FArchive* CreateEntryHandle(FFileEntryInfo EntryInfo) override;
+	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
 	FSharedPakReader GetSharedReader();
 	void ReturnSharedReader(FArchive* SharedReader);
 };

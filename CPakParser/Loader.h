@@ -10,7 +10,7 @@ class FLoader
 {
 private:
 
-	FArchive* Reader;
+	FUniqueAr Reader;
 	UPackage& Package;
 	bool bHasSerializedPackageFileSummary;
 
@@ -24,7 +24,8 @@ public:
 
 	__forceinline bool IsValid();
 	static std::shared_ptr<FLoader> FromPackage(UPackage& Package);
-	static FArchive* CreateFileReader(FGameFilePath Path, bool bMemoryPreload = true);
+	static FUniqueAr CreateFileReader(FGameFilePath Path, bool bMemoryPreload = true);
+	static FUniqueAr CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload = true);
 	void LoadAllObjects();
 
 	FPackageFileSummary	Summary;
