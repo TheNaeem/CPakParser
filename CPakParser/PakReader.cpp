@@ -180,6 +180,7 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 	}
 }
 
+// TODO: this. its uneccesary if we're just gonna decompress the whole thing at once and serialize from memory. 
 template <typename Encryption>
 void FPakReader<Encryption>::SerializeInternalCompressed(void* V, int64_t Length)
 {

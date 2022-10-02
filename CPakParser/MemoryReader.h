@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	FMemoryReader(uint8_t* InBytes, uint32_t Size, bool bFreeBuffer = false)
+	FMemoryReader(uint8_t* InBytes, size_t Size, bool bFreeBuffer = false)
 		: Bytes(InBytes)
 		, LimitSize(Size)
 		, bFree(bFreeBuffer)
@@ -104,7 +104,7 @@ public:
 private:
 
 	const uint8_t* Bytes;
-	int32_t LimitSize;
+	size_t LimitSize;
 	bool bFree;
 };
 
@@ -162,5 +162,5 @@ public:
 
 private:
 	std::span<uint8_t> Bytes;
-	int64_t LimitSize;
+	size_t LimitSize;
 };

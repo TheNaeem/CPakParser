@@ -5,28 +5,11 @@
 #include <windows.h>
 #include "FileReader.h"
 
-std::atomic_uint32_t FFileIoStore::Reader::GlobalPartitionIndex{ 0 };
-std::atomic_uint32_t FFileIoStore::Reader::GlobalContainerInstanceId{ 0 };
+std::atomic_uint32_t FFileIoStore::GlobalPartitionIndex{ 0 };
+std::atomic_uint32_t FFileIoStore::GlobalContainerInstanceId{ 0 };
 
 static constexpr bool bPerfectHashingEnabled = true;
 
-__forceinline void FIoStoreToc::Initialize()
-{
-	FEncryptionKeyManager::GetKey(Toc->Header.EncryptionKeyGuid, Key);
-}
-
-FFileIoStore::Reader::~Reader()
-{
-	for (auto& Partition : ContainerFile.Partitions)
-	{
-		Partition.FileHandle->close();
-	}
-
-	TocImperfectHashMapFallback.clear();
-	ContainerFile = FFileIoStoreContainerFile();
-}
-
-// TODO: give this another look
 bool FFileIoStoreContainerFilePartition::OpenContainer(const char* ContainerFilePath)
 {
 	FileSize = std::filesystem::file_size(ContainerFilePath);
@@ -36,14 +19,7 @@ bool FFileIoStoreContainerFilePartition::OpenContainer(const char* ContainerFile
 		return false;
 	}
 
-	FileHandle = std::make_unique<std::ifstream>();
-	FileHandle->rdbuf()->pubsetbuf(NULL, NULL);
-	FileHandle->open(ContainerFilePath, std::ios::in);
-
-	if (!FileHandle)
-	{
-		return false;
-	}
+	Ar = std::make_unique<FFileReader>(ContainerFilePath);
 
 	return true;
 }
@@ -53,34 +29,140 @@ void FFileIoStore::Initialize()
 	ReadBufferSize = (GIoDispatcherBufferSizeKB > 0 ? uint64_t(GIoDispatcherBufferSizeKB) << 10 : 256 << 10);
 }
 
-//TODO: refactor this, probably by removing FFileIoStoreReader and using FIoStoreReader
 FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
 {
 	ReadStatus(ReadErrorCode::Ok, "Mounting TOC: " + InTocPath);
 
-	auto Reader = std::make_unique<FFileIoStore::Reader>(InTocPath.c_str());
+	auto Reader = std::make_shared<FIoStoreReader>(InTocPath.c_str());
+	Reader->Initialize(true);
 
 	if (Reader->IsEncrypted() && FEncryptionKeyManager::HasKey(EncryptionKeyGuid))
 	{
 		Reader->SetEncryptionKey(EncryptionKey);
 	}
 
-	auto Ret = Reader->ReadContainerHeader();
+	return Reader->ReadContainerHeader();
+}
 
-	auto T = FIoStoreReader(Reader->GetTocResource());
+FIoOffsetAndLength FIoStoreReader::FindChunkInternal(FIoChunkId& ChunkId)
+{
+	if (!bHasPerfectHashMap)
+		return TocImperfectHashMapFallback[ChunkId];
+
+	auto ChunkCount = uint32_t(Container.TocResource->ChunkIds.size());
+
+	if (!ChunkCount) return FIoOffsetAndLength();
+
+	auto SeedCount = Container.TocResource->ChunkPerfectHashSeeds.size();
+	auto SeedIndex = FIoStoreTocResource::HashChunkIdWithSeed(0, ChunkId) % SeedCount;
+
+	int32_t Seed = Container.TocResource->ChunkPerfectHashSeeds[SeedIndex];
+	if (!Seed) return FIoOffsetAndLength();
+
+	uint32_t Slot;
+	if (Seed < 0)
+	{
+		auto SeedAsIndex = static_cast<uint32_t>(-Seed - 1);
+		if (SeedAsIndex < ChunkCount)
+		{
+			Slot = static_cast<uint32_t>(SeedAsIndex);
+		}
+		else return TocImperfectHashMapFallback[ChunkId];
+	}
+	else Slot = FIoStoreTocResource::HashChunkIdWithSeed(static_cast<uint32_t>(Seed), ChunkId) % ChunkCount;
+
+	if (Container.TocResource->ChunkIds[Slot] != ChunkId)
+		return FIoOffsetAndLength();
+
+	return Container.TocResource->ChunkOffsetLengths[Slot];
+}
+
+FIoContainerHeader FIoStoreReader::ReadContainerHeader()
+{
+	auto TocRsrc = Container.TocResource;
+
+	auto HeaderChunkId = FIoChunkId(TocRsrc->Header.ContainerId.Value(), 0, EIoChunkType::ContainerHeader);
+	auto OffsetAndLength = FindChunkInternal(HeaderChunkId);
+
+	if (!OffsetAndLength.IsValid())
+	{
+		ReadStatus(ReadErrorCode::NotFound, "Container header chunk not found: " + this->Container.FilePath);
+		return FIoContainerHeader();
+	}
+
+	auto CompressionBlockSize = TocRsrc->Header.CompressionBlockSize;
+	auto Offset = OffsetAndLength.GetOffset();
+	auto Size = OffsetAndLength.GetLength();
+	auto RequestEndOffset = Offset + Size;
+	auto RequestBeginBlockIndex = int32_t(Offset / CompressionBlockSize);
+	auto RequestEndBlockIndex = int32_t((RequestEndOffset - 1) / CompressionBlockSize);
+
+	auto CompressionBlockEntry = &TocRsrc->CompressionBlocks[RequestBeginBlockIndex];
+	auto PartitionIndex = int32_t(CompressionBlockEntry->GetOffset() / TocRsrc->Header.PartitionSize);
+	auto RawOffset = CompressionBlockEntry->GetOffset() % TocRsrc->Header.PartitionSize;
+
+	auto BufSize = Align(Size, FAESKey::AESBlockSize);
+
+	auto IoBuffer = std::make_unique<uint8_t[]>(BufSize);
 
 	{
-		std::unique_lock _(IoStoreReadersLock);
+		auto ContainerFileHandle = FFileReader(Container.Partitions[PartitionIndex].FilePath.c_str());
 
-		IoStoreReaders.push_back(std::move(Reader));
+		if (!ContainerFileHandle.IsValid())
+			ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
+
+		ContainerFileHandle.Seek(RawOffset);
+		ContainerFileHandle.Serialize(IoBuffer.get(), BufSize);
 	}
+
+	const bool bSigned = EnumHasAnyFlags(TocRsrc->Header.ContainerFlags, EIoContainerFlags::Signed);
+	const bool bEncrypted = Container.EncryptionKey.IsValid();
+
+	if (bEncrypted)
+	{
+		uint8_t* BlockData = IoBuffer.get();
+
+		for (auto CompressedBlockIndex = RequestBeginBlockIndex; CompressedBlockIndex <= RequestEndBlockIndex; ++CompressedBlockIndex)
+		{
+			CompressionBlockEntry = &TocRsrc->CompressionBlocks[CompressedBlockIndex];
+
+			const auto BlockSize = Align(CompressionBlockEntry->GetCompressedSize(), FAESKey::AESBlockSize);
+
+			Container.EncryptionKey.DecryptData(BlockData, uint32_t(BlockSize));
+
+			BlockData += BlockSize;
+		}
+	}
+
+	FMemoryReaderView Ar(std::span<uint8_t>{ IoBuffer.get(), BufSize });
+	FIoContainerHeader ContainerHeader;
+	Ar << ContainerHeader;
+
+	return Container.Header = ContainerHeader;
+}
+
+FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
+{
+	auto TocResource = Toc->GetResource();
+
+	auto& OffsetLength = TocResource->ChunkOffsetLengths[TocEntryIndex]; // TODO: come back and see how much of this data we actually need
+
+	FIoStoreTocChunkInfo Ret(TocEntryIndex);
+	Ret.Offset = OffsetLength.GetOffset();
+	Ret.Size = OffsetLength.GetLength();
+	Ret.SetOwningFile(Toc);
 
 	return Ret;
 }
 
-FFileIoStore::Reader::Reader(const char* InTocFilePath)
+FIoStoreReader::FIoStoreReader(const char* ContainerPath)
 {
-	std::string_view ContainerPathView(InTocFilePath);
+	Toc = std::make_shared<FIoStoreToc>(
+		FIoStoreTocResource(ContainerPath, EIoStoreTocReadOptions::ReadAll));
+
+	auto TocRsrc = Toc->GetResource();
+
+	std::string_view ContainerPathView(ContainerPath);
 
 	if (!ContainerPathView.ends_with(".utoc"))
 	{
@@ -89,15 +171,14 @@ FFileIoStore::Reader::Reader(const char* InTocFilePath)
 	}
 
 	auto BasePathView = ContainerPathView.substr(0, ContainerPathView.length() - 5);
-	ContainerFile.FilePath = BasePathView;
 
-	auto TocRsrc = ContainerFile.TocResource = std::make_shared<FIoStoreTocResource>(InTocFilePath, EIoStoreTocReadOptions::ReadAll);
+	Container.TocResource = TocRsrc;
+	Container.FilePath = BasePathView;
+	Container.Partitions.resize(TocRsrc->Header.PartitionCount);
 
-	ContainerFile.Partitions.resize(TocRsrc->Header.PartitionCount);
-
-	for (auto PartitionIndex = 0; PartitionIndex < TocRsrc->Header.PartitionCount; ++PartitionIndex)
+	for (uint32_t PartitionIndex = 0; PartitionIndex < TocRsrc->Header.PartitionCount; ++PartitionIndex)
 	{
-		FFileIoStoreContainerFilePartition& Partition = ContainerFile.Partitions[PartitionIndex];
+		FFileIoStoreContainerFilePartition& Partition = Container.Partitions[PartitionIndex];
 
 		std::stringstream ContainerFilePath;
 		ContainerFilePath << BasePathView;
@@ -118,7 +199,7 @@ FFileIoStore::Reader::Reader(const char* InTocFilePath)
 			return;
 		}
 
-		Partition.ContainerFileIndex = GlobalPartitionIndex++;
+		Partition.ContainerFileIndex = FFileIoStore::GlobalPartitionIndex++;
 	}
 
 	if (bPerfectHashingEnabled && !TocRsrc->ChunkPerfectHashSeeds.empty())
@@ -134,122 +215,21 @@ FFileIoStore::Reader::Reader(const char* InTocFilePath)
 	}
 	else
 	{
-		for (auto ChunkIndex = 0; ChunkIndex < TocRsrc->Header.TocEntryCount; ++ChunkIndex)
+		for (uint32_t ChunkIndex = 0; ChunkIndex < TocRsrc->Header.TocEntryCount; ++ChunkIndex)
 			TocImperfectHashMapFallback.insert_or_assign(TocRsrc->ChunkIds[ChunkIndex], TocRsrc->ChunkOffsetLengths[ChunkIndex]);
 
 		bHasPerfectHashMap = false;
 	}
 
-	ContainerFile.ContainerInstanceId = ++GlobalContainerInstanceId;
+	Container.ContainerInstanceId = ++FFileIoStore::GlobalContainerInstanceId;
 }
 
-FIoContainerHeader FFileIoStore::Reader::ReadContainerHeader()
+void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer)
 {
-	auto TocRsrc = ContainerFile.TocResource;
+	SCOPE_LOCK(Lock);
 
-	auto HeaderChunkId = FIoChunkId(TocRsrc->Header.ContainerId.Value(), 0, EIoChunkType::ContainerHeader);
-	auto OffsetAndLength = FindChunkInternal(HeaderChunkId);
-
-	if (!OffsetAndLength.IsValid())
-	{
-		ReadStatus(ReadErrorCode::NotFound, "Container header chunk not found: " + this->ContainerFile.FilePath);
-		return FIoContainerHeader();
-	}
-
-	auto CompressionBlockSize = TocRsrc->Header.CompressionBlockSize;
-	auto Offset = OffsetAndLength.GetOffset();
-	auto Size = OffsetAndLength.GetLength();
-	auto RequestEndOffset = Offset + Size;
-	auto RequestBeginBlockIndex = int32_t(Offset / CompressionBlockSize);
-	auto RequestEndBlockIndex = int32_t((RequestEndOffset - 1) / CompressionBlockSize);
-
-	auto CompressionBlockEntry = &TocRsrc->CompressionBlocks[RequestBeginBlockIndex];
-	auto PartitionIndex = int32_t(CompressionBlockEntry->GetOffset() / TocRsrc->Header.PartitionSize);
-	auto RawOffset = CompressionBlockEntry->GetOffset() % TocRsrc->Header.PartitionSize;
-
-	auto BufSize = Align(Size, FAESKey::AESBlockSize);
-
-	auto IoBuffer = std::make_unique<uint8_t[]>(BufSize);
-	auto ContainerFileHandle = FFileReader(ContainerFile.Partitions[PartitionIndex].FilePath.c_str());
-
-	if (!ContainerFileHandle.IsValid())
-		ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
-
-	ContainerFileHandle.Seek(RawOffset);
-	ContainerFileHandle.Serialize(IoBuffer.get(), BufSize);
-
-	const bool bSigned = EnumHasAnyFlags(TocRsrc->Header.ContainerFlags, EIoContainerFlags::Signed);
-	const bool bEncrypted = ContainerFile.EncryptionKey.IsValid();
-
-	if (bEncrypted)
-	{
-		uint8_t* BlockData = IoBuffer.get();
-
-		for (auto CompressedBlockIndex = RequestBeginBlockIndex; CompressedBlockIndex <= RequestEndBlockIndex; ++CompressedBlockIndex)
-		{
-			CompressionBlockEntry = &TocRsrc->CompressionBlocks[CompressedBlockIndex];
-
-			const auto BlockSize = Align(CompressionBlockEntry->GetCompressedSize(), FAESKey::AESBlockSize);
-
-			ContainerFile.EncryptionKey.DecryptData(BlockData, uint32_t(BlockSize));
-
-			BlockData += BlockSize;
-		}
-	}
-
-	FMemoryReaderView Ar(std::span<uint8_t>{ IoBuffer.get(), BufSize });
-	FIoContainerHeader ContainerHeader;
-	Ar << ContainerHeader;
-
-	return ContainerHeader;
-}
-
-FIoOffsetAndLength FFileIoStore::Reader::FindChunkInternal(FIoChunkId& ChunkId)
-{
-	if (!bHasPerfectHashMap)
-		return TocImperfectHashMapFallback[ChunkId];
-
-	auto ChunkCount = uint32_t(ContainerFile.TocResource->ChunkIds.size());
-
-	if (!ChunkCount) return FIoOffsetAndLength();
-
-	uint32_t SeedCount = ContainerFile.TocResource->ChunkPerfectHashSeeds.size();
-	uint32_t SeedIndex = FIoStoreTocResource::HashChunkIdWithSeed(0, ChunkId) % SeedCount;
-
-	int32_t Seed = ContainerFile.TocResource->ChunkPerfectHashSeeds[SeedIndex];
-	if (!Seed) return FIoOffsetAndLength();
-
-	uint32_t Slot;
-	if (Seed < 0)
-	{
-		auto SeedAsIndex = static_cast<uint32_t>(-Seed - 1);
-		if (SeedAsIndex < ChunkCount)
-		{
-			Slot = static_cast<uint32_t>(SeedAsIndex);
-		}
-		else return TocImperfectHashMapFallback[ChunkId];
-	}
-	else Slot = FIoStoreTocResource::HashChunkIdWithSeed(static_cast<uint32_t>(Seed), ChunkId) % ChunkCount;
-
-	if (ContainerFile.TocResource->ChunkIds[Slot] != ChunkId)
-		return FIoOffsetAndLength();
-
-	return ContainerFile.TocResource->ChunkOffsetLengths[Slot];
-}
-
-FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
-{
-	auto TocResource = Toc->GetResource();
-
-	auto& Meta = TocResource->ChunkMetas[TocEntryIndex];
-	auto& OffsetLength = TocResource->ChunkOffsetLengths[TocEntryIndex]; // TODO: come back and see how much of this data we actually need
-
-	FIoStoreTocChunkInfo Ret(TocEntryIndex);
-	Ret.Offset = OffsetLength.GetOffset();
-	Ret.Size = OffsetLength.GetLength();
-	Ret.SetOwningFile(Toc);
-
-	return Ret;
+	Container.Partitions[InPartitionIndex].Ar->Seek(Offset);
+	Container.Partitions[InPartitionIndex].Ar->Serialize(OutBuffer, Len);
 }
 
 void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle)
@@ -289,22 +269,24 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 	}
 }
 
-void FIoStoreReader::Initialize(std::shared_ptr<FIoStoreTocResource> TocResource)
+void FIoStoreReader::Initialize(bool bSerializeDirectoryIndex)
 {
-	Toc = std::make_shared<FIoStoreToc>(TocResource);
+	Toc->SetReader(shared_from_this());
+	auto TocResource = Toc->GetResource();
 
-	if (EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
+	if (bSerializeDirectoryIndex &&
+		EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
 		TocResource->DirectoryIndexBuffer.size() > 0)
 	{
 		if (TocResource->Header.IsEncrypted() && FEncryptionKeyManager::HasKey(TocResource->Header.EncryptionKeyGuid))
 		{
-			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), TocResource->DirectoryIndexBuffer.size());
+			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), uint32_t(TocResource->DirectoryIndexBuffer.size()));
 		}
 
-		FMemoryReaderView Ar(TocResource->DirectoryIndexBuffer);
+		FMemoryReaderView DirectoryIndexReader(TocResource->DirectoryIndexBuffer);
 
 		FIoDirectoryIndexResource DirectoryIndex;
-		Ar << DirectoryIndex;
+		DirectoryIndexReader << DirectoryIndex;
 
 		if (!DirectoryIndex.DirectoryEntries.size()) return;
 
@@ -313,4 +295,6 @@ void FIoStoreReader::Initialize(std::shared_ptr<FIoStoreTocResource> TocResource
 		std::string _ = "";
 		this->ParseDirectoryIndex(DirectoryIndex, _);
 	}
+
+	Ar = std::make_unique<FFileReader>(TocResource->TocPath.string().c_str());
 }

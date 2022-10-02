@@ -48,7 +48,7 @@ struct FIoStoreTocCompressedBlockEntry
 		*UncompressedSize = InSize & SizeMask;
 	}
 
-	inline uint8_t GetCompressionMethodIndex() const
+	__forceinline uint8_t GetCompressionMethodIndex() const
 	{
 		const uint32_t* Index = reinterpret_cast<const uint32_t*>(Data) + 2;
 		return static_cast<uint8_t>(*Index >> SizeBits);
@@ -198,4 +198,9 @@ struct FIoStoreTocResource
 	std::vector<uint8_t> DirectoryIndexBuffer;
 
 	static uint64_t HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId);
+
+	__forceinline const std::string& GetBlockCompressionMethod(FIoStoreTocCompressedBlockEntry& Block)
+	{
+		return CompressionMethods[Block.GetCompressionMethodIndex()];
+	}
 };

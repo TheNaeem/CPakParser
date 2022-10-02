@@ -55,8 +55,8 @@
     <ClCompile Include="CoreDefinitions.cpp" />
     <ClCompile Include="Dataminer.cpp" />
     <ClCompile Include="IoChunkId.cpp" />
-    <ClCompile Include="IoContainer.cpp" />
     <ClCompile Include="IoStoreReader.cpp" />
+    <ClCompile Include="IoStoreToc.cpp" />
     <ClCompile Include="IoTocResource.cpp" />
     <ClCompile Include="Loading.cpp" />
     <ClCompile Include="Oodle.cpp" />

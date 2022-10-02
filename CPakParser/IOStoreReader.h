@@ -8,48 +8,14 @@ class FFileIoStore final
 {
 public:
 
+	static std::atomic_uint32_t GlobalPartitionIndex;
+	static std::atomic_uint32_t GlobalContainerInstanceId;
+
 	FIoContainerHeader Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey);
 	void Initialize();
 
-	class Reader
-	{
-	public:
-		Reader(const char* InTocFilePath);
-		~Reader();
-
-		uint32_t GetContainerInstanceId() const
-		{
-			return ContainerFile.ContainerInstanceId;
-		}
-		
-		std::shared_ptr<FIoStoreTocResource> GetTocResource() { return ContainerFile.TocResource; };
-		const FFileIoStoreContainerFile& GetContainerFile() const { return ContainerFile; }
-		const FIoContainerId& GetContainerId() const { return ContainerFile.TocResource->Header.ContainerId; }
-		__forceinline bool IsEncrypted() const { return ContainerFile.TocResource->Header.IsEncrypted(); }
-		bool IsSigned() const { return EnumHasAnyFlags(ContainerFile.TocResource->Header.ContainerFlags, EIoContainerFlags::Signed); }
-		const FGuid& GetEncryptionKeyGuid() const { return ContainerFile.TocResource->Header.EncryptionKeyGuid; }
-		void SetEncryptionKey(const FAESKey& Key) { ContainerFile.EncryptionKey = Key; }
-		const FAESKey& GetEncryptionKey() const { return ContainerFile.EncryptionKey; }
-		FIoContainerHeader ReadContainerHeader();
-
-	private:
-		FIoOffsetAndLength FindChunkInternal(FIoChunkId& ChunkId);
-		uint64_t GetTocAllocatedSize() const;
-
-		phmap::flat_hash_map<FIoChunkId, FIoOffsetAndLength> TocImperfectHashMapFallback;
-		FFileIoStoreContainerFile ContainerFile;
-		bool bClosed = false;
-		bool bHasPerfectHashMap = false;
-
-		static std::atomic_uint32_t GlobalPartitionIndex;
-		static std::atomic_uint32_t GlobalContainerInstanceId;
-	};
-
 private:
 	uint64_t ReadBufferSize = 0;
-
-	mutable std::shared_mutex IoStoreReadersLock;
-	std::vector<std::unique_ptr<Reader>> IoStoreReaders;
 };
 
 class FIoStoreToc : public IDiskFile
@@ -60,15 +26,11 @@ public:
 	{
 	}
 
-	FIoStoreToc(FIoStoreTocResource& TocRsrc) : Toc(std::make_shared<FIoStoreTocResource>(TocRsrc))
+	FIoStoreToc(FIoStoreTocResource TocRsrc) : FIoStoreToc(std::make_shared<FIoStoreTocResource>(TocRsrc))
 	{
-		Initialize();
 	}
 
-	FIoStoreToc(std::shared_ptr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
-	{
-		Initialize();
-	}
+	FIoStoreToc(std::shared_ptr<FIoStoreTocResource> TocRsrc);
 
 	__forceinline FAESKey& GetEncryptionKey()
 	{
@@ -85,45 +47,53 @@ public:
 		return Toc->TocPath;
 	}
 
-	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override
+	__forceinline void SetReader(std::shared_ptr<class FIoStoreReader> InReader)
 	{
-		return 0;
+		Reader = InReader;
 	}
 
-private:
+	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
+	void DoWork(FUniqueAr& Ar) override;
 
-	__forceinline void Initialize();
+private:
 
 	FAESKey Key;
 	std::shared_ptr<FIoStoreTocResource> Toc;
+	std::shared_ptr<class FIoStoreReader> Reader;
 };
 
-class FIoStoreReader
+class FIoStoreReader : public std::enable_shared_from_this<FIoStoreReader>
 {
 public:
 
-	FIoStoreReader(const char* ContainerPath)
-	{
-		auto TocRsrc = FIoStoreTocResource(ContainerPath, EIoStoreTocReadOptions::ReadAll);
-		this->Initialize(std::make_shared<FIoStoreTocResource>(TocRsrc));
-	}
+	FIoStoreReader(const char* ContainerPath);
 
-	FIoStoreReader(FIoStoreTocResource& TocResource)
-	{
-		this->Initialize(std::make_shared<FIoStoreTocResource>(TocResource));
-	}
+	void Initialize(bool bSerializeDirectoryIndex = false);
 
-	FIoStoreReader(std::shared_ptr<FIoStoreTocResource> TocResourcePtr)
-	{
-		this->Initialize(TocResourcePtr);
-	}
-
+	FIoContainerHeader ReadContainerHeader();
 	FIoStoreTocChunkInfo CreateTocChunkInfo(uint32_t TocEntryIndex);
+
+	void Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer);
+
+	__forceinline bool IsEncrypted() const 
+	{ 
+		return Container.TocResource->Header.IsEncrypted();
+	}
+
+	__forceinline void SetEncryptionKey(const FAESKey& Key) 
+	{ 
+		Container.EncryptionKey = Key;
+	}
 
 private:
 
+	FIoOffsetAndLength FindChunkInternal(FIoChunkId& ChunkId);
 	void ParseDirectoryIndex(struct FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle = 0);
-	void Initialize(std::shared_ptr<FIoStoreTocResource> TocResource);
 
+	bool bHasPerfectHashMap = false;
+	phmap::flat_hash_map<FIoChunkId, FIoOffsetAndLength> TocImperfectHashMapFallback;
+	FFileIoStoreContainerFile Container;
 	std::shared_ptr<FIoStoreToc> Toc;
+	FUniqueAr Ar;
+	std::mutex Lock;
 };

@@ -245,6 +245,11 @@ public:
 		return bIsMounted;
 	}
 
+	void DoWork(FUniqueAr& Ar) override
+	{
+
+	}
+
 	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
 	FSharedPakReader GetSharedReader();
 	void ReturnSharedReader(FArchive* SharedReader);

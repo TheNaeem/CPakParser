@@ -24,15 +24,6 @@ FUniqueAr FLoader::CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload)
 
 	auto File = Entry.GetAssociatedFile()->CreateEntryArchive(Entry);
 
-	if (bMemoryPreload)
-	{
-		auto Size = File->TotalSize();
-		auto Buffer = malloc(Size);
-		File->Serialize(Buffer, Size);
-
-		return std::make_unique<FMemoryReader>(static_cast<uint8_t*>(Buffer), Size, true);
-	}
-
 	return File;
 }
 

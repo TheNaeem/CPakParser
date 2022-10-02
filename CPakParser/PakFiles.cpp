@@ -331,12 +331,19 @@ FUniqueAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
 	auto Entry = CreateEntry(PakEntryLoc);
 
+	FUniqueAr PakReader = nullptr;
+
 	if (Entry.IsEncrypted())
 	{
-		return std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry);
+		PakReader = std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry);
 	}
+	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry);
 
-	return std::make_unique<FPakReader<>>(shared_from_this(), Entry);
+	auto Size = PakReader->TotalSize();
+	auto Buffer = malloc(Size);
+	PakReader->Serialize(Buffer, Size);
+
+	return std::make_unique<FMemoryReader>(static_cast<uint8_t*>(Buffer), Size, true);
 }
 
 FSharedPakReader FPakFile::GetSharedReader() // TODO: refactor

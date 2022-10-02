@@ -55,9 +55,6 @@
     <Filter Include="Unreal\Paks\IOStore\IO Chunk Id">
       <UniqueIdentifier>{aa278de4-1a90-454d-8d5d-62fcab4e4b50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Paks\IOStore\IOStore Container">
-      <UniqueIdentifier>{f3c0fc40-578a-43d3-8f86-93a1d7c7a552}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Compression">
       <UniqueIdentifier>{8eaf07a2-125f-4808-b1cb-2e0ae06efdac}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="Unreal\Core\Types\Text">
       <UniqueIdentifier>{30c9e400-2e1f-4101-8e50-d7bf764c0ed2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Paks\IOStore\IOStore Toc">
+      <UniqueIdentifier>{9202fdf3-5e4e-4b9d-92f2-b89cb83184e6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +132,6 @@
     <ClInclude Include="IoChunkId.h">
       <Filter>Unreal\Paks\IOStore\IO Chunk Id</Filter>
     </ClInclude>
-    <ClInclude Include="IoContainer.h">
-      <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
-    </ClInclude>
     <ClInclude Include="Compression.h">
       <Filter>Unreal\Compression</Filter>
     </ClInclude>
@@ -158,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>Unreal\Core\Types\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="IoContainer.h">
+      <Filter>Unreal\Paks\IOStore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -197,9 +197,6 @@
     <ClCompile Include="IoChunkId.cpp">
       <Filter>Unreal\Paks\IOStore\IO Chunk Id</Filter>
     </ClCompile>
-    <ClCompile Include="IoContainer.cpp">
-      <Filter>Unreal\Paks\IOStore\IOStore Container</Filter>
-    </ClCompile>
     <ClCompile Include="Compression.cpp">
       <Filter>Unreal\Compression</Filter>
     </ClCompile>
@@ -214,6 +211,9 @@
     </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>Unreal\Core\Types\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="IoStoreToc.cpp">
+      <Filter>Unreal\Paks\IOStore\IOStore Toc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

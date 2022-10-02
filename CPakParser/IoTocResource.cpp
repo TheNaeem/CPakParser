@@ -79,7 +79,7 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 	CompressionMethods.reserve(Header.CompressionMethodNameCount + 1);
 	CompressionMethods.push_back({});
 
-	for (auto CompressonNameIndex = 0; CompressonNameIndex < Header.CompressionMethodNameCount; CompressonNameIndex++)
+	for (uint32_t CompressonNameIndex = 0; CompressonNameIndex < Header.CompressionMethodNameCount; CompressonNameIndex++)
 	{
 		auto AnsiCompressionMethodName = reinterpret_cast<const char*>(TocMemReader.GetBufferCur()) + CompressonNameIndex * Header.CompressionMethodNameLength;
 		CompressionMethods.push_back(AnsiCompressionMethodName);

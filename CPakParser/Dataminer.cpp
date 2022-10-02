@@ -44,6 +44,12 @@ FLocalization Dataminer::ReadLocRes(FFileEntryInfo Entry)
 
 void Dataminer::Test(FGameFilePath Path)
 {
-	if (!Path.GetEntryInfo().IsValid())
+	auto Entry = Path.GetEntryInfo();
+
+	if (!Entry.IsValid())
 		return;
+
+	auto Reader = FLoader::CreateFileReader(Entry);
+
+	Entry.GetAssociatedFile()->DoWork(Reader);
 }

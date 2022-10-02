@@ -89,7 +89,6 @@ bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex
 
 		if (std::filesystem::exists(TocPath))
 		{
-			//auto T = FIoStoreReader(TocPath.string().c_str());
 			auto Container = IoFileBackend->Mount(TocPath.string(), PakGuid, Key);
 
 			if (Container.IsValid())
@@ -141,6 +140,7 @@ void FPakFileManager::MountAllPakFiles()
 	{
 		if (MountedPakNames.contains(PakPath))
 			continue;
+
 		if (!Mount(PakPath))
 		{
 			ReadStatus(ReadErrorCode::Cancelled, "Could not mount PAK file: " + PakPath.filename().string());

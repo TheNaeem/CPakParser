@@ -20,7 +20,7 @@
 
 typedef uint32_t FNameEntryId;
 
-inline int32_t GIoDispatcherBufferSizeKB = 256;
+constexpr int32_t GIoDispatcherBufferSizeKB = 256;
 enum { INDEX_NONE = -1 };
 
 template <typename T> struct TCanBulkSerialize { enum { Value = false }; };
@@ -342,6 +342,7 @@ public:
 
 	virtual std::filesystem::path GetDiskPath() = 0;
 	virtual std::unique_ptr<class FArchive> CreateEntryArchive(struct FFileEntryInfo EntryInfo) = 0;
+	virtual void DoWork(std::unique_ptr<class FArchive>& Ar) = 0;
 };
 
 struct FFileEntryInfo
@@ -374,6 +375,16 @@ struct FFileEntryInfo
 	__forceinline std::shared_ptr<IDiskFile> GetAssociatedFile()
 	{
 		return AssociatedFile;
+	}
+
+	__forceinline uint32_t GetTocIndex()
+	{
+		return Entry.TocIndex;
+	}
+
+	__forceinline int32_t GetPakIndex()
+	{
+		return Entry.PakIndex;
 	}
 
 protected:
