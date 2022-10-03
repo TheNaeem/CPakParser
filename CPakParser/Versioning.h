@@ -12,6 +12,17 @@ class FArchive;
 struct FCustomVersion;
 typedef std::vector<FCustomVersion> FCustomVersionArray;
 
+enum class ECustomVersionSerializationFormat
+{
+	Unknown,
+	Guids,
+	Enums,
+	Optimized,
+
+	CustomVersion_Automatic_Plus_One,
+	Latest = CustomVersion_Automatic_Plus_One - 1
+};
+
 enum class EUnrealEngineObjectUE5Version : uint32_t
 {
 	// Note that currently the oldest loadable package version is EUnrealEngineObjectUEVersion::VER_UE4_OLDEST_LOADABLE_PACKAGE
@@ -763,15 +774,10 @@ protected:
 	uint32_t Changelist = 0;
 };
 
-class FCustomVersionContainer
-{
-
-private:
-	FCustomVersionArray Versions;
-};
-
 struct FCustomVersion
 {
+	FCustomVersion() = default;
+
 	friend class FCustomVersionContainer;
 
 	FGuid Key;
@@ -784,12 +790,17 @@ struct FCustomVersion
 	__forceinline bool operator!=(FGuid InKey) const;
 
 	friend FArchive& operator<<(FArchive& Ar, FCustomVersion& Version);
-	const FName GetFriendlyName() const;
+};
+
+class FCustomVersionContainer
+{
+public:
+
+	void Serialize(FArchive& Ar, ECustomVersionSerializationFormat Format = ECustomVersionSerializationFormat::Latest);
 
 private:
 
-	/** Friendly name for error messages or whatever. Lazy initialized for serialized versions */
-	mutable FName FriendlyName;
+	FCustomVersionArray Versions;
 };
 
 class FEngineVersion : public FEngineVersionBase

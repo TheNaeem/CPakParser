@@ -85,6 +85,11 @@ public:
 		Container.EncryptionKey = Key;
 	}
 
+	__forceinline FFileIoStoreContainerFile& GetContainer()
+	{
+		return Container;
+	}
+
 private:
 
 	FIoOffsetAndLength FindChunkInternal(FIoChunkId& ChunkId);

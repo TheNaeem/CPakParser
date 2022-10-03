@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES.h" />
+    <ClInclude Include="CityHash.h" />
     <ClInclude Include="Compression.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Archives.h" />
@@ -45,9 +46,11 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
+    <ClInclude Include="ZenPackage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="CityHash.cpp" />
     <ClCompile Include="Compression.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Archives.cpp" />

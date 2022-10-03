@@ -2,6 +2,7 @@
 
 #include "Compression.h"
 #include "MemoryReader.h"
+#include "ZenPackage.h"
 
 FIoStoreToc::FIoStoreToc(std::shared_ptr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
 {
@@ -92,5 +93,43 @@ FUniqueAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) // TODO: mak
 
 void FIoStoreToc::DoWork(FUniqueAr& Ar)
 {
+	auto PackageDataOffset = Ar->Tell();
 
+	FZenPackageHeaderData Header;
+	FZenPackageSummary& Summary = Header.PackageSummary;
+
+	Ar->Serialize(&Header.PackageSummary, sizeof(FZenPackageSummary));
+	
+	if (Summary.bHasVersioningInfo)
+	{
+		*Ar << Header.VersioningInfo;
+	}
+
+	Header.NameMap.Serialize(*Ar, FMappedName::EType::Package);
+	Header.PackageName = Header.NameMap.GetName(Summary.Name);
+
+	Ar->Seek(PackageDataOffset + Summary.ImportMapOffset);
+	Ar->BulkSerializeArray(Header.ImportMap,
+		(Summary.ExportMapOffset - Summary.ImportMapOffset) / sizeof(FPackageObjectIndex));
+
+	Ar->Seek(PackageDataOffset + Summary.ExportMapOffset);
+	Ar->BulkSerializeArray(Header.ExportMap,
+		(Summary.ExportBundleEntriesOffset - Summary.ExportMapOffset) / sizeof(FExportMapEntry));
+
+	// TODO: do we really need the arcs data?
+
+	auto PackageId = FPackageId(Header.PackageName);
+
+	auto& Container = Reader->GetContainer();
+
+	if (Container.Header.PackageStore.contains(PackageId))
+	{
+		auto StoreEntry = Container.Header.PackageStore[PackageId];
+
+		Ar->Seek(PackageDataOffset + Summary.GraphDataOffset);
+		Ar->BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry->ExportBundleCount);
+
+		Ar->Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
+		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry->ExportCount * FExportBundleEntry::ExportCommandType_Count);
+	}
 }

@@ -79,6 +79,12 @@
     <Filter Include="Unreal\Paks\IOStore\IOStore Toc">
       <UniqueIdentifier>{9202fdf3-5e4e-4b9d-92f2-b89cb83184e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Paks\Pak Reading\Types\Zen">
+      <UniqueIdentifier>{bcbebed6-22ec-4037-8059-7613606899f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Types\Hashing">
+      <UniqueIdentifier>{3c6a9d6e-2d84-4656-b757-9a6240cfe2fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -89,9 +95,6 @@
     </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Unreal\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Hashing.h">
-      <Filter>Unreal\Core\Types</Filter>
     </ClInclude>
     <ClInclude Include="PakFiles.h">
       <Filter>Unreal\Paks\Pak Reading\Pak Files</Filter>
@@ -159,6 +162,15 @@
     <ClInclude Include="IoContainer.h">
       <Filter>Unreal\Paks\IOStore</Filter>
     </ClInclude>
+    <ClInclude Include="ZenPackage.h">
+      <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
+    </ClInclude>
+    <ClInclude Include="Hashing.h">
+      <Filter>Unreal\Core\Types\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="CityHash.h">
+      <Filter>Unreal\Core\Types\Hashing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">
@@ -214,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="IoStoreToc.cpp">
       <Filter>Unreal\Paks\IOStore\IOStore Toc</Filter>
+    </ClCompile>
+    <ClCompile Include="CityHash.cpp">
+      <Filter>Unreal\Core\Types\Hashing</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

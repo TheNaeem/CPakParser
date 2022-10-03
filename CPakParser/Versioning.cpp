@@ -1,14 +1,15 @@
 #include "Versioning.h"
 
+#include "Archives.h"
+
 FCustomVersion::FCustomVersion(FGuid InKey, int32_t InVersion, FName InFriendlyName)
 	: Key(InKey)
 	, Version(InVersion)
 	, ReferenceCount(1)
-	, FriendlyName(InFriendlyName)
 {
 }
 
-FEngineVersionBase::FEngineVersionBase(uint16_t InMajor, uint16_t InMinor, uint16_t InPatch , uint32_t InChangelist )
+FEngineVersionBase::FEngineVersionBase(uint16_t InMajor, uint16_t InMinor, uint16_t InPatch, uint32_t InChangelist)
 	: Major(InMajor), Minor(InMinor), Patch(InPatch), Changelist(InChangelist)
 {
 }
@@ -135,5 +136,17 @@ void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, FEngineVe
 		&& Version.IsLicenseeVersion())
 	{
 		Version.Set(4, 26, 0, Version.GetChangelist(), Version.GetBranch());
+	}
+}
+
+void FCustomVersionContainer::Serialize(FArchive& Ar, ECustomVersionSerializationFormat Format)
+{
+	switch (Format) // implement the deprecated formats if needed but i doubt it ever will
+	{
+		case ECustomVersionSerializationFormat::Optimized:
+		{
+			Ar << Versions;
+		}
+		break;
 	}
 }

@@ -4,6 +4,7 @@
 #include "IoContainer.h"
 #include "Hashing.h"
 #include "PackageSummary.h"
+#include "ZenPackage.h"
 
 FArchive& operator<<(FArchive& Ar, std::string& InString)
 {
@@ -122,21 +123,34 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 
 	Ar << ContainerHeader.ContainerId;
 	Ar.BulkSerializeArray(ContainerHeader.PackageIds);
-	Ar << ContainerHeader.StoreEntries;
+
+	auto PackageCount = ContainerHeader.PackageIds.size();
+
+	Ar << ContainerHeader.StoreEntriesData;
+	ContainerHeader.StoreEntries = std::span((FFilePackageStoreEntry*)ContainerHeader.StoreEntriesData.data(), PackageCount);
+
 	Ar.BulkSerializeArray(ContainerHeader.OptionalSegmentPackageIds);
 	Ar << ContainerHeader.OptionalSegmentStoreEntries;
 
 	ContainerHeader.RedirectsNameMap = LoadNameBatch(Ar);
 
-	Ar << ContainerHeader.LocalizedPackages;
-	Ar << ContainerHeader.PackageRedirects;
+	Ar.BulkSerializeArray(ContainerHeader.LocalizedPackages);
+	Ar.BulkSerializeArray(ContainerHeader.PackageRedirects);
+
+	ContainerHeader.PackageStore.reserve(PackageCount);
+
+	for (size_t i = 0; i < PackageCount; i++)
+	{
+		ContainerHeader.PackageStore.insert_or_assign(ContainerHeader.PackageIds[i], &ContainerHeader.StoreEntries[i]);
+	}
 
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, FGuid& Value)
 {
-	return Ar << Value.A << Value.B << Value.C << Value.D;
+	Ar.Serialize(&Value.A, sizeof(FGuid));
+	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, bool& InBool)
@@ -535,6 +549,37 @@ FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this in
 			Loc.Entries.insert_or_assign(FTextId(Namespace, Key), Val);
 		}
 	}
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FZenPackageVersioningInfo& VersioningInfo)
+{
+	Ar.Serialize(&VersioningInfo.ZenVersion, sizeof(EZenPackageVersion));
+	Ar << VersioningInfo.PackageVersion;
+	Ar << VersioningInfo.LicenseeVersion;
+
+	VersioningInfo.CustomVersions.Serialize(Ar);
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FCustomVersion& Version)
+{
+	/*
+	Ar << Version.Key;
+	Ar << Version.Version;
+	*/
+
+	Ar.Serialize(&Version.Key, sizeof(Version.Key) + sizeof(Version.Version));
+
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version)
+{
+	Ar << Version.FileVersionUE4;
+	Ar << Version.FileVersionUE5;
 
 	return Ar;
 }

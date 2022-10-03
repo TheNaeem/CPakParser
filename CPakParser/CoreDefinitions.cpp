@@ -1,6 +1,7 @@
 #include "CoreTypes.h"
 
 #include "Archives.h"
+#include "CityHash.h"
 #include <filesystem>
 #include <span>
 
@@ -160,4 +161,27 @@ bool const FEncryptionKeyManager::HasKey(const FGuid& InGuid)
 const phmap::flat_hash_map<FGuid, FAESKey>& FEncryptionKeyManager::GetKeys()
 {
 	return Get().Keys;
+}
+
+void FNameMap::Serialize(class FArchive& Ar, FMappedName::EType NameMapType)
+{
+	NameEntries = LoadNameBatch(Ar);
+	this->NameMapType = NameMapType;
+}
+
+FPackageId::FPackageId(const std::string& Name)
+{
+	std::vector<char> NameLower(Name.size() * 2); // UE gets the string buffer as a tchar array bruh. so we'll have to pass the string bytes in unicode form
+
+	int i = 0, j = 0;
+
+	while (i < Name.size()) // kill two birds with one stone
+	{
+		NameLower[j] = std::tolower(Name[i]);
+
+		i++;
+		j += 2;
+	}
+
+	Id = CityHash64(NameLower.data(), NameLower.size());
 }

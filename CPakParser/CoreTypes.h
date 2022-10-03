@@ -77,7 +77,6 @@ private:
 	FNoncopyable& operator=(const FNoncopyable&);
 };
 
-
 struct FGuid
 {
 	int32_t A;
@@ -222,7 +221,7 @@ class FPackageId
 public:
 	FPackageId() = default;
 
-	static FPackageId FromName(const FName& Name);
+	FPackageId(const std::string& Name);
 
 	static FPackageId FromValue(const uint64_t Value)
 	{
@@ -259,9 +258,9 @@ public:
 		return Id != Other.Id;
 	}
 
-	inline friend uint64_t GetTypeHash(const FPackageId& In)
+	__forceinline friend size_t hash_value(const FPackageId& In)
 	{
-		return uint64_t(In.Id);
+		return In.Id;
 	}
 
 	friend FArchive& operator<<(FArchive& Ar, FPackageId& Value);
@@ -290,37 +289,37 @@ public:
 
 	inline FMappedName() = default;
 
-	static inline FMappedName Create(const uint32_t InIndex, const uint32_t InNumber, EType InType)
+	static __forceinline FMappedName Create(const uint32_t InIndex, const uint32_t InNumber, EType InType)
 	{
 		return FMappedName((uint32_t(InType) << TypeShift) | InIndex, InNumber);
 	}
 
-	inline bool IsValid() const
+	__forceinline bool IsValid() const
 	{
 		return Index != InvalidIndex && Number != InvalidIndex;
 	}
 
-	inline EType GetType() const
+	__forceinline EType GetType() const
 	{
 		return static_cast<EType>(uint32_t((Index & TypeMask) >> TypeShift));
 	}
 
-	inline bool IsGlobal() const
+	__forceinline bool IsGlobal() const
 	{
 		return ((Index & TypeMask) >> TypeShift) != 0;
 	}
 
-	inline uint32_t GetIndex() const
+	__forceinline uint32_t GetIndex() const
 	{
 		return Index & IndexMask;
 	}
 
-	inline uint32_t GetNumber() const
+	__forceinline uint32_t GetNumber() const
 	{
 		return Number;
 	}
 
-	inline bool operator!=(FMappedName Other) const
+	__forceinline bool operator!=(FMappedName Other) const
 	{
 		return Index != Other.Index || Number != Other.Number;
 	}
@@ -334,6 +333,28 @@ private:
 
 	uint32_t Index = InvalidIndex;
 	uint32_t Number = InvalidIndex;
+};
+
+class FNameMap
+{
+public:
+
+	__forceinline int32_t Num() const
+	{
+		return NameEntries.size();
+	}
+
+	__forceinline const std::string& GetName(FMappedName& MappedName) const
+	{
+		return NameEntries[MappedName.GetIndex()];
+	}
+
+	void Serialize(class FArchive& Ar, FMappedName::EType NameMapType);
+
+private:
+
+	std::vector<std::string> NameEntries;
+	FMappedName::EType NameMapType = FMappedName::EType::Global;
 };
 
 class IDiskFile
