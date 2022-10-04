@@ -74,7 +74,7 @@ FUniqueAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) // TODO: mak
 			std::vector<uint8_t> TempBuffer(UncompressedSize);
 			FCompression::DecompressMemory(CompressionMethod, TempBuffer.data(), UncompressedSize, CompressedData, CompressionBlock.GetCompressedSize());
 
-			auto CopySize = min(UncompressedSize - OffsetInBlock, RemainingSize);
+			auto CopySize = std::min(UncompressedSize - OffsetInBlock, RemainingSize);
 			memcpy(DecompressedData, TempBuffer.data() + OffsetInBlock, CopySize);
 		}
 		else

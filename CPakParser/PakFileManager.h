@@ -37,7 +37,7 @@ public:
 
 		Pak->bIsMounted = true;
 
-		ReadStatus(ReadErrorCode::Ok, "Sucessfully mounted PAK file: " + Pak->GetFilename());
+		Log<Success>("Sucessfully mounted PAK file: " + Pak->GetFilename());
 
 		PakFiles.push_back(Pak);
 	}

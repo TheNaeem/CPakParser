@@ -76,7 +76,7 @@ struct FNameBatchLoader
 		Ar.Serialize(Data.data(), Data.size());
 
 		Headers = std::span<FSerializedNameHeader>{ reinterpret_cast<FSerializedNameHeader*>(Data.data() + NumHashBytes), Num };
-		Strings = std::span<uint8_t>{ Data.data() + NumHashBytes + NumHeaderBytes, NumStringBytes};
+		Strings = std::span<uint8_t>{ Data.data() + NumHashBytes + NumHeaderBytes, NumStringBytes };
 
 		return true;
 	}
@@ -89,7 +89,7 @@ struct FNameBatchLoader
 		for (auto i = 0; i < Headers.size(); i++)
 		{
 			auto Header = Headers[i];
-			
+
 			union
 			{
 				const uint8_t* Data;
@@ -123,9 +123,9 @@ std::vector<std::string> LoadNameBatch(FArchive& Ar)
 {
 	FNameBatchLoader Loader;
 
-	if (!Loader.Read(Ar)) 
+	if (!Loader.Read(Ar))
 		return std::vector<std::string>();
-	
+
 	return Loader.Load();
 }
 
@@ -169,19 +169,12 @@ void FNameMap::Serialize(class FArchive& Ar, FMappedName::EType NameMapType)
 	this->NameMapType = NameMapType;
 }
 
-FPackageId::FPackageId(const std::string& Name)
+FPackageId::FPackageId(std::string Name)
 {
-	std::vector<char> NameLower(Name.size() * 2); // UE gets the string buffer as a tchar array bruh. so we'll have to pass the string bytes in unicode form
+	std::wstring NameW(Name.begin(), Name.end());
 
-	int i = 0, j = 0;
+	std::transform(NameW.begin(), NameW.end(), NameW.begin(),
+		[](unsigned char c) { return std::tolower(c); });
 
-	while (i < Name.size()) // kill two birds with one stone
-	{
-		NameLower[j] = std::tolower(Name[i]);
-
-		i++;
-		j += 2;
-	}
-
-	Id = CityHash64(NameLower.data(), NameLower.size());
+	Id = CityHash64(reinterpret_cast<const char*>(NameW.data()), NameW.size() * 2 /* size of bytes */);
 }

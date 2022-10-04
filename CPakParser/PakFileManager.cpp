@@ -9,7 +9,7 @@ bool FPakFileManager::RegisterEncryptionKey(FGuid InGuid, FAESKey InKey)
 {
 	if (FEncryptionKeyManager::HasKey(InGuid))
 	{
-		ReadStatus(ReadErrorCode::InvalidEncryptionKey, "Attempting to register a key with a GUID that has already been registered.");
+		Log<Warning>("Attempting to register a key with a GUID that has already been registered.");
 		return false;
 	}
 
@@ -53,7 +53,7 @@ bool FPakFileManager::Initialize(std::string InPaksFolderDir)
 
 	if (std::filesystem::exists(GlobalUTocPath))
 	{
-		ReadStatus(ReadErrorCode::Ok, "Mounting Global");
+		Log<Success>("Mounting Global");
 
 		IoFileBackend = std::make_shared<FFileIoStore>();
 		PackageStoreBackend = std::make_shared<FFilePackageStoreBackend>();
@@ -61,7 +61,7 @@ bool FPakFileManager::Initialize(std::string InPaksFolderDir)
 
 		IoFileBackend->Mount(GlobalUTocPath.string(), FGuid(), FAESKey());
 
-		ReadStatus(ReadErrorCode::Ok, "Successfully mounted Global TOC");
+		Log<Success>("Successfully mounted Global TOC");
 	}
 
 	this->MountAllPakFiles();
@@ -73,7 +73,7 @@ bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex
 {
 	auto PakFilename = InPakFilePath.filename().string();
 
-	ReadStatus(ReadErrorCode::Ok, "Mounting PAK file: " + PakFilename);
+	Log<Success>("Mounting PAK file: " + PakFilename);
 
 	auto Pak = std::make_shared<FPakFile>(InPakFilePath, bSigned);
 	Pak->Initialize(bLoadIndex);
@@ -106,7 +106,7 @@ bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex
 			DeferredPaks.insert_or_assign(PakGuid, InPakFilePath);
 		}
 
-		ReadStatus(ReadErrorCode::Cancelled, "Encryption key could not be found for " + PakFilename + " so it will be deferred until it's registered");
+		Log<Warning>("Encryption key could not be found for " + PakFilename + " so it will be deferred until it's registered");
 
 		return false;
 	}
@@ -143,9 +143,9 @@ void FPakFileManager::MountAllPakFiles()
 
 		if (!Mount(PakPath))
 		{
-			ReadStatus(ReadErrorCode::Cancelled, "Could not mount PAK file: " + PakPath.filename().string());
+			Log<Warning>("Could not mount PAK file: " + PakPath.filename().string());
 		}
 	}
 
-	ReadStatus(ReadErrorCode::Ok, "Mounted all available PAK files");
+	Log<Success>("Mounted all available PAK files");
 }

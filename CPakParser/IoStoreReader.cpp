@@ -31,7 +31,7 @@ void FFileIoStore::Initialize()
 
 FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
 {
-	ReadStatus(ReadErrorCode::Ok, "Mounting TOC: " + InTocPath);
+	Log<Success>("Mounting TOC: " + InTocPath);
 
 	auto Reader = std::make_shared<FIoStoreReader>(InTocPath.c_str());
 	Reader->Initialize(true);
@@ -86,7 +86,7 @@ FIoContainerHeader FIoStoreReader::ReadContainerHeader()
 
 	if (!OffsetAndLength.IsValid())
 	{
-		ReadStatus(ReadErrorCode::NotFound, "Container header chunk not found: " + this->Container.FilePath);
+		Log<Error>("Container header chunk not found: " + this->Container.FilePath);
 		return FIoContainerHeader();
 	}
 
@@ -109,7 +109,7 @@ FIoContainerHeader FIoStoreReader::ReadContainerHeader()
 		auto ContainerFileHandle = FFileReader(Container.Partitions[PartitionIndex].FilePath.c_str());
 
 		if (!ContainerFileHandle.IsValid())
-			ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open container file for TOC"); //expect a crash if this happens 
+			Log<Error>("Failed to open container file for TOC"); //expect a crash if this happens 
 
 		ContainerFileHandle.Seek(RawOffset);
 		ContainerFileHandle.Serialize(IoBuffer.get(), BufSize);
@@ -166,7 +166,7 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath)
 
 	if (!ContainerPathView.ends_with(".utoc"))
 	{
-		ReadStatus(ReadErrorCode::FileOpenFailed, std::string(ContainerPathView) + " was not a .utoc file.");
+		Log<Error>(std::string(ContainerPathView) + " was not a .utoc file.");
 		return;
 	}
 
@@ -195,7 +195,7 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath)
 
 		if (!Partition.OpenContainer(Partition.FilePath.c_str()))
 		{
-			ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore container file " + Partition.FilePath);
+			Log<Error>("Failed to open IoStore container file " + Partition.FilePath);
 			return;
 		}
 

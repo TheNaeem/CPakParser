@@ -10,7 +10,7 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 
 	if (!TocFileReader.IsValid())
 	{
-		ReadStatus(ReadErrorCode::FileOpenFailed, "Failed to open IoStore TOC file: " + TocFilePath);
+		Log<Error>("Failed to open IoStore TOC file: " + TocFilePath);
 		return;
 	}
 
@@ -18,16 +18,16 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 
 	if (!Header.CheckMagic())
 	{
-		ReadStatus(ReadErrorCode::CorruptFile, "Could not read TOC file magic: " + TocFilePath);
+		Log<Error>("Could not read TOC file magic: " + TocFilePath);
 		return;
 	}
 
 	if (Header.TocHeaderSize != sizeof(FIoStoreTocHeader))
-		ReadStatus(ReadErrorCode::CorruptFile, "User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
+		Log<Error>("User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
 
 
 	if (Header.TocCompressedBlockEntrySize != sizeof(FIoStoreTocCompressedBlockEntry))
-		ReadStatus(ReadErrorCode::CorruptFile, "User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
+		Log<Error>("User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
 
 	uint64_t TotalTocSize = TocFileReader.TotalSize() - sizeof(FIoStoreTocHeader);
 	uint64_t TocMetaSize = Header.TocEntryCount * sizeof(FIoStoreTocEntryMeta);
@@ -121,7 +121,7 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 		Header.PartitionSize = MAX_uint64;
 	}
 
-	ReadStatus(ReadErrorCode::Ok, "Successfully processed TOC header: " + TocFilePath);
+	Log<Success>("Successfully processed TOC header: " + TocFilePath);
 }
 
 uint64_t FIoStoreTocResource::HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId)

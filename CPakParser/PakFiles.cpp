@@ -190,7 +190,7 @@ void FPakEntry::Serialize(FArchive& Ar, int32_t Version)
 		else if (LegacyCompressionMethod & COMPRESS_ZLIB) CompressionMethodIndex = 1;
 		else if (LegacyCompressionMethod & COMPRESS_GZIP) CompressionMethodIndex = 2;
 		else if (LegacyCompressionMethod & COMPRESS_Custom) CompressionMethodIndex = 3;
-		else ReadStatus(ReadErrorCode::CompressionError, "Found an unknown compression type in pak file, will need to be supported for legacy files");
+		else Log<Error>("Found an unknown compression type in pak file, will need to be supported for legacy files");
 	}
 	else
 	{
@@ -267,7 +267,7 @@ void FPakInfo::Serialize(FArchive& Ar, int32_t InVersion)
 		Ar << bIndexIsFrozen;
 
 		if (bIndexIsFrozen)
-			ReadStatus(ReadErrorCode::ReadError, "Pak frozen with unsupported version");
+			Log<Error>("Pak frozen with unsupported version");
 	}
 
 	if (Version < PakFile_Version_FNameBasedCompressionMethod)
@@ -399,7 +399,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (CachedTotalSize < (Info.IndexOffset + Info.IndexSize))
 	{
-		ReadStatus(ReadErrorCode::CorruptFile, "Corrupted index offset in pak file.");
+		Log<Error>("Corrupted index offset in pak file.");
 		return false;
 	}
 
@@ -420,6 +420,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 	NumEntries = 0;
 	PrimaryIndexReader << MountPoint;
 
+	//TODO: throw if mountpoint is empty
 	if (MountPoint.back() == '\0')
 		MountPoint.pop_back();
 
@@ -504,7 +505,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 	}
 	else
 	{
-		ReadStatus(ReadErrorCode::CorruptFile, "Corrupt pak PrimaryIndex detected!");
+		Log<Error>("Corrupt pak PrimaryIndex detected!");
 		return false;
 	}
 

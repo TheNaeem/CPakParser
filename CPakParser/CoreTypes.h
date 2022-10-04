@@ -6,9 +6,9 @@
 #include <filesystem>
 #include "Enums.h"
 #include "AES.h"
-#include "../Dependencies/parallel_hashmap/phmap.h"
+#include "Logger.h"
 
-#define LOGGING 1
+#include <parallel_hashmap/phmap.h>
 
 #define SCOPE_LOCK(InLock) std::lock_guard<std::mutex> _(InLock);
 
@@ -88,10 +88,10 @@ struct FGuid
 		: A(InA), B(InB), C(InC), D(InD)
 	{ }
 
-	FGuid() : 
+	FGuid() :
 		A(0),
 		B(0),
-		C(0), 
+		C(0),
 		D(0)
 	{
 	}
@@ -120,12 +120,12 @@ struct FGuid
 		A = B = C = D = 0;
 	}
 
-	friend size_t hash_value(const FGuid& Guid) 
+	friend size_t hash_value(const FGuid& Guid)
 	{
-		return 
-			std::hash<int32_t>{}(Guid.A) ^ 
-			std::hash<int32_t>{}(Guid.B) ^ 
-			std::hash<int32_t>{}(Guid.C) ^ 
+		return
+			std::hash<int32_t>{}(Guid.A) ^
+			std::hash<int32_t>{}(Guid.B) ^
+			std::hash<int32_t>{}(Guid.C) ^
 			std::hash<int32_t>{}(Guid.D);
 	}
 };
@@ -221,7 +221,7 @@ class FPackageId
 public:
 	FPackageId() = default;
 
-	FPackageId(const std::string& Name);
+	FPackageId(std::string Name);
 
 	static FPackageId FromValue(const uint64_t Value)
 	{
@@ -378,7 +378,7 @@ struct FFileEntryInfo
 
 	friend FArchive& operator<<(FArchive& Ar, FFileEntryInfo& EntryInfo);
 
-	__forceinline bool IsValid() 
+	__forceinline bool IsValid()
 	{
 		return Entry.PakIndex;
 	}
@@ -410,44 +410,13 @@ struct FFileEntryInfo
 
 protected:
 
-	union 
+	union
 	{
 		int32_t PakIndex;
 		uint32_t TocIndex;
 	}Entry;
 
 	std::shared_ptr<IDiskFile> AssociatedFile;
-};
-
-//TODO: proper logging from this
-class ReadStatus //totally not an FIoStatus rip off
-{
-public:
-	ReadStatus(ReadErrorCode Code, std::string InStatusMessage) : ErrorCode(Code), StatusMessage(InStatusMessage)
-	{
-#if LOGGING
-		printf("%s\n", InStatusMessage.c_str());
-#endif
-	}
-
-	ReadStatus(ReadErrorCode Code) : ErrorCode(Code)
-	{
-	}
-
-	ReadStatus& operator=(const ReadStatus& Other);
-	ReadStatus& operator=(const ReadErrorCode InErrorCode);
-
-	bool operator==(const ReadStatus& Other) const;
-	bool operator!=(const ReadStatus& Other) const { return !operator==(Other); }
-
-	inline bool	IsOk() const { return ErrorCode == ReadErrorCode::Ok; }
-	inline bool	IsCompleted() const { return ErrorCode != ReadErrorCode::Unknown; }
-	inline ReadErrorCode	GetErrorCode() const { return ErrorCode; }
-	std::string	ToString() { return StatusMessage; }
-
-private:
-	ReadErrorCode ErrorCode = ReadErrorCode::Ok;
-	std::string StatusMessage;
 };
 
 class FEncryptionKeyManager

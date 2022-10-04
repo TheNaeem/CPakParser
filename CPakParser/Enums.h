@@ -79,25 +79,6 @@ enum class EIoContainerFlags : uint8_t
 };
 ENUM_CLASS_FLAGS(EIoContainerFlags);
 
-enum class ReadErrorCode
-{
-	Ok,
-	Unknown,
-	InvalidCode,
-	Cancelled,
-	FileOpenFailed,
-	FileNotOpen,
-	ReadError,
-	WriteError,
-	NotFound,
-	CorruptFile,
-	UnknownChunkID,
-	InvalidParameter,
-	SignatureError,
-	InvalidEncryptionKey,
-	CompressionError,
-};
-
 enum ELifetimeCondition
 {
 	COND_None = 0,		// This property has no condition, and will send anytime it changes

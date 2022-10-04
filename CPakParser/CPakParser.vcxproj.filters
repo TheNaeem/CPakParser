@@ -171,6 +171,7 @@
     <ClInclude Include="CityHash.h">
       <Filter>Unreal\Core\Types\Hashing</Filter>
     </ClInclude>
+    <ClInclude Include="Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">

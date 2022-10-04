@@ -113,7 +113,7 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 
 	if (Signature != FIoContainerHeader::Signature)
 	{
-		ReadStatus(ReadErrorCode::CorruptFile, "FIoContainerHeader signature read does not match the correct one.");
+		Log<Warning>("FIoContainerHeader signature read does not match the correct one.");
 		Ar.SetError(true);
 		return Ar;
 	}
@@ -265,7 +265,7 @@ FArchive& operator<<(FArchive& Ar, FPackageFileSummary& Summary)
 	{
 		Summary.Tag = PACKAGE_FILE_TAG;
 
-		ReadStatus(ReadErrorCode::Unknown, "Package summary must be endian swapped. TODO");
+		Log<Warning>("Package summary must be endian swapped. TODO");
 	}
 
 	constexpr int32_t CurrentLegacyFileVersion = -8;
