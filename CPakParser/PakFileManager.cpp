@@ -49,6 +49,12 @@ bool FPakFileManager::Initialize(std::string InPaksFolderDir)
 
 	PaksFolderDir = InPaksFolderDir;
 
+	if (!std::filesystem::is_directory(PaksFolderDir))
+	{
+		Log<Error>("Invalid paks directory.");
+		return false;
+	}
+
 	auto GlobalUTocPath = std::filesystem::path(PaksFolderDir) /= "global.utoc";
 
 	if (std::filesystem::exists(GlobalUTocPath))
@@ -89,12 +95,7 @@ bool FPakFileManager::Mount(std::filesystem::path InPakFilePath, bool bLoadIndex
 
 		if (std::filesystem::exists(TocPath))
 		{
-			auto Container = IoFileBackend->Mount(TocPath.string(), PakGuid, Key);
-
-			if (Container.IsValid())
-			{
-				Pak->IoContainerHeader = std::make_unique<FIoContainerHeader>(Container);
-			}
+			Mount(TocPath.string(), PakGuid, Key);
 		}
 	}
 	else

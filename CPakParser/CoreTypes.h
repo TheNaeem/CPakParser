@@ -28,10 +28,30 @@ template<> struct TCanBulkSerialize<unsigned int> { enum { Value = true }; };
 template<> struct TCanBulkSerialize<unsigned short> { enum { Value = true }; };
 template<> struct TCanBulkSerialize<int> { enum { Value = true }; };
 
+template <typename T>
+using TUniquePtr = std::unique_ptr<T>; // unnecessary but cleaner imo 
+
+template <typename T>
+using TSharedPtr = std::shared_ptr<T>;
+
 class UObject
 {
+	std::string Name;
 
+public:
+
+	__forceinline void SetName(const std::string& InName)
+	{
+		Name = InName;
+	}
+
+	__forceinline std::string GetName() const
+	{
+		return Name;
+	}
 };
+
+typedef TSharedPtr<UObject> UObjectPtr;
 
 template <class TEnum>
 class TEnumAsByte
@@ -65,16 +85,6 @@ public:
 
 private:
 	uint8_t value;
-};
-
-class FNoncopyable
-{
-protected:
-	FNoncopyable() {}
-	~FNoncopyable() {}
-private:
-	FNoncopyable(const FNoncopyable&);
-	FNoncopyable& operator=(const FNoncopyable&);
 };
 
 struct FGuid
@@ -362,8 +372,8 @@ class IDiskFile
 public:
 
 	virtual std::filesystem::path GetDiskPath() = 0;
-	virtual std::unique_ptr<class FArchive> CreateEntryArchive(struct FFileEntryInfo EntryInfo) = 0;
-	virtual void DoWork(std::unique_ptr<class FArchive>& Ar) = 0;
+	virtual TSharedPtr<class FArchive> CreateEntryArchive(struct FFileEntryInfo EntryInfo) = 0;
+	virtual void DoWork(TSharedPtr<class FArchive> Ar) = 0;
 };
 
 struct FFileEntryInfo
@@ -383,7 +393,7 @@ struct FFileEntryInfo
 		return Entry.PakIndex;
 	}
 
-	__forceinline void SetOwningFile(std::shared_ptr<IDiskFile> DiskFile)
+	__forceinline void SetOwningFile(TSharedPtr<IDiskFile> DiskFile)
 	{
 		AssociatedFile = DiskFile;
 	}
@@ -393,7 +403,7 @@ struct FFileEntryInfo
 		return AssociatedFile->GetDiskPath();
 	}
 
-	__forceinline std::shared_ptr<IDiskFile> GetAssociatedFile()
+	__forceinline TSharedPtr<IDiskFile> GetAssociatedFile()
 	{
 		return AssociatedFile;
 	}
@@ -416,27 +426,19 @@ protected:
 		uint32_t TocIndex;
 	}Entry;
 
-	std::shared_ptr<IDiskFile> AssociatedFile;
+	TSharedPtr<IDiskFile> AssociatedFile;
 };
 
 class FEncryptionKeyManager
 {
 public:
 
-	static FEncryptionKeyManager& Get()
-	{
-		static FEncryptionKeyManager Inst;
-		return Inst;
-	}
-
-	static void AddKey(const FGuid& InGuid, const FAESKey InKey);
-	static bool GetKey(const FGuid& InGuid, FAESKey& OutKey);
-	static bool const HasKey(const FGuid& InGuid);
-	static const phmap::flat_hash_map<FGuid, FAESKey>& GetKeys();
+	void AddKey(const FGuid& InGuid, const FAESKey InKey);
+	bool GetKey(const FGuid& InGuid, FAESKey& OutKey);
+	bool const HasKey(const FGuid& InGuid);
+	const phmap::flat_hash_map<FGuid, FAESKey>& GetKeys();
 
 private:
-
-	FEncryptionKeyManager() = default;
 
 	phmap::flat_hash_map<FGuid, FAESKey> Keys;
 	std::mutex CriticalSection;

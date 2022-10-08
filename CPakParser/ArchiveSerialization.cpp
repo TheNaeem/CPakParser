@@ -114,7 +114,6 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	if (Signature != FIoContainerHeader::Signature)
 	{
 		Log<Warning>("FIoContainerHeader signature read does not match the correct one.");
-		Ar.SetError(true);
 		return Ar;
 	}
 
@@ -127,7 +126,6 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	auto PackageCount = ContainerHeader.PackageIds.size();
 
 	Ar << ContainerHeader.StoreEntriesData;
-	ContainerHeader.StoreEntries = std::span((FFilePackageStoreEntry*)ContainerHeader.StoreEntriesData.data(), PackageCount);
 
 	Ar.BulkSerializeArray(ContainerHeader.OptionalSegmentPackageIds);
 	Ar << ContainerHeader.OptionalSegmentStoreEntries;
@@ -137,11 +135,12 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	Ar.BulkSerializeArray(ContainerHeader.LocalizedPackages);
 	Ar.BulkSerializeArray(ContainerHeader.PackageRedirects);
 
+	auto StoreEntries = (FFilePackageStoreEntry*)ContainerHeader.StoreEntriesData.data();
 	ContainerHeader.PackageStore.reserve(PackageCount);
 
 	for (size_t i = 0; i < PackageCount; i++)
 	{
-		ContainerHeader.PackageStore.insert_or_assign(ContainerHeader.PackageIds[i], &ContainerHeader.StoreEntries[i]);
+		ContainerHeader.PackageStore.insert_or_assign(ContainerHeader.PackageIds[i], StoreEntries[i]);
 	}
 
 	return Ar;
@@ -180,16 +179,14 @@ FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
 	return Ar << Info.Entry.PakIndex;
 }
 
-void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint, std::shared_ptr<FPakFile> AssociatedPak)
+void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint, TSharedPtr<FPakFile> AssociatedPak)
 {
-	auto& DirectoryIndex = Inst().FileLibrary;
-
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
 
 	if (!NewNumElements) return;
 
-	DirectoryIndex.reserve(NewNumElements);
+	FileLibrary.reserve(NewNumElements);
 
 	for (size_t i = 0; i < NewNumElements; i++)
 	{
@@ -229,13 +226,13 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint
 			DirIdx.insert_or_assign(File.first, File.second);
 		}
 
-		if (!DirectoryIndex.contains(DirectoryName))
+		if (!FileLibrary.contains(DirectoryName))
 		{
-			DirectoryIndex.insert_or_assign(DirectoryName, DirIdx);
+			FileLibrary.insert_or_assign(DirectoryName, DirIdx);
 			continue;
 		}
 
-		DirectoryIndex[DirectoryName].merge(DirIdx);
+		FileLibrary[DirectoryName].merge(DirIdx);
 	}
 }
 
@@ -301,15 +298,10 @@ FArchive& operator<<(FArchive& Ar, FPackageFileSummary& Summary)
 	Ar << Summary.FolderName;
 	Ar << Summary.PackageFlags;
 
-	if (Summary.PackageFlags & PKG_FilterEditorOnly)
-	{
-		Ar.ArIsFilterEditorOnly = true;
-	}
-
 	Ar << Summary.NameCount;
 	Ar << Summary.NameOffset;
 
-	if (!Ar.ArIsFilterEditorOnly &&
+	if (!(Summary.PackageFlags & PKG_FilterEditorOnly) &&
 		Summary.FileVersionUE >= VER_UE4_ADDED_PACKAGE_SUMMARY_LOCALIZATION_ID)
 	{
 		Ar << Summary.LocalizationId;

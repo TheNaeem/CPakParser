@@ -16,7 +16,7 @@ public:
 		return Size;
 	}
 
-	static __forceinline void DecryptBlock(void* Data, int64_t Size, const FGuid& EncryptionKeyGuid)
+	static __forceinline void DecryptBlock(void* Data, int64_t Size, const FGuid& EncryptionKeyGuid, FEncryptionKeyManager& KeyManager)
 	{
 	}
 };
@@ -24,6 +24,7 @@ public:
 class FPakSimpleEncryption
 {
 public:
+
 	enum
 	{
 		Alignment = FAESKey::AESBlockSize,
@@ -34,10 +35,10 @@ public:
 		return Align(Size, Alignment);
 	}
 
-	static __forceinline void DecryptBlock(uint8_t* Data, int64_t Size, const FGuid& EncryptionKeyGuid)
+	static __forceinline void DecryptBlock(uint8_t* Data, int64_t Size, const FGuid& EncryptionKeyGuid, FEncryptionKeyManager& KeyManager)
 	{
 		FAESKey Key;
-		if (FEncryptionKeyManager::GetKey(EncryptionKeyGuid, Key) && Key.IsValid())
+		if (KeyManager.GetKey(EncryptionKeyGuid, Key) && Key.IsValid())
 		{
 			Key.DecryptData(Data, Size);
 		}
@@ -47,15 +48,17 @@ public:
 template <typename Encryption = FPakNoEncryption>
 class FPakReader : public FArchive
 {
+	FEncryptionKeyManager& KeyManager;
 	int64_t OffsetToFile;
 	int64_t ReadPos;
-	std::shared_ptr<FPakFile> Pak;
+	TSharedPtr<FPakFile> Pak;
 	FPakEntry Entry;
 	bool bCompressed;
 
 public:
 
-	FPakReader(std::shared_ptr<FPakFile> PakFile, FPakEntry InEntry) :
+	FPakReader(TSharedPtr<FPakFile> PakFile, FPakEntry InEntry, FEncryptionKeyManager& EncryptionKeyManager) :
+		KeyManager(EncryptionKeyManager),
 		Pak(PakFile),
 		Entry(InEntry),
 		bCompressed(InEntry.CompressionMethodIndex != 0 && PakFile->GetInfo().Version >= FPakInfo::PakFile_Version_CompressionEncryption),

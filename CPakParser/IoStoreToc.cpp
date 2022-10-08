@@ -4,12 +4,11 @@
 #include "MemoryReader.h"
 #include "ZenPackage.h"
 
-FIoStoreToc::FIoStoreToc(std::shared_ptr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
+FIoStoreToc::FIoStoreToc(TSharedPtr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
 {
-	FEncryptionKeyManager::GetKey(Toc->Header.EncryptionKeyGuid, Key);
 }
 
-FUniqueAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) // TODO: make this async; look into StartAsyncRead
+FSharedAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) // TODO: make this async; look into StartAsyncRead
 {
 	if (EntryInfo.GetTocIndex() >= Toc->ChunkOffsetLengths.size())
 		return nullptr;
@@ -88,10 +87,10 @@ FUniqueAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) // TODO: mak
 		OffsetInBlock = 0;
 	}
 
-	return std::make_unique<FMemoryReader>(DecompressionBuf, Len, true);
+	return std::make_shared<FMemoryReader>(DecompressionBuf, Len, true);
 }
 
-void FIoStoreToc::DoWork(FUniqueAr& Ar)
+FZenPackageHeaderData FIoStoreReader::ReadZenPackageHeader(FSharedAr Ar)
 {
 	auto PackageDataOffset = Ar->Tell();
 
@@ -99,7 +98,7 @@ void FIoStoreToc::DoWork(FUniqueAr& Ar)
 	FZenPackageSummary& Summary = Header.PackageSummary;
 
 	Ar->Serialize(&Header.PackageSummary, sizeof(FZenPackageSummary));
-	
+
 	if (Summary.bHasVersioningInfo)
 	{
 		*Ar << Header.VersioningInfo;
@@ -120,16 +119,34 @@ void FIoStoreToc::DoWork(FUniqueAr& Ar)
 
 	auto PackageId = FPackageId(Header.PackageName);
 
-	auto& Container = Reader->GetContainer();
+	auto& Container = GetContainer();
 
 	if (Container.Header.PackageStore.contains(PackageId))
 	{
-		auto StoreEntry = Container.Header.PackageStore[PackageId];
+		auto& StoreEntry = Container.Header.PackageStore[PackageId];
+
+		Header.ExportCount = StoreEntry.ExportCount;
 
 		Ar->Seek(PackageDataOffset + Summary.GraphDataOffset);
-		Ar->BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry->ExportBundleCount);
+		Ar->BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry.ExportBundleCount);
 
 		Ar->Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
-		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry->ExportCount * FExportBundleEntry::ExportCommandType_Count);
+		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
 	}
+
+	return Header;
+}
+
+void FIoStoreToc::DoWork(FSharedAr Ar) // TODO: pass in loader
+{
+	FZenPackageData PackageData;
+
+	PackageData.Reader = Ar;
+	PackageData.Header = Reader->ReadZenPackageHeader(Ar);
+
+	auto Package = std::make_shared<UZenPackage>(PackageData.Header);
+
+	Ar->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
+
+	Package->ProcessExports(PackageData);
 }

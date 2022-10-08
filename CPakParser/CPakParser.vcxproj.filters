@@ -31,9 +31,6 @@
     <Filter Include="Unreal\Paks\Pak Reading\Types">
       <UniqueIdentifier>{4895a2e1-ecae-47c7-b7d8-66b16cc0838f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Paks\Pak File Manager">
-      <UniqueIdentifier>{9956e8e4-a57c-431c-af6c-407a13b70273}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Paks\IOStore">
       <UniqueIdentifier>{64e8506f-603e-4383-ab90-b447c84b0067}</UniqueIdentifier>
     </Filter>
@@ -85,6 +82,9 @@
     <Filter Include="Unreal\Core\Types\Hashing">
       <UniqueIdentifier>{3c6a9d6e-2d84-4656-b757-9a6240cfe2fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Unreal\Core\Game File Manager">
+      <UniqueIdentifier>{5d76e91d-4a6a-4069-b864-b4c6dbe3d68a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer.h">
@@ -110,9 +110,6 @@
     </ClInclude>
     <ClInclude Include="Package.h">
       <Filter>Unreal\Paks\Pak Reading\Types</Filter>
-    </ClInclude>
-    <ClInclude Include="PakFileManager.h">
-      <Filter>Unreal\Paks\Pak File Manager</Filter>
     </ClInclude>
     <ClInclude Include="IoContainerHeader.h">
       <Filter>Unreal\Paks\IOStore</Filter>
@@ -153,16 +150,13 @@
     <ClInclude Include="Localization.h">
       <Filter>Unreal\Core\Types</Filter>
     </ClInclude>
-    <ClInclude Include="GameFileManager.h">
-      <Filter>Unreal\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>Unreal\Core\Types\Text</Filter>
     </ClInclude>
     <ClInclude Include="IoContainer.h">
       <Filter>Unreal\Paks\IOStore</Filter>
     </ClInclude>
-    <ClInclude Include="ZenPackage.h">
+    <ClInclude Include="ZenData.h">
       <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
     </ClInclude>
     <ClInclude Include="Hashing.h">
@@ -172,6 +166,12 @@
       <Filter>Unreal\Core\Types\Hashing</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="ZenPackage.h">
+      <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFileManager.h">
+      <Filter>Unreal\Core\Game File Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer.cpp">
@@ -194,9 +194,6 @@
     </ClCompile>
     <ClCompile Include="Loading.cpp">
       <Filter>Unreal\Paks\Pak Reading\Loading</Filter>
-    </ClCompile>
-    <ClCompile Include="PakFileManager.cpp">
-      <Filter>Unreal\Paks\Pak File Manager</Filter>
     </ClCompile>
     <ClCompile Include="IoStoreReader.cpp">
       <Filter>Unreal\Paks\IOStore\IOStore Reader</Filter>
@@ -230,6 +227,15 @@
     </ClCompile>
     <ClCompile Include="CityHash.cpp">
       <Filter>Unreal\Core\Types\Hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="ZenPackage.cpp">
+      <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
+    </ClCompile>
+    <ClCompile Include="DataminerInternals.cpp">
+      <Filter>Dataminer</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFileManager.cpp">
+      <Filter>Unreal\Core\Game File Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

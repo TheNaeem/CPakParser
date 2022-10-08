@@ -42,33 +42,35 @@
     <ClInclude Include="Oodle.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="PackageSummary.h" />
-    <ClInclude Include="PakFileManager.h" />
     <ClInclude Include="PakReader.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
+    <ClInclude Include="ZenData.h" />
     <ClInclude Include="ZenPackage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
     <ClCompile Include="CityHash.cpp" />
     <ClCompile Include="Compression.cpp" />
+    <ClCompile Include="DataminerInternals.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Archives.cpp" />
     <ClCompile Include="ArchiveSerialization.cpp" />
     <ClCompile Include="CoreDefinitions.cpp" />
     <ClCompile Include="Dataminer.cpp" />
+    <ClCompile Include="GameFileManager.cpp" />
     <ClCompile Include="IoChunkId.cpp" />
     <ClCompile Include="IoStoreReader.cpp" />
     <ClCompile Include="IoStoreToc.cpp" />
     <ClCompile Include="IoTocResource.cpp" />
     <ClCompile Include="Loading.cpp" />
     <ClCompile Include="Oodle.cpp" />
-    <ClCompile Include="PakFileManager.cpp" />
     <ClCompile Include="PakFiles.cpp" />
     <ClCompile Include="PakReader.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Versioning.cpp" />
+    <ClCompile Include="ZenPackage.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

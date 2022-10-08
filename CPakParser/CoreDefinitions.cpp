@@ -131,36 +131,32 @@ std::vector<std::string> LoadNameBatch(FArchive& Ar)
 
 void FEncryptionKeyManager::AddKey(const FGuid& InGuid, const FAESKey InKey)
 {
-	auto& KeyCache = Get();
+	SCOPE_LOCK(CriticalSection);
 
-	SCOPE_LOCK(KeyCache.CriticalSection);
-
-	if (!KeyCache.Keys.contains(InGuid))
+	if (!Keys.contains(InGuid))
 	{
-		KeyCache.Keys.insert_or_assign(InGuid, InKey);
+		Keys.insert_or_assign(InGuid, InKey);
 	}
 }
 
 bool FEncryptionKeyManager::GetKey(const FGuid& InGuid, FAESKey& OutKey)
 {
-	auto& KeyCache = Get();
+	SCOPE_LOCK(CriticalSection);
 
-	SCOPE_LOCK(KeyCache.CriticalSection);
+	if (!Keys.contains(InGuid)) return false;
 
-	if (!KeyCache.Keys.contains(InGuid)) return false;
-
-	OutKey = KeyCache.Keys[InGuid];
+	OutKey = Keys[InGuid];
 	return true;
 }
 
 bool const FEncryptionKeyManager::HasKey(const FGuid& InGuid)
 {
-	return Get().Keys.contains(InGuid);
+	return Keys.contains(InGuid);
 }
 
 const phmap::flat_hash_map<FGuid, FAESKey>& FEncryptionKeyManager::GetKeys()
 {
-	return Get().Keys;
+	return Keys;
 }
 
 void FNameMap::Serialize(class FArchive& Ar, FMappedName::EType NameMapType)

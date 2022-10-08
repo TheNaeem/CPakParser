@@ -20,9 +20,9 @@ struct FCompressionScratchBuffers
 	{}
 
 	int64_t	TempBufferSize;
-	std::unique_ptr<uint8_t[]> TempBuffer;
+	TUniquePtr<uint8_t[]> TempBuffer;
 	int64_t	ScratchBufferSize;
-	std::unique_ptr<uint8_t[]>	ScratchBuffer;
+	TUniquePtr<uint8_t[]> ScratchBuffer;
 
 	int64_t LastPakEntryOffset;
 	int64_t LastDecompressedBlock;
@@ -154,7 +154,7 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 		Reader->Seek(OffsetToFile + Start);
 		Reader->Serialize(TempBuffer, Alignment);
 
-		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid);
+		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid, KeyManager);
 		memcpy(V, TempBuffer + Offset, CopySize);
 
 		V = (void*)((uint8_t*)V + CopySize);
@@ -168,14 +168,14 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 
 	int64_t CopySize = Length & AlignmentMask;
 	Reader->Serialize(V, CopySize);
-	Encryption::DecryptBlock(static_cast<uint8_t*>(V), CopySize, EncryptionKeyGuid);
+	Encryption::DecryptBlock(static_cast<uint8_t*>(V), CopySize, EncryptionKeyGuid, KeyManager);
 	Length -= CopySize;
 	V = (void*)((uint8_t*)V + CopySize);
 
 	if (Length > 0)
 	{
 		Reader->Serialize(TempBuffer, Alignment);
-		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid);
+		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid, KeyManager);
 		memcpy(V, TempBuffer, Length);
 	}
 }
@@ -184,7 +184,7 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 template <typename Encryption>
 void FPakReader<Encryption>::SerializeInternalCompressed(void* V, int64_t Length)
 {
-	static auto DoDecompression = [](
+	static auto DoDecompression = [&KeyManager = KeyManager](
 		const std::string CompressionFormat,
 		uint8_t* CompressedBuffer,
 		int32_t CompressedSize,
@@ -197,7 +197,7 @@ void FPakReader<Encryption>::SerializeInternalCompressed(void* V, int64_t Length
 	{
 		int64_t EncryptedSize = Encryption::AlignReadRequest(CompressedSize);
 
-		Encryption::DecryptBlock(CompressedBuffer, EncryptedSize, KeyGuid);
+		Encryption::DecryptBlock(CompressedBuffer, EncryptedSize, KeyGuid, KeyManager);
 		FCompression::DecompressMemory(CompressionFormat, DecompressedBuffer, DecompressedSize, CompressedBuffer, CompressedSize);
 
 		if (CopyOut)

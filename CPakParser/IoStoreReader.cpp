@@ -4,9 +4,7 @@
 #include <sstream>
 #include <windows.h>
 #include "FileReader.h"
-
-std::atomic_uint32_t FFileIoStore::GlobalPartitionIndex{ 0 };
-std::atomic_uint32_t FFileIoStore::GlobalContainerInstanceId{ 0 };
+#include "GameFileManager.h"
 
 static constexpr bool bPerfectHashingEnabled = true;
 
@@ -22,26 +20,6 @@ bool FFileIoStoreContainerFilePartition::OpenContainer(const char* ContainerFile
 	Ar = std::make_unique<FFileReader>(ContainerFilePath);
 
 	return true;
-}
-
-void FFileIoStore::Initialize()
-{
-	ReadBufferSize = (GIoDispatcherBufferSizeKB > 0 ? uint64_t(GIoDispatcherBufferSizeKB) << 10 : 256 << 10);
-}
-
-FIoContainerHeader FFileIoStore::Mount(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
-{
-	Log<Success>("Mounting TOC: " + InTocPath);
-
-	auto Reader = std::make_shared<FIoStoreReader>(InTocPath.c_str());
-	Reader->Initialize(true);
-
-	if (Reader->IsEncrypted() && FEncryptionKeyManager::HasKey(EncryptionKeyGuid))
-	{
-		Reader->SetEncryptionKey(EncryptionKey);
-	}
-
-	return Reader->ReadContainerHeader();
 }
 
 FIoOffsetAndLength FIoStoreReader::FindChunkInternal(FIoChunkId& ChunkId)
@@ -141,21 +119,7 @@ FIoContainerHeader FIoStoreReader::ReadContainerHeader()
 	return Container.Header = ContainerHeader;
 }
 
-FIoStoreTocChunkInfo FIoStoreReader::CreateTocChunkInfo(uint32_t TocEntryIndex)
-{
-	auto TocResource = Toc->GetResource();
-
-	auto& OffsetLength = TocResource->ChunkOffsetLengths[TocEntryIndex]; // TODO: come back and see how much of this data we actually need
-
-	FIoStoreTocChunkInfo Ret(TocEntryIndex);
-	Ret.Offset = OffsetLength.GetOffset();
-	Ret.Size = OffsetLength.GetLength();
-	Ret.SetOwningFile(Toc);
-
-	return Ret;
-}
-
-FIoStoreReader::FIoStoreReader(const char* ContainerPath)
+FIoStoreReader::FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& PartitionIndex)
 {
 	Toc = std::make_shared<FIoStoreToc>(
 		FIoStoreTocResource(ContainerPath, EIoStoreTocReadOptions::ReadAll));
@@ -199,7 +163,7 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath)
 			return;
 		}
 
-		Partition.ContainerFileIndex = FFileIoStore::GlobalPartitionIndex++;
+		Partition.ContainerFileIndex = PartitionIndex++;
 	}
 
 	if (bPerfectHashingEnabled && !TocRsrc->ChunkPerfectHashSeeds.empty())
@@ -220,8 +184,6 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath)
 
 		bHasPerfectHashMap = false;
 	}
-
-	Container.ContainerInstanceId = ++FFileIoStore::GlobalContainerInstanceId;
 }
 
 void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer)
@@ -232,7 +194,7 @@ void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len,
 	Container.Partitions[InPartitionIndex].Ar->Serialize(OutBuffer, Len);
 }
 
-void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, std::string& Path, uint32_t DirectoryIndexHandle)
+void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryIndex, FGameFileManager& GameFiles, std::string& Path, uint32_t DirectoryIndexHandle)
 {
 	static constexpr uint32_t InvalidHandle = ~uint32_t(0);
 
@@ -247,7 +209,10 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 		if (FileName.ends_with('\0'))
 			FileName.pop_back();
 
-		FGameFileManager::AddFile(FullDir, FileName, CreateTocChunkInfo(FileEntry.UserData));
+		FFileEntryInfo Entry(FileEntry.UserData);
+		Entry.SetOwningFile(Toc);
+
+		GameFiles.AddFile(FullDir, FileName, Entry);
 
 		File = FileEntry.NextFileEntry;
 	}
@@ -263,22 +228,28 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 
 		uint32_t File = DirectoryIndex.DirectoryEntries[DirectoryIndexHandle].FirstFileEntry;
 
-		ParseDirectoryIndex(DirectoryIndex, ChildDirPath, Child);
+		ParseDirectoryIndex(DirectoryIndex, GameFiles, ChildDirPath, Child);
 
 		Child = Entry.NextSiblingEntry;
 	}
 }
 
-void FIoStoreReader::Initialize(bool bSerializeDirectoryIndex)
+TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(FGameFileManager& GameFiles, FEncryptionKeyManager& KeyManager, bool bSerializeDirectoryIndex)
 {
 	Toc->SetReader(shared_from_this());
 	auto TocResource = Toc->GetResource();
+
+	Ar = std::make_unique<FFileReader>(TocResource->TocPath.string().c_str());
+
+	FAESKey Key;
+	KeyManager.GetKey(TocResource->Header.EncryptionKeyGuid, Key);
+	Toc->SetKey(Key);
 
 	if (bSerializeDirectoryIndex &&
 		EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
 		TocResource->DirectoryIndexBuffer.size() > 0)
 	{
-		if (TocResource->Header.IsEncrypted() && FEncryptionKeyManager::HasKey(TocResource->Header.EncryptionKeyGuid))
+		if (TocResource->Header.IsEncrypted() && KeyManager.HasKey(TocResource->Header.EncryptionKeyGuid))
 		{
 			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), uint32_t(TocResource->DirectoryIndexBuffer.size()));
 		}
@@ -288,13 +259,19 @@ void FIoStoreReader::Initialize(bool bSerializeDirectoryIndex)
 		FIoDirectoryIndexResource DirectoryIndex;
 		DirectoryIndexReader << DirectoryIndex;
 
-		if (!DirectoryIndex.DirectoryEntries.size()) return;
+		if (!DirectoryIndex.DirectoryEntries.size())
+		{
+			Log<Warning>("Directory index has 0 files.");
+			return nullptr;
+		}
 
 		DirectoryIndex.MountPoint.pop_back();
 
+		GameFiles.Reserve(DirectoryIndex.FileEntries.size());
+
 		std::string _ = "";
-		this->ParseDirectoryIndex(DirectoryIndex, _);
+		this->ParseDirectoryIndex(DirectoryIndex, GameFiles, _);
 	}
 
-	Ar = std::make_unique<FFileReader>(TocResource->TocPath.string().c_str());
+	return Toc;
 }

@@ -4,6 +4,8 @@
 
 #include <spdlog/spdlog.h>
 
+inline bool LOGGING_ENABLED = false;
+
 enum LogType
 {
 	Debug,
@@ -17,6 +19,9 @@ enum LogType
 template <LogType type, typename... Args>
 constexpr void Log(const char* format, Args... args)
 {
+	if (!LOGGING_ENABLED)
+		return;
+
 	switch (type)
 	{
 	case Success:

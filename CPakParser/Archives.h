@@ -63,14 +63,10 @@ private:
 	~FArchiveState();
 
 public:
+
 	virtual void Reset();
 
 	virtual void CountBytes(size_t InNum, size_t InMax) { }
-
-	__forceinline bool IsLoading() const
-	{
-		return ArIsLoading;
-	}
 
 	virtual int64_t Tell()
 	{
@@ -82,62 +78,19 @@ public:
 		return INDEX_NONE;
 	}
 
-	__forceinline void SetError(bool DidError)
+	__forceinline void SetUnversionedProperties(bool IsUsingUnversionedProperties)
 	{
-		this->ArIsError = DidError;
-	}
-
-	__forceinline bool IsError()
-	{
-		return this->ArIsError;
+		bUseUnversionedProperties = IsUsingUnversionedProperties;
 	}
 
 protected:
-	uint8_t ArIsLoading : 1;
-	uint8_t ArIsLoadingFromCookedPackage : 1;
-	uint8_t ArIsSaving : 1;
-	uint8_t ArIsTransacting : 1;
-	uint8_t ArIsTextFormat : 1;
-	uint8_t ArWantBinaryPropertySerialization : 1;
-	uint8_t ArUseUnversionedPropertySerialization : 1;
-	uint8_t ArForceUnicode : 1;
-	uint8_t ArIsPersistent : 1;
 
-private:
-	uint8_t ArIsError : 1;
-	uint8_t ArIsCriticalError : 1;
-	uint8_t ArShouldSkipCompilingAssets : 1;
-
-public:
-	uint8_t ArContainsCode : 1;
-	uint8_t ArContainsMap : 1;
-	uint8_t ArRequiresLocalizationGather : 1;
-	uint8_t ArForceByteSwapping : 1;
-	uint8_t ArIgnoreArchetypeRef : 1;
-	uint8_t ArNoDelta : 1;
-	uint8_t ArNoIntraPropertyDelta : 1;
-	uint8_t ArIgnoreOuterRef : 1;
-	uint8_t ArIgnoreClassGeneratedByRef : 1;
-	uint8_t ArIgnoreClassRef : 1;
-	uint8_t ArAllowLazyLoading : 1;
-	uint8_t ArIsObjectReferenceCollector : 1;
-	uint8_t ArIsModifyingWeakAndStrongReferences : 1;
-	uint8_t ArIsCountingMemory : 1;
-	uint8_t ArShouldSkipBulkData : 1;
-	uint8_t ArIsFilterEditorOnly : 1;
-	uint8_t ArIsSaveGame : 1;
-	uint8_t ArIsNetArchive : 1;
-	uint8_t ArUseCustomPropertyList : 1;
+	bool bUseUnversionedProperties = false;
 	int32_t ArSerializingDefaults;
 	uint32_t ArPortFlags;
 	int64_t ArMaxSerializeSize;
-
-protected:
 	FPackageFileVersion ArUEVer;
-	int32_t ArLicenseeUEVer;
 	FEngineVersionBase ArEngineVer;
-	uint32_t ArEngineNetVer;
-	uint32_t ArGameNetVer;
 	mutable FCustomVersionContainer* CustomVersionContainer = nullptr;
 	FProperty* SerializedProperty;
 	FArchiveSerializedPropertyChain* SerializedPropertyChain;
@@ -295,4 +248,5 @@ public:
 	}
 };
 
-typedef std::unique_ptr<FArchive> FUniqueAr;
+typedef TUniquePtr<FArchive> FUniqueAr;
+typedef TSharedPtr<FArchive> FSharedAr;

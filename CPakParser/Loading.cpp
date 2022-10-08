@@ -12,19 +12,12 @@ FLoader::~FLoader()
 {
 }
 
-FUniqueAr FLoader::CreateFileReader(FGameFilePath Path, bool bMemoryPreload)
-{
-	return CreateFileReader(Path.GetEntryInfo(), bMemoryPreload);
-}
-
-FUniqueAr FLoader::CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload)
+FSharedAr FLoader::CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload)
 {
 	if (!Entry.IsValid())
 		return nullptr;
 
-	auto File = Entry.GetAssociatedFile()->CreateEntryArchive(Entry);
-
-	return File;
+	return Entry.GetAssociatedFile()->CreateEntryArchive(Entry);;
 }
 
 __forceinline bool FLoader::IsValid()
@@ -32,7 +25,7 @@ __forceinline bool FLoader::IsValid()
 	return Package.IsValid();
 }
 
-std::shared_ptr<FLoader> FLoader::FromPackage(UPackage& Package)
+TSharedPtr<FLoader> FLoader::FromPackage(UPackage& Package)
 {
 	if (Package.HasLoader()) return Package.GetLoader();
 
@@ -56,11 +49,11 @@ void FLoader::SerializePackageSummary()
 
 void FLoader::LoadAllObjects()
 {
-	if (!Reader)
+	/*if (!Reader)
 		Reader = CreateFileReader(Package.GetPath());
 
 	if (!Reader)
 		return;
 
-	SerializePackageSummary();
+	SerializePackageSummary();*/
 }

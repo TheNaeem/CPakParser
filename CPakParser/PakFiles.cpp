@@ -326,7 +326,7 @@ void FPakFile::ReturnSharedReader(FArchive* SharedReader)
 	Readers.push_back(SharedReader);
 }
 
-FUniqueAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
+FSharedAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 {
 	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
 	auto Entry = CreateEntry(PakEntryLoc);
@@ -335,9 +335,9 @@ FUniqueAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 
 	if (Entry.IsEncrypted())
 	{
-		PakReader = std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry);
+		PakReader = std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry, KeyManager);
 	}
-	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry);
+	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry, KeyManager);
 
 	auto Size = PakReader->TotalSize();
 	auto Buffer = malloc(Size);
@@ -369,11 +369,11 @@ FSharedPakReader FPakFile::GetSharedReader() // TODO: refactor
 	return FSharedPakReader(PakReader, this);
 }
 
-bool TryDecryptData(uint8_t* InData, uint32_t InDataSize, FGuid InEncryptionKeyGuid)
+bool TryDecryptData(uint8_t* InData, uint32_t InDataSize, FGuid InEncryptionKeyGuid, FEncryptionKeyManager& KeyManager)
 {
 	FAESKey Key;
 
-	if (FEncryptionKeyManager::GetKey(InEncryptionKeyGuid, Key) && Key.IsValid())
+	if (KeyManager.GetKey(InEncryptionKeyGuid, Key) && Key.IsValid())
 	{
 		Key.DecryptData(InData, InDataSize);
 		return true;
@@ -386,7 +386,7 @@ bool FPakFile::TryDecryptIndex(std::vector<uint8_t>& Data)
 {
 	if (Info.bEncryptedIndex)
 	{
-		return TryDecryptData(Data.data(), Data.size(), Info.EncryptionKeyGuid);
+		return TryDecryptData(Data.data(), Data.size(), Info.EncryptionKeyGuid, KeyManager);
 	}
 
 	return true;
@@ -529,7 +529,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (!bReadFullDirectoryIndex)
 	{
-		FGameFileManager::SerializePakIndexes(PathHashIndexReader, MountPoint, SharedThis);
+		GameFiles.SerializePakIndexes(PathHashIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -547,7 +547,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		FGameFileManager::SerializePakIndexes(SecondaryIndexReader, MountPoint, SharedThis);
+		GameFiles.SerializePakIndexes(SecondaryIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = true;
 	}
 
@@ -566,12 +566,11 @@ bool FPakFile::LoadIndex(FArchive& Reader)
 	return false;
 }
 
-FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned)
+FPakFile::FPakFile(std::filesystem::path FilePath, FGameFileManager& GameFileManager, FEncryptionKeyManager& EncryptionKeyManager)
 	: PakFilePath(FilePath)
 	, PathHashSeed(0)
 	, NumEntries(0)
 	, CachedTotalSize(0)
-	, bSigned(bIsSigned)
 	, bIsValid(false)
 	, bHasPathHashIndex(false)
 	, bHasFullDirectoryIndex(false)
@@ -581,6 +580,8 @@ FPakFile::FPakFile(std::filesystem::path FilePath, bool bIsSigned)
 	, CacheIndex(-1)
 	, UnderlyingCacheTrimDisabled(false)
 	, bIsMounted(false)
+	, GameFiles(GameFileManager)
+	, KeyManager(EncryptionKeyManager)
 {
 }
 
@@ -620,20 +621,11 @@ bool FPakFile::Initialize(bool bLoadIndex)
 
 	if (Info.Magic != FPakInfo::PakFile_Magic) return false;
 
-	if (!Info.EncryptionKeyGuid.IsValid() || FEncryptionKeyManager::HasKey(Info.EncryptionKeyGuid))
+	if (!Info.EncryptionKeyGuid.IsValid() || KeyManager.HasKey(Info.EncryptionKeyGuid))
 	{
 		if (bLoadIndex) 
 			return LoadIndex(Reader.GetArchive());
 	}
 
 	return true;
-}
-
-FPackageStore::FPackageStore()
-{
-}
-
-void FPackageStore::Mount(std::shared_ptr<FFilePackageStoreBackend> Backend)
-{
-	Get().Backends.push_back(Backend);
 }

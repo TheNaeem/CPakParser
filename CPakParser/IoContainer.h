@@ -31,9 +31,8 @@ struct FFileIoStoreContainerFile
 	FFileIoStoreContainerFile& operator=(const FFileIoStoreContainerFile&) = delete;
 
 	struct FIoContainerHeader Header;
-	std::shared_ptr<struct FIoStoreTocResource> TocResource;
+	TSharedPtr<struct FIoStoreTocResource> TocResource;
 	std::string FilePath;
 	FAESKey EncryptionKey;
 	std::vector<FFileIoStoreContainerFilePartition> Partitions;
-	uint32_t ContainerInstanceId = 0;
 };

@@ -7,8 +7,8 @@
 template<typename T>
 class TFilePackageStoreEntryCArrayView
 {
-	const uint32_t ArrayNum = 0;
-	const uint32_t OffsetToDataFromThis = 0;
+	uint32_t ArrayNum = 0;
+	uint32_t OffsetToDataFromThis = 0;
 
 public:
 	__forceinline uint32_t Num() const { return ArrayNum; }
@@ -120,10 +120,9 @@ struct FIoContainerHeader
 		Latest = LatestPlusOne - 1
 	};
 
-	phmap::flat_hash_map<FPackageId, FFilePackageStoreEntry*> PackageStore;
+	phmap::flat_hash_map<FPackageId, FFilePackageStoreEntry> PackageStore;
 	class FIoContainerId ContainerId;
 	std::vector<FPackageId> PackageIds;
-	std::span<FFilePackageStoreEntry> StoreEntries;
 	std::vector<FPackageId> OptionalSegmentPackageIds;
 	std::vector<uint8_t> OptionalSegmentStoreEntries;
 	std::vector<std::string> RedirectsNameMap;

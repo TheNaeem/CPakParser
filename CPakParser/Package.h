@@ -8,11 +8,15 @@ class FLoader;
 class UPackage
 {
 	FGameFilePath Path;
-	std::shared_ptr<FLoader> Linker;
+	TSharedPtr<FLoader> Linker;
 
+protected:
+	
 	UPackage()
 	{
 	}
+
+	std::string Name;
 
 public:
 
@@ -20,6 +24,11 @@ public:
 
 	UPackage(FGameFilePath PackagePath) : Path(PackagePath)
 	{
+	}
+
+	__forceinline std::string GetName()
+	{
+		return Name;
 	}
 
 	__forceinline FGameFilePath GetPath()
@@ -37,7 +46,7 @@ public:
 		return !!Linker;
 	}
 
-	__forceinline std::shared_ptr<FLoader> GetLoader()
+	__forceinline TSharedPtr<FLoader> GetLoader()
 	{
 		return Linker;
 	}

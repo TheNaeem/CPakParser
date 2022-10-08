@@ -175,7 +175,7 @@ class FPakFile final : public std::enable_shared_from_this<FPakFile>, public IDi
 {
 public:
 
-	FPakFile(std::filesystem::path FilePath, bool bIsSigned);
+	FPakFile(std::filesystem::path FilePath, FGameFileManager& GameFileManager, FEncryptionKeyManager& EncryptionKeyManager);
 	~FPakFile();
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
@@ -195,8 +195,6 @@ private:
 	bool TryDecryptIndex(std::vector<uint8_t>& Data);
 	FPakEntry CreateEntry(FPakEntryLocation& Location);
 
-	friend class FPakFileManager;
-
 	std::filesystem::path PakFilePath;
 	std::vector<FArchive*> Readers;
 	int32_t CurrentlyUsedReaders = 0;
@@ -210,7 +208,6 @@ private:
 	int32_t NumEntries;
 	time_t Timestamp;
 	int64_t CachedTotalSize;
-	bool bSigned;
 	bool bIsValid;
 	bool bHasPathHashIndex;
 	bool bHasFullDirectoryIndex;
@@ -220,8 +217,9 @@ private:
 	ECacheType	CacheType;
 	int32_t	CacheIndex;
 	bool UnderlyingCacheTrimDisabled;
-	bool bIsMounted;
-	std::unique_ptr<FIoContainerHeader> IoContainerHeader;
+	bool bIsMounted = false;
+	FGameFileManager& GameFiles;
+	FEncryptionKeyManager& KeyManager;
 
 public:
 
@@ -230,27 +228,32 @@ public:
 		return Info;
 	}
 
-	std::string GetFilename()
+	__forceinline std::string GetFilename()
 	{
 		return PakFilePath.filename().string();
 	}
 
-	std::filesystem::path GetDiskPath() override
+	__forceinline std::filesystem::path GetDiskPath() override
 	{
 		return PakFilePath;
 	}
 
-	bool IsMounted()
+	__forceinline bool IsMounted()
 	{
 		return bIsMounted;
 	}
 
-	void DoWork(FUniqueAr& Ar) override
+	__forceinline void SetIsMounted(bool Val)
+	{
+		bIsMounted = Val;
+	}
+
+	void DoWork(FSharedAr Ar) override
 	{
 
 	}
 
-	FUniqueAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
+	FSharedAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
 	FSharedPakReader GetSharedReader();
 	void ReturnSharedReader(FArchive* SharedReader);
 };
@@ -294,20 +297,4 @@ private:
 	TMap<FPackageId, TTuple<FName, FPackageId>> RedirectsPackageMap;
 	TMap<FPackageId, FName> LocalizedPackages;
 	bool bNeedsUpdate = false;*/
-};
-
-class FPackageStore : FNoncopyable
-{
-	FPackageStore();
-
-	std::vector<std::shared_ptr<FFilePackageStoreBackend>> Backends;
-
-public:
-	static FPackageStore& Get()
-	{
-		static FPackageStore Instance;
-		return Instance;
-	}
-
-	static void Mount(std::shared_ptr<FFilePackageStoreBackend> Backend);
 };

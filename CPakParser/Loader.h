@@ -6,11 +6,11 @@
 
 class UPackage;
 
-class FLoader
+class FLoader // TODO: make this an archive that wraps around the Reader
 {
 private:
 
-	FUniqueAr Reader;
+	FSharedAr Reader;
 	UPackage& Package;
 	bool bHasSerializedPackageFileSummary;
 
@@ -23,9 +23,8 @@ public:
 	~FLoader();
 
 	__forceinline bool IsValid();
-	static std::shared_ptr<FLoader> FromPackage(UPackage& Package);
-	static FUniqueAr CreateFileReader(FGameFilePath Path, bool bMemoryPreload = true);
-	static FUniqueAr CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload = true);
+	static TSharedPtr<FLoader> FromPackage(UPackage& Package);
+	static FSharedAr CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload = true);
 	void LoadAllObjects();
 
 	FPackageFileSummary	Summary;

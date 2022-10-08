@@ -2,17 +2,17 @@
 
 #include "PakFiles.h"
 
-class FPakFileManager
+class FPakFileManager // TODO: make this into Dataminer
 {
 	std::mutex CriticalSection;
 	std::string PaksFolderDir;
-	std::vector<std::shared_ptr<FPakFile>> PakFiles;
+	std::vector<TSharedPtr<FPakFile>> PakFiles;
 	bool bSigned;
 	bool bIsInitialized = false;
 	std::string IniFileExtension;
 	std::string GameUserSettingsIniFilename;
-	std::shared_ptr<class FFileIoStore> IoFileBackend;
-	std::shared_ptr<FFilePackageStoreBackend> PackageStoreBackend;
+	TSharedPtr<class FFileIoStore> IoFileBackend;
+	TSharedPtr<FFilePackageStoreBackend> PackageStoreBackend;
 	phmap::flat_hash_map<FGuid, std::filesystem::path> DeferredPaks;
 
 public:
@@ -26,12 +26,12 @@ public:
 	bool RegisterEncryptionKey(FGuid InGuid, FAESKey InKey);
 	static FAESKey GetRegisteredPakEncryptionKey(const FGuid& InEncryptionKeyGuid);
 
-	std::vector<std::shared_ptr<FPakFile>> GetMountedPaks()
+	std::vector<TSharedPtr<FPakFile>> GetMountedPaks()
 	{
 		return PakFiles;
 	}
 
-	void OnPakMounted(std::shared_ptr<FPakFile> Pak)
+	void OnPakMounted(TSharedPtr<FPakFile> Pak)
 	{
 		SCOPE_LOCK(CriticalSection);
 
