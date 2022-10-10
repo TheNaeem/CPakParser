@@ -3,6 +3,7 @@
 #include "Loader.h"
 #include "Oodle.h"
 #include "Localization.h"
+#include <future>
 
 void Dataminer::Options::WithLogging(bool bEnableLogging)
 {
@@ -14,7 +15,9 @@ void Dataminer::Options::WithOodleDecompressor(const char* OodleDllPath)
 	Oodle::LoadDLL(OodleDllPath);
 }
 
-Dataminer::Dataminer(const char* PaksFolderDir) : PaksDirectory(PaksFolderDir)
+Dataminer::Dataminer(const char* PaksFolderDir) : 
+	PaksDirectory(PaksFolderDir),
+	Context(std::make_shared<GContext>())
 {
 }
 
@@ -40,19 +43,28 @@ bool Dataminer::Initialize()
 
 	auto GlobalUTocPath = std::filesystem::path(PaksDirectory) /= "global.utoc";
 
+	std::future<void> GlobalMountTask;
+
 	if (std::filesystem::exists(GlobalUTocPath))
 	{
-		Log<Info>("Mounting global.utoc");
+		GlobalMountTask = std::async(std::launch::async, [this, &GlobalUTocPath]()
+			{
+				Log<Info>("Mounting global.utoc");
 
-		auto GlobalReader = MountToc(GlobalUTocPath.string(), FGuid(), FAESKey());
+				auto GlobalReader = MountToc(GlobalUTocPath.string(), FGuid(), FAESKey());
 
-		if (!GlobalReader)
-			return false;
+				if (!GlobalReader)
+					return;
 
-		Log<Success>("Successfully mounted Global TOC");
+				Context->GlobalToc.Serialize(GlobalReader);
+
+				Log<Success>("Successfully mounted Global TOC");
+			});
 	}
 
 	this->MountAllPakFiles();
+
+	GlobalMountTask.wait();
 
 	return bIsInitialized = true;
 }
@@ -62,13 +74,13 @@ bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 	auto Guid = GuidString ? FGuid(GuidString) : FGuid();
 	auto Key = FAESKey(AesKeyString);
 
-	if (EncryptionKeyManager.HasKey(Guid))
+	if (Context->EncryptionKeyManager.HasKey(Guid))
 	{
 		Log<Warning>("Attempting to register a key with a GUID that has already been registered.");
 		return false;
 	}
 
-	EncryptionKeyManager.AddKey(Guid, Key);
+	Context->EncryptionKeyManager.AddKey(Guid, Key);
 
 	if (!bIsInitialized) return true; // if the pak manager hasn't been initialized yet, the key will get cached and used when the dataminer gets initialized
 
@@ -89,7 +101,7 @@ bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 
 FLocalization Dataminer::ReadLocRes(FGameFilePath FilePath)
 {
-	return ReadLocRes(FilesManager.FindFile(FilePath));
+	return ReadLocRes(Context->FilesManager.FindFile(FilePath));
 }
 
 FLocalization Dataminer::ReadLocRes(FFileEntryInfo Entry)
@@ -109,12 +121,12 @@ FLocalization Dataminer::ReadLocRes(FFileEntryInfo Entry)
 
 void Dataminer::Test(FGameFilePath Path)
 {
-	auto Entry = FilesManager.FindFile(Path);
+	auto Entry = Context->FilesManager.FindFile(Path);
 
 	if (!Entry.IsValid())
 		return;
 
 	auto Reader = FLoader::CreateFileReader(Entry);
 
-	Entry.GetAssociatedFile()->DoWork(Reader);
+	Entry.GetAssociatedFile()->DoWork(Reader, Context);
 }

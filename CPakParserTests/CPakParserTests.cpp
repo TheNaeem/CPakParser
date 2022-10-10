@@ -13,4 +13,6 @@ int main()
     Core.Initialize();
 
     Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
+
+    std::cin.get();
 }

@@ -335,9 +335,9 @@ FSharedAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 
 	if (Entry.IsEncrypted())
 	{
-		PakReader = std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry, KeyManager);
+		PakReader = std::make_unique<FPakReader<FPakSimpleEncryption>>(shared_from_this(), Entry, Context->EncryptionKeyManager);
 	}
-	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry, KeyManager);
+	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry, Context->EncryptionKeyManager);
 
 	auto Size = PakReader->TotalSize();
 	auto Buffer = malloc(Size);
@@ -386,7 +386,7 @@ bool FPakFile::TryDecryptIndex(std::vector<uint8_t>& Data)
 {
 	if (Info.bEncryptedIndex)
 	{
-		return TryDecryptData(Data.data(), Data.size(), Info.EncryptionKeyGuid, KeyManager);
+		return TryDecryptData(Data.data(), Data.size(), Info.EncryptionKeyGuid, Context->EncryptionKeyManager);
 	}
 
 	return true;
@@ -529,7 +529,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (!bReadFullDirectoryIndex)
 	{
-		GameFiles.SerializePakIndexes(PathHashIndexReader, MountPoint, SharedThis);
+		Context->FilesManager.SerializePakIndexes(PathHashIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = false;
 	}
 	else
@@ -547,7 +547,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		FMemoryReader SecondaryIndexReader(FullDirectoryIdxData);
 
-		GameFiles.SerializePakIndexes(SecondaryIndexReader, MountPoint, SharedThis);
+		Context->FilesManager.SerializePakIndexes(SecondaryIndexReader, MountPoint, SharedThis);
 		bHasFullDirectoryIndex = true;
 	}
 
@@ -566,7 +566,7 @@ bool FPakFile::LoadIndex(FArchive& Reader)
 	return false;
 }
 
-FPakFile::FPakFile(std::filesystem::path FilePath, FGameFileManager& GameFileManager, FEncryptionKeyManager& EncryptionKeyManager)
+FPakFile::FPakFile(std::filesystem::path FilePath, TSharedPtr<GContext> InContext)
 	: PakFilePath(FilePath)
 	, PathHashSeed(0)
 	, NumEntries(0)
@@ -580,8 +580,7 @@ FPakFile::FPakFile(std::filesystem::path FilePath, FGameFileManager& GameFileMan
 	, CacheIndex(-1)
 	, UnderlyingCacheTrimDisabled(false)
 	, bIsMounted(false)
-	, GameFiles(GameFileManager)
-	, KeyManager(EncryptionKeyManager)
+	, Context(InContext)
 {
 }
 
@@ -621,7 +620,7 @@ bool FPakFile::Initialize(bool bLoadIndex)
 
 	if (Info.Magic != FPakInfo::PakFile_Magic) return false;
 
-	if (!Info.EncryptionKeyGuid.IsValid() || KeyManager.HasKey(Info.EncryptionKeyGuid))
+	if (!Info.EncryptionKeyGuid.IsValid() || Context->EncryptionKeyManager.HasKey(Info.EncryptionKeyGuid))
 	{
 		if (bLoadIndex) 
 			return LoadIndex(Reader.GetArchive());

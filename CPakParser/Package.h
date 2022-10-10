@@ -2,10 +2,11 @@
 
 #include "Loader.h"
 #include "GameFileManager.h"
+#include "UObject.h"
 
 class FLoader;
 
-class UPackage
+class UPackage : public UObject
 {
 	FGameFilePath Path;
 	TSharedPtr<FLoader> Linker;
@@ -16,7 +17,7 @@ protected:
 	{
 	}
 
-	std::string Name;
+	TSharedPtr<class GContext> Context;
 
 public:
 

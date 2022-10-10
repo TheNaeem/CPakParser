@@ -1,26 +1,35 @@
 #include "ZenPackage.h"
 
-static UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index)
+UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, FPackageObjectIndex Index)
 {
 	if (Index.IsNull())
-		return nullptr;
+		return UObjectPtr();
 
 	if (Index.IsExport())
 	{
-		return Exports[Index.ToExport()].Object;
+		return Exports[Index.ToExport()];
 	}
 
 	if (Index.IsImport())
 	{
-
+		if (Index.IsScriptImport())
+		{
+			return UObjectPtr(std::make_shared<UAssetObject>(Context->GlobalToc, Index));
+		}
 	}
 
-	return nullptr;
+	return UObjectPtr();
 }
 
 void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 {
 	PackageData.Exports.resize(PackageData.Header.ExportCount);
+
+	for (size_t i = 0; i < PackageData.Exports.size(); i++)
+	{
+		if (!PackageData.Exports[i])
+			PackageData.Exports[i] = std::make_shared<UObject>();
+	}
 
 	auto& Header = PackageData.Header;
 
@@ -43,14 +52,22 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 	}
 }
 
-void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex)
+void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, int32_t LocalExportIndex)
 {
 	auto& Export = Header.ExportMap[LocalExportIndex];
-	auto& ExportObject = Exports[LocalExportIndex];
-	auto& Object = ExportObject.Object;
+	auto& Object = Exports[LocalExportIndex];
 	auto& ObjectName = Header.NameMap.GetName(Export.ObjectName);
 
-	Object = std::make_shared<UObject>();
-	Object->SetName(ObjectName);
+	Object->Name = ObjectName;
+
+	if (!Object->Class)
+		Object->Class = IndexToObject(Header, Exports, Export.ClassIndex);
+
+	if (!Object->Outer)
+		Object->Outer = Export.OuterIndex.IsNull() ? UObjectPtr(shared_from_this()) : IndexToObject(Header, Exports, Export.OuterIndex);
+
+	if (!Object->Super)
+		Object->Super = IndexToObject(Header, Exports, Export.SuperIndex);
+
 
 }

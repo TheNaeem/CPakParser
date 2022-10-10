@@ -44,14 +44,21 @@ public:
 		Reader = InReader;
 	}
 
+	__forceinline int32_t GetTocEntryIndex(FIoChunkId& ChunkId)
+	{
+		return ChunkIdToIndex[ChunkId];
+	}
+
+	FIoOffsetAndLength GetOffsetAndLength(FIoChunkId& ChunkId);
 	FSharedAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
-	void DoWork(FSharedAr Ar) override;
+	void DoWork(FSharedAr Ar, TSharedPtr<class GContext> Context) override;
 
 private:
 
 	FAESKey Key;
 	TSharedPtr<FIoStoreTocResource> Toc;
 	TSharedPtr<class FIoStoreReader> Reader;
+	phmap::flat_hash_map<FIoChunkId, int32_t> ChunkIdToIndex;
 };
 
 class FIoStoreReader : public std::enable_shared_from_this<FIoStoreReader>
@@ -60,10 +67,12 @@ public:
 
 	FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& PartitionIndex);
 
-	TSharedPtr<FIoStoreToc> Initialize(FGameFileManager& GameFiles, FEncryptionKeyManager& KeyManager, bool bSerializeDirectoryIndex = false);
+	TSharedPtr<FIoStoreToc> Initialize(TSharedPtr<class GContext> Context, bool bSerializeDirectoryIndex = false);
 
 	FIoContainerHeader ReadContainerHeader();
 
+	TUniquePtr<uint8_t[]> Read(FIoChunkId ChunkId);
+	TUniquePtr<uint8_t[]> Read(FIoOffsetAndLength& OffsetAndLength);
 	void Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer);
 
 	__forceinline bool IsEncrypted() const 
@@ -79,6 +88,11 @@ public:
 	__forceinline FFileIoStoreContainerFile& GetContainer()
 	{
 		return Container;
+	}
+
+	__forceinline TSharedPtr<FIoStoreToc> GetToc()
+	{
+		return Toc;
 	}
 
 	FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar);

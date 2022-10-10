@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES.h" />
+    <ClInclude Include="AssetObject.h" />
     <ClInclude Include="CityHash.h" />
     <ClInclude Include="Compression.h" />
     <ClInclude Include="FileReader.h" />
@@ -28,6 +29,8 @@
     <ClInclude Include="Dataminer.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="GameFileManager.h" />
+    <ClInclude Include="GlobalContext.h" />
+    <ClInclude Include="GlobalTocData.h" />
     <ClInclude Include="Hashing.h" />
     <ClInclude Include="IoChunkId.h" />
     <ClInclude Include="IoContainer.h" />
@@ -44,6 +47,7 @@
     <ClInclude Include="PackageSummary.h" />
     <ClInclude Include="PakReader.h" />
     <ClInclude Include="Text.h" />
+    <ClInclude Include="UObject.h" />
     <ClInclude Include="Versioning.h" />
     <ClInclude Include="PakFiles.h" />
     <ClInclude Include="ZenData.h" />
@@ -51,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="AssetObject.cpp" />
     <ClCompile Include="CityHash.cpp" />
     <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DataminerInternals.cpp" />
@@ -60,6 +65,7 @@
     <ClCompile Include="CoreDefinitions.cpp" />
     <ClCompile Include="Dataminer.cpp" />
     <ClCompile Include="GameFileManager.cpp" />
+    <ClCompile Include="GlobalTocData.cpp" />
     <ClCompile Include="IoChunkId.cpp" />
     <ClCompile Include="IoStoreReader.cpp" />
     <ClCompile Include="IoStoreToc.cpp" />

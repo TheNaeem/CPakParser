@@ -4,6 +4,7 @@
 #include "Localization.h"
 #include "IoStoreReader.h"
 #include "PakFiles.h"
+#include "GlobalTocData.h"
 
 class Dataminer
 {
@@ -19,11 +20,10 @@ public:
 
 private:
 
+	TSharedPtr<GContext> Context;
 	std::mutex MountCritSection;
 	std::atomic_int32_t PartitionIndex = 0;
 	bool bIsInitialized = false;
-	FEncryptionKeyManager EncryptionKeyManager;
-	FGameFileManager FilesManager;
 	std::vector<TSharedPtr<IDiskFile>> MountedFiles;
 	phmap::flat_hash_map<FGuid, std::filesystem::path> UnmountedPaks;
 

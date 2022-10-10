@@ -1,10 +1,13 @@
 #include "IOStoreReader.h"
+
 #include "MemoryReader.h"
 #include "IoDirectoryIndex.h"
 #include <sstream>
 #include <windows.h>
 #include "FileReader.h"
 #include "GameFileManager.h"
+#include "Compression.h"
+#include "GlobalContext.h"
 
 static constexpr bool bPerfectHashingEnabled = true;
 
@@ -186,6 +189,95 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& P
 	}
 }
 
+TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId) 
+{
+	auto OaL = Toc->GetOffsetAndLength(ChunkId);
+
+	if (!OaL.IsValid())
+		return nullptr;
+
+	return Read(OaL);
+}
+
+TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) // TODO: make this async; look into StartAsyncRead
+{
+	auto TocResource = Toc->GetResource();
+
+	auto Offset = OffsetAndLength.GetOffset();
+	auto Len = OffsetAndLength.GetLength();
+	auto CompressionBlockSize = TocResource->Header.CompressionBlockSize;
+
+	auto FirstBlockIndex = Offset / CompressionBlockSize;
+	auto LastBlockIndex = (Align(Offset + Len, CompressionBlockSize) - 1) / CompressionBlockSize;
+	auto BlockCount = LastBlockIndex - FirstBlockIndex + 1;
+
+	if (!BlockCount)
+		return nullptr;
+
+	auto& FirstBlock = TocResource->CompressionBlocks[FirstBlockIndex];
+	auto& LastBlock = TocResource->CompressionBlocks[LastBlockIndex];
+
+	auto PartitionIndex = static_cast<int32_t>(FirstBlock.GetOffset() / TocResource->Header.PartitionSize);
+
+	auto ReadStartOffset = FirstBlock.GetOffset() % TocResource->Header.PartitionSize;
+	auto ReadEndOffset = (LastBlock.GetOffset() + Align(LastBlock.GetCompressedSize(), FAESKey::AESBlockSize)) % TocResource->Header.PartitionSize;
+
+	auto CompressedSize = ReadEndOffset - ReadStartOffset;
+
+	auto DecompressionBuf = std::make_unique<uint8_t[]>(Len);
+	auto CompressedBuf = std::make_unique<uint8_t[]>(CompressedSize);
+
+	Read(PartitionIndex, ReadStartOffset, CompressedSize, CompressedBuf.get());
+
+	uint64_t CompressedOffset = 0;
+	uint64_t DecompressedOffset = 0;
+	uint64_t OffsetInBlock = Offset % CompressionBlockSize;
+	uint64_t RemainingSize = Len;
+
+	for (auto i = FirstBlockIndex; i <= LastBlockIndex; ++i)
+	{
+		auto CompressedData = CompressedBuf.get() + CompressedOffset;
+		auto DecompressedData = DecompressionBuf.get() + CompressedOffset;
+
+		auto& CompressionBlock = TocResource->CompressionBlocks[i];
+
+		auto BlockCompressedSize = Align(CompressionBlock.GetCompressedSize(), FAESKey::AESBlockSize);
+		auto UncompressedSize = CompressionBlock.GetUncompressedSize();
+
+		auto& CompressionMethod = TocResource->GetBlockCompressionMethod(CompressionBlock);
+
+		if (TocResource->Header.IsEncrypted())
+		{
+			Toc->GetEncryptionKey().DecryptData(CompressedData, BlockCompressedSize);
+		}
+
+		if (CompressionMethod.empty())
+		{
+			memcpy(DecompressedData, CompressedData + OffsetInBlock, UncompressedSize - OffsetInBlock);
+		}
+		else if (OffsetInBlock || RemainingSize < UncompressedSize)
+		{
+			// TODO: is this really necessary? give this another look
+			std::vector<uint8_t> TempBuffer(UncompressedSize);
+			FCompression::DecompressMemory(CompressionMethod, TempBuffer.data(), UncompressedSize, CompressedData, CompressionBlock.GetCompressedSize());
+
+			auto CopySize = std::min(UncompressedSize - OffsetInBlock, RemainingSize);
+			memcpy(DecompressedData, TempBuffer.data() + OffsetInBlock, CopySize);
+		}
+		else
+		{
+			FCompression::DecompressMemory(CompressionMethod, DecompressedData, UncompressedSize, CompressedData, BlockCompressedSize);
+		}
+
+		CompressedOffset += BlockCompressedSize;
+		DecompressedOffset += UncompressedSize;
+		RemainingSize -= UncompressedSize;
+		OffsetInBlock = 0;
+	}
+
+	return DecompressionBuf;
+}
+
 void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer)
 {
 	SCOPE_LOCK(Lock);
@@ -234,7 +326,7 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 	}
 }
 
-TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(FGameFileManager& GameFiles, FEncryptionKeyManager& KeyManager, bool bSerializeDirectoryIndex)
+TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(TSharedPtr<GContext> Context, bool bSerializeDirectoryIndex)
 {
 	Toc->SetReader(shared_from_this());
 	auto TocResource = Toc->GetResource();
@@ -242,14 +334,14 @@ TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(FGameFileManager& GameFiles, 
 	Ar = std::make_unique<FFileReader>(TocResource->TocPath.string().c_str());
 
 	FAESKey Key;
-	KeyManager.GetKey(TocResource->Header.EncryptionKeyGuid, Key);
+	Context->EncryptionKeyManager.GetKey(TocResource->Header.EncryptionKeyGuid, Key);
 	Toc->SetKey(Key);
 
 	if (bSerializeDirectoryIndex &&
 		EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
 		TocResource->DirectoryIndexBuffer.size() > 0)
 	{
-		if (TocResource->Header.IsEncrypted() && KeyManager.HasKey(TocResource->Header.EncryptionKeyGuid))
+		if (TocResource->Header.IsEncrypted() && Context->EncryptionKeyManager.HasKey(TocResource->Header.EncryptionKeyGuid))
 		{
 			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), uint32_t(TocResource->DirectoryIndexBuffer.size()));
 		}
@@ -267,10 +359,10 @@ TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(FGameFileManager& GameFiles, 
 
 		DirectoryIndex.MountPoint.pop_back();
 
-		GameFiles.Reserve(DirectoryIndex.FileEntries.size());
+		Context->FilesManager.Reserve(DirectoryIndex.FileEntries.size());
 
 		std::string _ = "";
-		this->ParseDirectoryIndex(DirectoryIndex, GameFiles, _);
+		this->ParseDirectoryIndex(DirectoryIndex, Context->FilesManager, _);
 	}
 
 	return Toc;

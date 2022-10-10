@@ -17,15 +17,15 @@ bool Dataminer::MountPak(std::filesystem::path InPakFilePath, bool bLoadIndex) /
 
 	Log<Success>("Mounting PAK file: " + PakFilename);
 
-	auto Pak = std::make_shared<FPakFile>(InPakFilePath, FilesManager, EncryptionKeyManager);
+	auto Pak = std::make_shared<FPakFile>(InPakFilePath, Context);
 	Pak->Initialize(bLoadIndex);
 
 	auto PakGuid = Pak->GetInfo().EncryptionKeyGuid;
 
-	if (EncryptionKeyManager.HasKey(PakGuid) || !PakGuid.IsValid())
+	if (Context->EncryptionKeyManager.HasKey(PakGuid) || !PakGuid.IsValid())
 	{
 		FAESKey Key;
-		EncryptionKeyManager.GetKey(PakGuid, Key);
+		Context->EncryptionKeyManager.GetKey(PakGuid, Key);
 
 		auto TocPath = InPakFilePath.replace_extension(".utoc");
 
@@ -61,12 +61,12 @@ TSharedPtr<FIoStoreReader> Dataminer::MountToc(std::string InTocPath, FGuid Encr
 	Log<Success>("Mounting TOC: " + InTocPath);
 
 	auto Reader = std::make_shared<FIoStoreReader>(InTocPath.c_str(), PartitionIndex);
-	auto Toc = Reader->Initialize(FilesManager, EncryptionKeyManager, true);
+	auto Toc = Reader->Initialize(Context, true);
 
 	if (!Toc)
 		return nullptr;
 
-	if (Reader->IsEncrypted() && EncryptionKeyManager.HasKey(EncryptionKeyGuid))
+	if (Reader->IsEncrypted() && Context->EncryptionKeyManager.HasKey(EncryptionKeyGuid))
 	{
 		Reader->SetEncryptionKey(EncryptionKey);
 	}

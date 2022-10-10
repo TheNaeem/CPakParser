@@ -34,24 +34,7 @@ using TUniquePtr = std::unique_ptr<T>; // unnecessary but cleaner imo
 template <typename T>
 using TSharedPtr = std::shared_ptr<T>;
 
-class UObject
-{
-	std::string Name;
-
-public:
-
-	__forceinline void SetName(const std::string& InName)
-	{
-		Name = InName;
-	}
-
-	__forceinline std::string GetName() const
-	{
-		return Name;
-	}
-};
-
-typedef TSharedPtr<UObject> UObjectPtr;
+class UObject;
 
 template <class TEnum>
 class TEnumAsByte
@@ -373,7 +356,7 @@ public:
 
 	virtual std::filesystem::path GetDiskPath() = 0;
 	virtual TSharedPtr<class FArchive> CreateEntryArchive(struct FFileEntryInfo EntryInfo) = 0;
-	virtual void DoWork(TSharedPtr<class FArchive> Ar) = 0;
+	virtual void DoWork(TSharedPtr<class FArchive> Ar, TSharedPtr<class GContext> Context) = 0;
 };
 
 struct FFileEntryInfo

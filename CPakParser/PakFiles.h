@@ -3,16 +3,7 @@
 #include "Archives.h"
 #include "GameFileManager.h"
 #include "IoContainerHeader.h"
-
-static void MakeDirectoryFromPath(std::string& Path)
-{
-	//Path.erase(Path.find('\0'));
-
-	if (Path.length() > 0 && Path[Path.length() - 1] != '/')
-	{
-		Path += "/";
-	}
-}
+#include "GlobalContext.h"
 
 class FSharedPakReader final
 {
@@ -175,7 +166,7 @@ class FPakFile final : public std::enable_shared_from_this<FPakFile>, public IDi
 {
 public:
 
-	FPakFile(std::filesystem::path FilePath, FGameFileManager& GameFileManager, FEncryptionKeyManager& EncryptionKeyManager);
+	FPakFile(std::filesystem::path FilePath, TSharedPtr<class GContext> Context);
 	~FPakFile();
 
 	typedef phmap::flat_hash_map<uint64_t, FPakEntryLocation> FPathHashIndex; 
@@ -218,8 +209,7 @@ private:
 	int32_t	CacheIndex;
 	bool UnderlyingCacheTrimDisabled;
 	bool bIsMounted = false;
-	FGameFileManager& GameFiles;
-	FEncryptionKeyManager& KeyManager;
+	TSharedPtr<class GContext> Context;
 
 public:
 
@@ -248,7 +238,7 @@ public:
 		bIsMounted = Val;
 	}
 
-	void DoWork(FSharedAr Ar) override
+	void DoWork(FSharedAr Ar, TSharedPtr<class GContext> Context) override
 	{
 
 	}
