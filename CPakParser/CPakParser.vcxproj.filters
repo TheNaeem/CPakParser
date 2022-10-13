@@ -79,20 +79,29 @@
     <Filter Include="Unreal\Paks\Pak Reading\Types\Zen">
       <UniqueIdentifier>{bcbebed6-22ec-4037-8059-7613606899f3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Core\Types\Hashing">
-      <UniqueIdentifier>{3c6a9d6e-2d84-4656-b757-9a6240cfe2fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Core\Game File Manager">
       <UniqueIdentifier>{5d76e91d-4a6a-4069-b864-b4c6dbe3d68a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Unreal\Core\Types\Global Toc Data">
       <UniqueIdentifier>{b297d323-50f7-4fa5-aa5a-eee7ec10ba43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Unreal\Core\Types\Asset Object">
-      <UniqueIdentifier>{fd0e8a25-2dd5-46c4-a864-ed7c8b6948ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unreal\Core\Types\UObject">
       <UniqueIdentifier>{c38bccd4-9a6e-4571-956c-6cb7d2caf606}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Types\UObject\Asset Object">
+      <UniqueIdentifier>{7729b613-b0dd-4cf7-9edd-1c2984fb52db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Types\UObject\Object">
+      <UniqueIdentifier>{d3e625dd-29ba-4cc7-8ee1-6e642bee85af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Types\Text\Hashing">
+      <UniqueIdentifier>{3c6a9d6e-2d84-4656-b757-9a6240cfe2fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Archives\Derived\Export Reader">
+      <UniqueIdentifier>{a63c9561-076e-4ce2-97bd-2dc6d1b509e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unreal\Core\Types\UObject\Class">
+      <UniqueIdentifier>{94b8748c-0ae1-4ff8-9ac0-4133ec48070e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -169,10 +178,10 @@
       <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
     </ClInclude>
     <ClInclude Include="Hashing.h">
-      <Filter>Unreal\Core\Types\Hashing</Filter>
+      <Filter>Unreal\Core\Types\Text\Hashing</Filter>
     </ClInclude>
     <ClInclude Include="CityHash.h">
-      <Filter>Unreal\Core\Types\Hashing</Filter>
+      <Filter>Unreal\Core\Types\Text\Hashing</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h" />
     <ClInclude Include="ZenPackage.h">
@@ -187,11 +196,20 @@
     <ClInclude Include="GlobalContext.h">
       <Filter>Unreal\Core\Types</Filter>
     </ClInclude>
-    <ClInclude Include="UObject.h">
+    <ClInclude Include="LazyPackageObject.h">
       <Filter>Unreal\Core\Types\UObject</Filter>
     </ClInclude>
     <ClInclude Include="AssetObject.h">
-      <Filter>Unreal\Core\Types\Asset Object</Filter>
+      <Filter>Unreal\Core\Types\UObject\Asset Object</Filter>
+    </ClInclude>
+    <ClInclude Include="UObject.h">
+      <Filter>Unreal\Core\Types\UObject\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ExportReader.h">
+      <Filter>Unreal\Archives\Derived\Export Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="Class.h">
+      <Filter>Unreal\Core\Types\UObject\Class</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +265,7 @@
       <Filter>Unreal\Paks\IOStore\IOStore Toc</Filter>
     </ClCompile>
     <ClCompile Include="CityHash.cpp">
-      <Filter>Unreal\Core\Types\Hashing</Filter>
+      <Filter>Unreal\Core\Types\Text\Hashing</Filter>
     </ClCompile>
     <ClCompile Include="ZenPackage.cpp">
       <Filter>Unreal\Paks\Pak Reading\Types\Zen</Filter>
@@ -262,7 +280,13 @@
       <Filter>Unreal\Core\Types\Global Toc Data</Filter>
     </ClCompile>
     <ClCompile Include="AssetObject.cpp">
-      <Filter>Unreal\Core\Types\Asset Object</Filter>
+      <Filter>Unreal\Core\Types\UObject\Asset Object</Filter>
+    </ClCompile>
+    <ClCompile Include="UObject.cpp">
+      <Filter>Unreal\Core\Types\UObject\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Class.cpp">
+      <Filter>Unreal\Core\Types\UObject\Class</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

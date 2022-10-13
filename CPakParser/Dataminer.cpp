@@ -128,5 +128,5 @@ void Dataminer::Test(FGameFilePath Path)
 
 	auto Reader = FLoader::CreateFileReader(Entry);
 
-	Entry.GetAssociatedFile()->DoWork(Reader, Context);
+	Entry.GetAssociatedFile()->DoWork(Reader, Context); // TODO: wrap UPackage around this
 }

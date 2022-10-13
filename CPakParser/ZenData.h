@@ -100,6 +100,7 @@ struct FZenPackageHeaderData
 	std::vector<FName> ImportedPackageNames;
 	std::vector<FExportBundleHeader> ExportBundleHeaders;
 	std::vector<FExportBundleEntry> ExportBundleEntries;
+	uint8_t* AllExportDataPtr;
 
 	__forceinline bool HasFlags(uint32_t Flags)
 	{

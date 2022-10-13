@@ -22,7 +22,9 @@
     <ClInclude Include="AES.h" />
     <ClInclude Include="AssetObject.h" />
     <ClInclude Include="CityHash.h" />
+    <ClInclude Include="Class.h" />
     <ClInclude Include="Compression.h" />
+    <ClInclude Include="ExportReader.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Archives.h" />
     <ClInclude Include="CoreTypes.h" />
@@ -38,6 +40,7 @@
     <ClInclude Include="IoDirectoryIndex.h" />
     <ClInclude Include="IoStoreReader.h" />
     <ClInclude Include="IoTocResource.h" />
+    <ClInclude Include="LazyPackageObject.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="Logger.h" />
@@ -57,6 +60,7 @@
     <ClCompile Include="AES.cpp" />
     <ClCompile Include="AssetObject.cpp" />
     <ClCompile Include="CityHash.cpp" />
+    <ClCompile Include="Class.cpp" />
     <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DataminerInternals.cpp" />
     <ClCompile Include="FileReader.cpp" />
@@ -75,6 +79,7 @@
     <ClCompile Include="PakFiles.cpp" />
     <ClCompile Include="PakReader.cpp" />
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="UObject.cpp" />
     <ClCompile Include="Versioning.cpp" />
     <ClCompile Include="ZenPackage.cpp" />
   </ItemGroup>

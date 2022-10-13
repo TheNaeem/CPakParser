@@ -1,24 +1,68 @@
 #include "ZenPackage.h"
 
-UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, FPackageObjectIndex Index)
+#include "LazyPackageObject.h"
+#include "Class.h"
+
+template <typename T = UObject>
+TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
+{
+	auto ScriptObject = Context->GlobalToc.ScriptObjectByGlobalIdMap[Index];
+	auto Name = Context->GlobalToc.NameMap.GetName(ScriptObject.MappedName);
+
+	auto Ret = std::make_shared<T>();
+	Ret->SetName(Name);
+
+	if (Context->ObjectArray.contains(Name))
+	{
+		return Context->ObjectArray[Name];
+	}
+
+	if (!ScriptObject.OuterIndex.IsNull())
+	{
+		Ret->SetOuter(CreateScriptObject<UObject>(Context, ScriptObject.OuterIndex));
+	}
+
+	if (!ScriptObject.CDOClassIndex.IsNull())
+	{
+		Ret->SetClass(CreateScriptObject<UClass>(Context, ScriptObject.OuterIndex));
+	}
+
+	Ret->SetFlags(RF_NeedLoad);
+
+	return Ret;
+}
+
+template <typename T>
+UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index)
 {
 	if (Index.IsNull())
-		return UObjectPtr();
+		return TObjectPtr<T>();
 
 	if (Index.IsExport())
 	{
-		return Exports[Index.ToExport()];
+		return Exports[Index.ToExport()].Object;
 	}
 
 	if (Index.IsImport())
 	{
 		if (Index.IsScriptImport())
 		{
-			return UObjectPtr(std::make_shared<UAssetObject>(Context->GlobalToc, Index));
+			auto Ret = CreateScriptObject<T>(Context, Index);
+
+			if (!Context->ObjectArray.contains(Ret->GetName()))
+				Context->ObjectArray.insert_or_assign(Ret->GetName(), Ret);
+
+			return Ret;
+		}
+		else if (Index.IsPackageImport())
+		{
+			auto PackageId = Header.ImportedPackageIds[Index.GetImportedPackageIndex()];
+
+			return UObjectPtr(std::make_shared<ULazyPackageObject>(PackageId));
 		}
 	}
 
-	return UObjectPtr();
+	return TObjectPtr<T>();
 }
 
 void UZenPackage::ProcessExports(FZenPackageData& PackageData)
@@ -27,8 +71,8 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 
 	for (size_t i = 0; i < PackageData.Exports.size(); i++)
 	{
-		if (!PackageData.Exports[i])
-			PackageData.Exports[i] = std::make_shared<UObject>();
+		if (!PackageData.Exports[i].Object)
+			PackageData.Exports[i].Object = std::make_shared<UObject>();
 	}
 
 	auto& Header = PackageData.Header;
@@ -47,27 +91,75 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 			if (BundleEntry.CommandType == FExportBundleEntry::ExportCommandType_Create)
 			{
 				CreateExport(Header, PackageData.Exports, BundleEntry.LocalExportIndex);
+				continue;
 			}
+
+			if (BundleEntry.CommandType != FExportBundleEntry::ExportCommandType_Serialize)
+				continue;
+
+			SerializeExport(PackageData, BundleEntry.LocalExportIndex);
 		}
 	}
 }
 
-void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, int32_t LocalExportIndex)
+void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex) // TODO: make it return object of passed in type
 {
 	auto& Export = Header.ExportMap[LocalExportIndex];
-	auto& Object = Exports[LocalExportIndex];
+	UObjectPtr& Object = Exports[LocalExportIndex].Object;
+	auto& TemplateObject = Exports[LocalExportIndex].TemplateObject;
 	auto& ObjectName = Header.NameMap.GetName(Export.ObjectName);
+	
+	TemplateObject = IndexToObject(Header, Exports, Export.TemplateIndex);
+
+	if (!TemplateObject)
+	{
+		Log<Error>("Template object could not be loaded for zen package.");
+		return;
+	}
+
+	if (Context->ObjectArray.contains(ObjectName))
+	{
+		Object = Context->ObjectArray[ObjectName];
+		return;
+	}
 
 	Object->Name = ObjectName;
 
 	if (!Object->Class)
-		Object->Class = IndexToObject(Header, Exports, Export.ClassIndex);
+		Object->Class = IndexToObject<UClass>(Header, Exports, Export.ClassIndex).As<UClass>();
 
 	if (!Object->Outer)
 		Object->Outer = Export.OuterIndex.IsNull() ? UObjectPtr(shared_from_this()) : IndexToObject(Header, Exports, Export.OuterIndex);
+	 
+	if (UStructPtr Struct = Object.As<UStruct>())
+	{
+		if (!Struct->GetSuper())
+			Struct->SetSuper(IndexToObject<UStruct>(Header, Exports, Export.SuperIndex).As<UStruct>());
+	}
 
-	if (!Object->Super)
-		Object->Super = IndexToObject(Header, Exports, Export.SuperIndex);
+	Object->Flags = EObjectFlags(Export.ObjectFlags | RF_NeedLoad | RF_NeedPostLoad | RF_NeedPostLoadSubobjects | RF_WasLoaded);
+}
 
+void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
+{
+	auto& Export = PackageData.Header.ExportMap[LocalExportIndex];
+	auto& ExportObject = PackageData.Exports[LocalExportIndex];
+	UObjectPtr& Object = ExportObject.Object;
 
+	// TODO: struct casting maybe? idk
+
+	Object->ClearFlags(RF_NeedLoad);
+
+	/*if (Object->HasAnyFlags(RF_ClassDefaultObject)) // TODO
+	{
+		TRACE_CPUPROFILER_EVENT_SCOPE(SerializeDefaultObject);
+		Object->GetClass()->SerializeDefaultObject(Object, Ar);
+	}
+	else*/
+
+	PackageData.Reader->SetArchetype(ExportObject.TemplateObject);
+
+	Object->Serialize(PackageData.Reader);
+
+	PackageData.Reader->SetArchetype({});
 }

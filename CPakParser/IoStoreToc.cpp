@@ -1,8 +1,43 @@
 #include "IoStoreReader.h"
 
 #include "Compression.h"
-#include "MemoryReader.h"
+#include "ExportReader.h"
 #include "ZenPackage.h"
+
+class FIoExportArchive : public FExportReader
+{
+public:
+
+	FIoExportArchive(uint8_t* InBytes, size_t Size, FZenPackageData& InPackageData, bool bFreeBuffer = false) 
+		: FExportReader(InBytes, Size, bFreeBuffer), PackageData(InPackageData)
+	{
+	}
+
+	inline virtual FArchive& operator<<(FName& Name) override
+	{
+		FArchive& Ar = *this;
+
+		uint32_t NameIndex;
+		Ar << NameIndex;
+		uint32_t Number = 0;
+		Ar << Number;
+
+		auto MappedName = FMappedName::Create(NameIndex, Number, FMappedName::EType::Package);
+		
+		auto NameStr = PackageData.Header.NameMap.GetName(MappedName);
+
+		if (NameStr.empty())
+		{
+			Log<Warning>("Name serialized with FIoExportArchive is empty or invalid");
+		}
+
+		Name = NameStr;
+
+		return *this;
+	}
+
+	FZenPackageData& PackageData;
+};
 
 FIoStoreToc::FIoStoreToc(TSharedPtr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
 {
@@ -36,6 +71,13 @@ FSharedAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo)
 
 FZenPackageHeaderData FIoStoreReader::ReadZenPackageHeader(FSharedAr Ar)
 {
+	auto PackageHeaderDataPtr = static_cast<uint8_t*>(Ar->Data()); // TODO: fix this crap
+
+	if (!PackageHeaderDataPtr)
+	{
+		Log<Warning>("Package header data is null, which either means something went wrong or the archive passed in is not a memory archive. Expect issues.");
+	}
+
 	auto PackageDataOffset = Ar->Tell();
 
 	FZenPackageHeaderData Header;
@@ -78,6 +120,8 @@ FZenPackageHeaderData FIoStoreReader::ReadZenPackageHeader(FSharedAr Ar)
 		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
 	}
 
+	Header.AllExportDataPtr = PackageHeaderDataPtr + Summary.HeaderSize; // archive being used here should ALWAYS be a memory reader
+
 	return Header;
 }
 
@@ -85,12 +129,13 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 {
 	FZenPackageData PackageData;
 
-	PackageData.Reader = Ar;
 	PackageData.Header = Reader->ReadZenPackageHeader(Ar);
+	auto ExportDataSize = Ar->TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar->Data()));
+
+	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
+	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
 
 	auto Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
-
-	Ar->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
 
 	Package->ProcessExports(PackageData);
 }

@@ -29,10 +29,13 @@ template<> struct TCanBulkSerialize<unsigned short> { enum { Value = true }; };
 template<> struct TCanBulkSerialize<int> { enum { Value = true }; };
 
 template <typename T>
-using TUniquePtr = std::unique_ptr<T>; // unnecessary but cleaner imo 
+using TUniquePtr = std::unique_ptr<T>;
 
 template <typename T>
 using TSharedPtr = std::shared_ptr<T>;
+
+typedef TUniquePtr<class FArchive> FUniqueAr;
+typedef TSharedPtr<class FArchive> FSharedAr;
 
 class UObject;
 
@@ -125,24 +128,17 @@ struct FGuid
 
 class FName
 {
-	FNameEntryId Value;
+	std::string Val;
 
 public:
 
-	FName()
+	FName(std::string& InStr) : Val(InStr)
 	{
-	};
+	}
 
-	FName(std::string& InString) //later
+	__forceinline std::string ToString() const 
 	{
-	};
-
-	FName(uint32_t InValue) : Value(InValue)
-	{
-	};
-
-	std::string ToString() //later
-	{
+		return Val;
 	}
 };
 
@@ -337,9 +333,14 @@ public:
 		return NameEntries.size();
 	}
 
-	__forceinline const std::string& GetName(FMappedName& MappedName) const
+	__forceinline const std::string GetName(FMappedName& MappedName) const
 	{
-		return NameEntries[MappedName.GetIndex()];
+		auto Idx = MappedName.GetIndex();
+
+		if (Idx >= NameEntries.size())
+			return {};
+
+		return NameEntries[Idx];
 	}
 
 	void Serialize(class FArchive& Ar, FMappedName::EType NameMapType);

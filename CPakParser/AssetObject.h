@@ -78,15 +78,20 @@ public:
 		return TypeAndId != Other.TypeAndId;
 	}
 
+	__forceinline uint32_t GetImportedPackageIndex() const
+	{
+		return static_cast<uint32_t>((TypeAndId & IndexMask) >> 32);
+	}
+
 	__forceinline friend uint32_t hash_value(const FPackageObjectIndex& Value)
 	{
 		return uint32_t(Value.TypeAndId);
 	}
 };
 
-class UAssetObject : public UObject
+class UAssetObject : public UObject // TODO: remove
 {
 public:
 
-	UAssetObject(FGlobalTocData& GlobalToc, FPackageObjectIndex& Index);
+	UAssetObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index);
 };

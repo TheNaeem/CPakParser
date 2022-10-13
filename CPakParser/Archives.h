@@ -236,6 +236,8 @@ public:
 
 	virtual void Seek(int64_t InPos) { }
 
+	virtual void* Data() { return nullptr; }
+
 	__forceinline void SeekCur(int64_t InAdvanceCount)
 	{
 		Seek(Tell() + InAdvanceCount);
@@ -246,7 +248,6 @@ public:
 	{
 		SeekCur(sizeof(T));
 	}
-};
 
-typedef TUniquePtr<FArchive> FUniqueAr;
-typedef TSharedPtr<FArchive> FSharedAr;
+	virtual void Preload(UObject* Obj);
+};

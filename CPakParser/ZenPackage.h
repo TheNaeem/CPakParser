@@ -3,12 +3,19 @@
 #include "Package.h"
 #include "ZenData.h"
 #include "GlobalContext.h"
+#include "ExportReader.h"
+
+struct FExportObject
+{
+	UObjectPtr Object;
+	UObjectPtr TemplateObject;
+};
 
 struct FZenPackageData
 {
-	FSharedAr Reader;
+	TSharedPtr<FExportReader> Reader;
 	FZenPackageHeaderData Header;
-	std::vector<UObjectPtr> Exports;
+	std::vector<FExportObject> Exports;
 
 	__forceinline bool HasFlags(uint32_t Flags)
 	{
@@ -18,7 +25,8 @@ struct FZenPackageData
 
 class UZenPackage : public UPackage, public std::enable_shared_from_this<UZenPackage>
 {
-	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, FPackageObjectIndex Index);
+	template <typename T = UObject>
+	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index);
 
 public:
 
@@ -29,5 +37,6 @@ public:
 	}
 
 	void ProcessExports(FZenPackageData& PackageData);
-	void CreateExport(FZenPackageHeaderData& Header, std::vector<UObjectPtr>& Exports, int32_t LocalExportIndex);
+	void CreateExport(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex);
+	void SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex);
 };

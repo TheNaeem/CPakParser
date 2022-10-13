@@ -161,7 +161,7 @@ enum EPropertyFlags : uint64_t
 	CPF_SkipSerialization = 0x0080000000000000,	///< Property shouldn't be serialized, can still be exported to text
 };
 
-enum EObjectFlags : __int32
+enum EObjectFlags
 {
 	RF_NoFlags = 0x0,
 	RF_Public = 0x1,

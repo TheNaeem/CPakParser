@@ -2,46 +2,71 @@
 
 #include "CoreTypes.h"
 
-class UObjectPtr
+template <typename ObjectType>
+class TObjectPtr
 {
-	TSharedPtr<UObject> Val;
+	//static_assert(std::is_base_of<UObject, ObjectType>::value, "Type passed into UObjectPtr must be a UObject type");
+
+	TSharedPtr<ObjectType> Val;
 
 public:
 
-	UObjectPtr() : Val(nullptr)
+	TObjectPtr() : Val(nullptr)
 	{
 	}
 
-	UObjectPtr operator=(TSharedPtr<UObject> Other)
+	TObjectPtr operator=(TSharedPtr<ObjectType> Other)
 	{
 		Val = Other;
 		return *this;
 	}
 
-	UObjectPtr(TSharedPtr<UObject> InObject) : Val(InObject)
+	TObjectPtr(TSharedPtr<ObjectType> InObject) : Val(InObject)
 	{
 	}
 
-	__forceinline UObject* operator->()
+	ObjectType* operator->()
 	{
-		if (!Val)
+		if (!Val->IsLoaded())
 		{
-			// TODO: load it
+			Val->Load();
 		}
 
 		return Val.get();
 	}
 
-	__forceinline UObject* Get()
+	operator bool() const
+	{
+		return Val.operator bool();
+	}
+
+	ObjectType* Get()
 	{
 		return Val.get();
 	}
 
-	__forceinline operator bool() const
+	template <typename T>
+	__forceinline bool IsA()
 	{
-		return Val.operator bool();
+		return std::dynamic_pointer_cast<T>(Val);
+	}
+
+	template <typename T>
+	__forceinline TSharedPtr<T> As()
+	{
+		return std::dynamic_pointer_cast<T>(Val);
+	}
+
+	template <typename T>
+	__forceinline operator TObjectPtr<T>() const
+	{ 
+		return TObjectPtr<T>(std::dynamic_pointer_cast<T>(Val));
 	}
 };
+
+typedef TObjectPtr<class UObject> UObjectPtr;
+typedef TObjectPtr<class UClass> UClassPtr;
+typedef TObjectPtr<class UStruct> UStructPtr;
 
 class UObject
 {
@@ -51,25 +76,50 @@ public:
 
 protected:
 
-	UObjectPtr Class;
+	UClassPtr Class;
 	UObjectPtr Outer;
-	UObjectPtr Super;
 	std::string Name;
+	EObjectFlags Flags;
 
 public:
 
-	__forceinline std::string GetName()
+	std::string GetName();
+	UClassPtr GetClass();
+	UObjectPtr GetOuter();
+
+	void SetName(std::string& Val);
+	void SetClass(UClassPtr Val);
+	void SetOuter(UObjectPtr Val);
+	
+	bool IsLoaded();
+	void Copy(UObjectPtr Other);
+	void SerializeScriptProperties(TSharedPtr<class FExportReader> Ar);
+	virtual void Serialize(TSharedPtr<class FExportReader> Ar);
+
+	__forceinline void SetFlags(EObjectFlags NewFlags)
 	{
-		return Name;
+		Flags = static_cast<EObjectFlags>(Flags & NewFlags);
 	}
 
-	__forceinline UObjectPtr GetClass()
+	__forceinline void SetFlagsTo(EObjectFlags NewFlags)
 	{
-		return Class;
+		Flags = NewFlags;
 	}
 
-	__forceinline UObjectPtr GetSuper()
+	__forceinline EObjectFlags GetFlags()
 	{
-		return Super;
+		return Flags;
 	}
+
+	__forceinline void ClearFlags(EObjectFlags NewFlags)
+	{
+		Flags = static_cast<EObjectFlags>(Flags & ~NewFlags);
+	}
+
+	__forceinline bool HasAnyFlags(EObjectFlags FlagsToCheck) const
+	{
+		return (Flags & FlagsToCheck) != 0;
+	}
+
+	virtual void Load() { }
 };

@@ -66,7 +66,7 @@ public:
 		}
 	}
 
-	explicit FMemoryReader(const std::vector<uint8_t>& InBytes, bool bFreeBuffer = false)
+	explicit FMemoryReader(std::vector<uint8_t>& InBytes, bool bFreeBuffer = false)
 		: Bytes(InBytes.data())
 		, LimitSize(InBytes.size())
 		, bFree(bFreeBuffer)
@@ -95,6 +95,11 @@ public:
 		return Bytes + Offset;
 	}
 
+	void* Data() override
+	{
+		return static_cast<void*>(Bytes);
+	}
+
 	~FMemoryReader()
 	{
 		if (bFree && Bytes)
@@ -103,7 +108,7 @@ public:
 
 private:
 
-	const uint8_t* Bytes;
+	uint8_t* Bytes;
 	size_t LimitSize;
 	bool bFree;
 };
@@ -158,6 +163,11 @@ public:
 	__forceinline const uint8_t* GetBufferCur() const
 	{
 		return Bytes.data() + Offset;
+	}
+
+	void* Data() override
+	{
+		return static_cast<void*>(Bytes.data());
 	}
 
 private:
