@@ -19,69 +19,110 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AES.h" />
-    <ClInclude Include="AssetObject.h" />
-    <ClInclude Include="CityHash.h" />
-    <ClInclude Include="Class.h" />
-    <ClInclude Include="Compression.h" />
-    <ClInclude Include="ExportReader.h" />
-    <ClInclude Include="FileReader.h" />
-    <ClInclude Include="Archives.h" />
-    <ClInclude Include="CoreTypes.h" />
-    <ClInclude Include="Dataminer.h" />
-    <ClInclude Include="Enums.h" />
-    <ClInclude Include="GameFileManager.h" />
-    <ClInclude Include="GlobalContext.h" />
-    <ClInclude Include="GlobalTocData.h" />
-    <ClInclude Include="Hashing.h" />
-    <ClInclude Include="IoChunkId.h" />
-    <ClInclude Include="IoContainer.h" />
-    <ClInclude Include="IoContainerHeader.h" />
-    <ClInclude Include="IoDirectoryIndex.h" />
-    <ClInclude Include="IoStoreReader.h" />
-    <ClInclude Include="IoTocResource.h" />
-    <ClInclude Include="LazyPackageObject.h" />
-    <ClInclude Include="Loader.h" />
-    <ClInclude Include="Localization.h" />
+    <ClInclude Include="Unreal\Core\Defines.h" />
+    <ClInclude Include="Unreal\Core\Names\MappedName.h" />
+    <ClInclude Include="Unreal\Core\Names\NameMap.h" />
+    <ClInclude Include="Unreal\Files\DiskFile.h" />
+    <ClInclude Include="Unreal\Files\FileEntry.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Container\IoContainerId.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Misc\IoOffsetAndLength.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Misc\ScriptObjectEntry.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Toc\IoStoreToc.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Toc\TocCompressedBlock.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageFlags.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageId.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageIndex.h" />
+    <ClInclude Include="Unreal\Files\Paks\PakEntry.h" />
+    <ClInclude Include="Unreal\Files\Paks\PakEntryLocation.h" />
+    <ClInclude Include="Unreal\Files\Paks\PakInfo.h" />
+    <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
+    <ClInclude Include="Unreal\Misc\Encryption\EncryptionKeyManager.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\CityHash.h" />
+    <ClInclude Include="Unreal\Core\Class.h" />
+    <ClInclude Include="Unreal\Misc\Compression\GlobalCompression.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\IoChunkHash.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\ShaHash.h" />
+    <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
+    <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
+    <ClInclude Include="Unreal\Misc\Versioning\EngineVersion.h" />
+    <ClInclude Include="Unreal\Misc\Versioning\PackageFileVersion.h" />
+    <ClInclude Include="Unreal\Serialization\Impl\BorrowedArchive.h" />
+    <ClInclude Include="Unreal\Serialization\Impl\ExportReader.h" />
+    <ClInclude Include="Unreal\Serialization\Impl\FileReader.h" />
+    <ClInclude Include="Unreal\Serialization\Archives.h" />
+    <ClInclude Include="Dataminer\Dataminer.h" />
+    <ClInclude Include="Unreal\Core\Globals\GameFileManager.h" />
+    <ClInclude Include="Unreal\Core\Globals\GlobalContext.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Toc\GlobalTocData.h" />
+    <ClInclude Include="Unreal\Misc\Guid.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Misc\IoChunkId.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Container\IoContainer.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Container\IoContainerHeader.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Misc\IoDirectoryIndex.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Misc\IoStoreReader.h" />
+    <ClInclude Include="Unreal\Files\IOStore\Toc\IoTocResource.h" />
+    <ClInclude Include="Unreal\Files\Packaging\LazyPackageObject.h" />
+    <ClInclude Include="Unreal\Files\Loader.h" />
+    <ClInclude Include="Unreal\Misc\Localization\Localization.h" />
     <ClInclude Include="Logger.h" />
-    <ClInclude Include="MemoryReader.h" />
-    <ClInclude Include="Oodle.h" />
-    <ClInclude Include="Package.h" />
-    <ClInclude Include="PackageSummary.h" />
-    <ClInclude Include="PakReader.h" />
-    <ClInclude Include="Text.h" />
-    <ClInclude Include="UObject.h" />
-    <ClInclude Include="Versioning.h" />
-    <ClInclude Include="PakFiles.h" />
-    <ClInclude Include="ZenData.h" />
-    <ClInclude Include="ZenPackage.h" />
+    <ClInclude Include="Unreal\Serialization\Impl\MemoryReader.h" />
+    <ClInclude Include="Unreal\Core\Names\Name.h" />
+    <ClInclude Include="Unreal\Misc\Compression\Oodle.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageSummary.h" />
+    <ClInclude Include="Unreal\Files\Paks\PakReader.h" />
+    <ClInclude Include="Unreal\Misc\Localization\Text.h" />
+    <ClInclude Include="Unreal\Files\Packaging\Package.h" />
+    <ClInclude Include="Unreal\Core\UObject.h" />
+    <ClInclude Include="Unreal\Files\Paks\PakFile.h" />
+    <ClInclude Include="Unreal\Files\Packaging\Zen\ZenData.h" />
+    <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AES.cpp" />
-    <ClCompile Include="AssetObject.cpp" />
-    <ClCompile Include="CityHash.cpp" />
-    <ClCompile Include="Class.cpp" />
-    <ClCompile Include="Compression.cpp" />
-    <ClCompile Include="DataminerInternals.cpp" />
-    <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="Archives.cpp" />
-    <ClCompile Include="ArchiveSerialization.cpp" />
-    <ClCompile Include="CoreDefinitions.cpp" />
-    <ClCompile Include="Dataminer.cpp" />
-    <ClCompile Include="GameFileManager.cpp" />
-    <ClCompile Include="GlobalTocData.cpp" />
-    <ClCompile Include="IoChunkId.cpp" />
-    <ClCompile Include="IoStoreReader.cpp" />
-    <ClCompile Include="IoStoreToc.cpp" />
-    <ClCompile Include="IoTocResource.cpp" />
-    <ClCompile Include="Loading.cpp" />
-    <ClCompile Include="Oodle.cpp" />
-    <ClCompile Include="PakFiles.cpp" />
-    <ClCompile Include="PakReader.cpp" />
-    <ClCompile Include="Text.cpp" />
-    <ClCompile Include="UObject.cpp" />
-    <ClCompile Include="Versioning.cpp" />
-    <ClCompile Include="ZenPackage.cpp" />
+    <ClCompile Include="Unreal\Core\Names\MappedName.cpp" />
+    <ClCompile Include="Unreal\Core\Names\Name.cpp" />
+    <ClCompile Include="Unreal\Core\Names\NameMap.cpp" />
+    <ClCompile Include="Unreal\Files\FileEntry.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Container\IoContainer.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Container\IoContainerHeader.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Container\IoContainerId.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Misc\IoDirectoryIndex.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Misc\IoOffsetAndLength.cpp" />
+    <ClCompile Include="Unreal\Files\Packaging\PackageId.cpp" />
+    <ClCompile Include="Unreal\Files\Packaging\PackageSummary.cpp" />
+    <ClCompile Include="Unreal\Files\Paks\PakEntry.cpp" />
+    <ClCompile Include="Unreal\Files\Paks\PakInfo.cpp" />
+    <ClCompile Include="Unreal\Misc\Encryption\AES.cpp" />
+    <ClCompile Include="Unreal\Misc\Encryption\EncryptionKeyManager.cpp" />
+    <ClCompile Include="Unreal\Misc\Hashing\CityHash.cpp" />
+    <ClCompile Include="Unreal\Core\Class.cpp" />
+    <ClCompile Include="Unreal\Misc\Compression\GlobalCompression.cpp" />
+    <ClCompile Include="Dataminer\DataminerInternals.cpp" />
+    <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.cpp" />
+    <ClCompile Include="Unreal\Misc\Hashing\ShaHash.cpp" />
+    <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
+    <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.cpp" />
+    <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
+    <ClCompile Include="Unreal\Serialization\Impl\BorrowedArchive.cpp" />
+    <ClCompile Include="Unreal\Serialization\Impl\ExportReader.cpp" />
+    <ClCompile Include="Unreal\Serialization\Impl\FileReader.cpp" />
+    <ClCompile Include="Unreal\Serialization\Archives.cpp" />
+    <ClCompile Include="Dataminer\Dataminer.cpp" />
+    <ClCompile Include="Unreal\Core\Globals\GameFileManager.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Toc\GlobalTocData.cpp" />
+    <ClCompile Include="Unreal\Misc\Guid.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Misc\IoChunkId.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Misc\IoStoreReader.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Toc\IoStoreToc.cpp" />
+    <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.cpp" />
+    <ClCompile Include="Unreal\Files\Loading.cpp" />
+    <ClCompile Include="Unreal\Misc\Compression\Oodle.cpp" />
+    <ClCompile Include="Unreal\Files\Paks\PakFile.cpp" />
+    <ClCompile Include="Unreal\Files\Paks\PakReader.cpp" />
+    <ClCompile Include="Unreal\Misc\Localization\Text.cpp" />
+    <ClCompile Include="Unreal\Core\UObject.cpp" />
+    <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -173,8 +214,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -190,8 +231,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

@@ -2217,10 +2217,13 @@ protected:
     void emplace_at(size_t i, Args&&... args) {
         PolicyTraits::construct(&alloc_ref(), slots_ + i,
                                 std::forward<Args>(args)...);
-
+        
+#ifdef PHMAP_CHECK_CONSTRUCTED_VALUE
+        // this check can be costly, so do it only when requested
         assert(PolicyTraits::apply(FindElement{*this}, *iterator_at(i)) ==
                iterator_at(i) &&
                "constructed value does not match the lookup key");
+#endif
     }
 
     iterator iterator_at(size_t i) { return {ctrl_ + i, slots_ + i}; }
@@ -3319,11 +3322,62 @@ public:
     }
 
     // this version allows to modify the values
-    void for_each_m(std::function<void (value_type&)> && fCallback) {
+    template <class F>
+    void for_each_m(F&& fCallback) {
         for (auto& inner : sets_) {
-            typename Lockable::UniqueLock m(const_cast<Inner&>(inner));
+            typename Lockable::UniqueLock m(inner);
             std::for_each(inner.set_.begin(), inner.set_.end(), fCallback);
         }
+    }
+
+#if __cplusplus >= 201703L
+    template <class ExecutionPolicy, class F>
+    void for_each(ExecutionPolicy&& policy, F&& fCallback) const {
+        std::for_each(
+            std::forward<ExecutionPolicy>(policy), sets_.begin(), sets_.end(),
+            [&](auto const& inner) {
+                typename Lockable::SharedLock m(const_cast<Inner&>(inner));
+                std::for_each(inner.set_.begin(), inner.set_.end(), fCallback);
+            }
+        );
+    }
+
+    template <class ExecutionPolicy, class F>
+    void for_each_m(ExecutionPolicy&& policy, F&& fCallback) {
+        std::for_each(
+            std::forward<ExecutionPolicy>(policy), sets_.begin(), sets_.end(),
+            [&](auto& inner) {
+                typename Lockable::UniqueLock m(inner);
+                std::for_each(inner.set_.begin(), inner.set_.end(), fCallback);
+            }
+        );
+    }
+#endif
+
+    // Extension API: access internal submaps by index
+    // under lock protection
+    // ex: m.with_submap(i, [&](const Map::EmbeddedSet& set) {
+    //        for (auto& p : set) { ...; }});
+    // -------------------------------------------------
+    template <class F>
+    void with_submap(size_t idx, F&& fCallback) const {
+        const Inner& inner     = sets_[idx];
+        const auto&  set = inner.set_;
+        typename Lockable::SharedLock m(const_cast<Inner&>(inner));
+        fCallback(set);
+    }
+
+    template <class F>
+    void with_submap_m(size_t idx, F&& fCallback) {
+        Inner& inner   = sets_[idx];
+        auto&  set     = inner.set_;
+        typename Lockable::UniqueLock m(inner);
+        fCallback(set);
+    }
+
+    // unsafe, for internal use only
+    Inner& get_inner(size_t idx) {
+        return  sets_[idx];
     }
 
     // Extension API: support for heterogeneous keys.
@@ -3370,7 +3424,7 @@ public:
     //
     // Do not use erase APIs taking iterators when accessing the map concurrently
     // --------------------------------------------------------------------
-    void _erase(iterator it, bool do_lock = true) {
+    void _erase(iterator it) {
         Inner* inner = it.inner_;
         assert(inner != nullptr);
         auto&  set   = inner->set_;
@@ -3427,15 +3481,20 @@ public:
         return it == end() ? node_type() : extract(const_iterator{it});
     }
 
-    void swap(parallel_hash_set& that) noexcept(
-        IsNoThrowSwappable<EmbeddedSet>() &&
-        (!AllocTraits::propagate_on_container_swap::value ||
-         IsNoThrowSwappable<allocator_type>())) {
+    template<class Mtx2_>
+    void swap(parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc>& that)
+        noexcept(IsNoThrowSwappable<EmbeddedSet>() &&
+                 (!AllocTraits::propagate_on_container_swap::value ||
+                  IsNoThrowSwappable<allocator_type>()))
+    {
         using std::swap;
+        using Lockable2 = phmap::LockableImpl<Mtx2_>;
+         
         for (size_t i=0; i<num_tables; ++i)
         {
-            typename Lockable::UniqueLocks l(sets_[i], that.sets_[i]);
-            swap(sets_[i].set_, that.sets_[i].set_);
+            typename Lockable::UniqueLock l(sets_[i]);
+            typename Lockable2::UniqueLock l2(that.get_inner(i));
+            swap(sets_[i].set_, that.get_inner(i).set_);
         }
     }
 
@@ -3574,8 +3633,11 @@ public:
         return !(a == b);
     }
 
+    template<class Mtx2_>
     friend void swap(parallel_hash_set& a,
-                     parallel_hash_set& b) noexcept(noexcept(a.swap(b))) {
+                     parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc>& b)
+        noexcept(noexcept(a.swap(b)))
+    {
         a.swap(b);
     }
 
@@ -3654,14 +3716,16 @@ private:
 
     // TODO(alkis): Optimize this assuming *this and that don't overlap.
     // --------------------------------------------------------------------
-    parallel_hash_set& move_assign(parallel_hash_set&& that, std::true_type) {
-        parallel_hash_set tmp(std::move(that));
+    template<class Mtx2_>
+    parallel_hash_set& move_assign(parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc>&& that, std::true_type) {
+        parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc> tmp(std::move(that));
         swap(tmp);
         return *this;
     }
 
-    parallel_hash_set& move_assign(parallel_hash_set&& that, std::false_type) {
-        parallel_hash_set tmp(std::move(that), alloc_ref());
+    template<class Mtx2_>
+    parallel_hash_set& move_assign(parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc>&& that, std::false_type) {
+        parallel_hash_set<N, RefSet, Mtx2_, Policy, Hash, Eq, Alloc> tmp(std::move(that), alloc_ref());
         swap(tmp);
         return *this;
     }
@@ -4309,28 +4373,26 @@ public:
 
 #if PHMAP_HAVE_STD_STRING_VIEW
 
-// support char16_t wchar_t ....
-template<class CharT> 
-struct StringHashT 
-{
-    using is_transparent = void;
-
-    size_t operator()(std::basic_string_view<CharT> v) const {
-        std::string_view bv{reinterpret_cast<const char*>(v.data()), v.size() * sizeof(CharT)};
-        return std::hash<std::string_view>()(bv);
-    }
-};
-
 // Supports heterogeneous lookup for basic_string<T>-like elements.
 template<class CharT> 
 struct StringHashEqT
 {
-    using Hash = StringHashT<CharT>;
+    struct Hash 
+    {
+        using is_transparent = void;
+        
+        size_t operator()(std::basic_string_view<CharT> v) const {
+            std::string_view bv{
+                reinterpret_cast<const char*>(v.data()), v.size() * sizeof(CharT)};
+            return std::hash<std::string_view>()(bv);
+        }
+    };
 
     struct Eq {
         using is_transparent = void;
 
-        bool operator()(std::basic_string_view<CharT> lhs, std::basic_string_view<CharT> rhs) const {
+        bool operator()(std::basic_string_view<CharT> lhs,
+                        std::basic_string_view<CharT> rhs) const {
             return lhs == rhs;
         }
     };
@@ -4367,7 +4429,9 @@ struct HashEq<T*>
         using is_transparent = void;
         template <class U>
         size_t operator()(const U& ptr) const {
-            return phmap::Hash<const T*>{}(HashEq::ToPtr(ptr));
+            // we want phmap::Hash<T*> and not phmap::Hash<const T*>
+            // so "struct std::hash<T*> " override works
+            return phmap::Hash<T*>{}((T*)(uintptr_t)HashEq::ToPtr(ptr));
         }
     };
 

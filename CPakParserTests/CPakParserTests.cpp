@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../CPakParser/Dataminer.h"
+#include "Dataminer/Dataminer.h"
 
 int main()
 {
@@ -12,7 +12,21 @@ int main()
     auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
     Core.Initialize();
 
-    Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
+    std::ofstream f("test.txt");
+    for (auto dir : Core.Files())
+    {
+        //f << dir.first;
+
+        for (auto file : dir.second)
+        {
+            f << dir.first << file.first << '\n';
+        }
+    }
+
+    f.close();
+    f.flush();
+
+    //Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
 
     std::cin.get();
 }
