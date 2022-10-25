@@ -77,6 +77,7 @@
     <ClInclude Include="Unreal\Files\Paks\PakFile.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenData.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
+    <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Unreal\Core\Names\MappedName.cpp" />
@@ -123,6 +124,7 @@
     <ClCompile Include="Unreal\Misc\Localization\Text.cpp" />
     <ClCompile Include="Unreal\Core\UObject.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
+    <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -2,7 +2,7 @@
 
 #include "UObject.h"
 
-class UStruct : public UObject, public std::enable_shared_from_this<UStruct>
+class UStruct : public UObject
 {
 public:
 

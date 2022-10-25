@@ -9,7 +9,7 @@
 struct FGlobalTocData // inspired by the CUE4Parse IoGlobalData class. huge shoutout to them
 {
 	FNameMap NameMap;
-	TMap<class FPackageObjectIndex, class FScriptObjectEntry> ScriptObjectByGlobalIdMap;
+	TMap<FPackageObjectIndex, FScriptObjectEntry> ScriptObjectByGlobalIdMap;
 
 	void Serialize(TSharedPtr<class FIoStoreReader> Reader);
 };

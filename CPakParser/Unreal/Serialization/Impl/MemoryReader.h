@@ -73,7 +73,7 @@ public:
 private:
 
 	uint8_t* Bytes;
-	int64_t	Offset;
+	int64_t	Offset = 0;
 	size_t LimitSize;
 	bool bFree;
 };

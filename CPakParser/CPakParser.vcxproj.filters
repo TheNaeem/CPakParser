@@ -45,6 +45,7 @@
     <ClCompile Include="Unreal\Serialization\Impl\BorrowedArchive.cpp" />
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\PackageSummary.cpp" />
+    <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -105,5 +106,6 @@
     <ClInclude Include="Unreal\Files\Packaging\PackageFlags.h" />
     <ClInclude Include="Unreal\Serialization\Impl\BorrowedArchive.h" />
     <ClInclude Include="Unreal\Files\IOStore\Misc\ScriptObjectEntry.h" />
+    <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
   </ItemGroup>
 </Project>
