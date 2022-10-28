@@ -2,12 +2,14 @@
 
 #include <filesystem>
 #include <Windows.h>
+#include <Logger.h>
 
 void Oodle::LoadDLL(const char* DllPath)
 {
 	if (!std::filesystem::exists(DllPath))
 	{
-		throw std::exception("Provided Oodle path does not exist!");
+		Log<Error>("Provided Oodle path does not exist!");
+		return;
 	}
 
 	auto OodleHandle = LoadLibraryA(DllPath);

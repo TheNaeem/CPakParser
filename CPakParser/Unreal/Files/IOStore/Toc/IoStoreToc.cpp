@@ -43,6 +43,11 @@ public:
 	FZenPackageData& PackageData;
 };
 
+FIoStoreToc::FIoStoreToc(std::string& TocFilePath)
+	: FIoStoreToc(std::make_shared<FIoStoreTocResource>(TocFilePath, EIoStoreTocReadOptions::ReadAll))
+{
+}
+
 FIoStoreToc::FIoStoreToc(TSharedPtr<FIoStoreTocResource> TocRsrc) : Toc(TocRsrc)
 {
 	ChunkIdToIndex.reserve(Toc->ChunkIds.size());

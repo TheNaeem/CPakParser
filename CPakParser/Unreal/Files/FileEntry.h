@@ -19,19 +19,19 @@ struct FFileEntryInfo
 		return Entry.PakIndex;
 	}
 
-	__forceinline void SetOwningFile(TSharedPtr<IDiskFile> DiskFile)
+	__forceinline void SetOwningFile(TWeakPtr<IDiskFile> DiskFile)
 	{
 		AssociatedFile = DiskFile;
 	}
 
 	__forceinline std::string GetDiskFilePath()
 	{
-		return AssociatedFile->GetDiskPath();
+		return AssociatedFile.lock()->GetDiskPath();
 	}
 
 	__forceinline TSharedPtr<IDiskFile> GetAssociatedFile()
 	{
-		return AssociatedFile;
+		return AssociatedFile.lock();
 	}
 
 	__forceinline uint32_t GetTocIndex()
@@ -52,5 +52,5 @@ protected:
 		uint32_t TocIndex;
 	}Entry;
 
-	TSharedPtr<IDiskFile> AssociatedFile;
+	TWeakPtr<IDiskFile> AssociatedFile;
 };

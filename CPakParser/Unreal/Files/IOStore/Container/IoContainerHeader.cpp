@@ -37,7 +37,7 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 	Ar.BulkSerializeArray(ContainerHeader.OptionalSegmentPackageIds);
 	Ar << ContainerHeader.OptionalSegmentStoreEntries;
 
-	ContainerHeader.RedirectsNameMap = LoadNameBatch(Ar);
+	ContainerHeader.RedirectsNameMap = LoadNameBatch(Ar); // TODO: what is this for?
 
 	Ar.BulkSerializeArray(ContainerHeader.LocalizedPackages);
 	Ar.BulkSerializeArray(ContainerHeader.PackageRedirects);

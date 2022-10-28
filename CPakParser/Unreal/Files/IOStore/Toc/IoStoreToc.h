@@ -11,6 +11,7 @@ public:
 
 	FIoStoreToc() = default; // never use this
 
+	FIoStoreToc(std::string& TocFilePath);
 	FIoStoreToc(TSharedPtr<struct FIoStoreTocResource> TocRsrc);
 
 	FAESKey& GetEncryptionKey();
@@ -27,7 +28,7 @@ public:
 private:
 
 	FAESKey Key;
-	TSharedPtr<FIoStoreTocResource> Toc;
+	TSharedPtr<struct FIoStoreTocResource> Toc;
 	TSharedPtr<class FIoStoreReader> Reader;
 	TMap<FIoChunkId, int32_t> ChunkIdToIndex;
 };

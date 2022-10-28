@@ -50,7 +50,7 @@ FIoOffsetAndLength FIoStoreReader::FindChunkInternal(FIoChunkId& ChunkId)
 	return Container.TocResource->ChunkOffsetLengths[Slot];
 }
 
-FIoContainerHeader FIoStoreReader::ReadContainerHeader()
+void FIoStoreReader::ReadContainerHeader()
 {
 	auto TocRsrc = Container.TocResource;
 
@@ -60,7 +60,7 @@ FIoContainerHeader FIoStoreReader::ReadContainerHeader()
 	if (!OffsetAndLength.IsValid())
 	{
 		Log<Error>("Container header chunk not found: " + this->Container.FilePath);
-		return FIoContainerHeader();
+		return;
 	}
 
 	auto CompressionBlockSize = TocRsrc->Header.CompressionBlockSize;
@@ -108,20 +108,24 @@ FIoContainerHeader FIoStoreReader::ReadContainerHeader()
 	}
 
 	FMemoryReader Ar(IoBuffer.get(), BufSize );
-	FIoContainerHeader ContainerHeader;
-	Ar << ContainerHeader;
-
-	return Container.Header = ContainerHeader;
+	Ar << Container.Header;
 }
 
-FIoStoreReader::FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& PartitionIndex)
+FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_t& PartitionIndex)
 {
-	Toc = std::make_shared<FIoStoreToc>(
-		std::make_shared<FIoStoreTocResource>(ContainerPath, EIoStoreTocReadOptions::ReadAll));
+	Toc = InToc;
 
-	auto TocRsrc = Toc->GetResource();
+	auto TocPtr = Toc.lock();
 
-	std::string_view ContainerPathView(ContainerPath);
+	if (!TocPtr)
+	{
+		Log<Error>("Toc weak pointer passed into FIoStoreReader is invalid!");
+		return;
+	}
+
+	auto TocRsrc = TocPtr->GetResource();
+
+	std::string_view ContainerPathView(TocRsrc->TocPath);
 
 	if (!ContainerPathView.ends_with(".utoc"))
 	{
@@ -183,7 +187,7 @@ FIoStoreReader::FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& P
 
 TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId) 
 {
-	auto OaL = Toc->GetOffsetAndLength(ChunkId);
+	auto OaL = Toc.lock()->GetOffsetAndLength(ChunkId);
 
 	if (!OaL.IsValid())
 		return nullptr;
@@ -193,7 +197,8 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId)
 
 TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) // TODO: make this async; look into StartAsyncRead
 {
-	auto TocResource = Toc->GetResource();
+	auto TocPtr = Toc.lock();
+	auto TocResource = TocPtr->GetResource();
 
 	auto Offset = OffsetAndLength.GetOffset();
 	auto Len = OffsetAndLength.GetLength();
@@ -240,7 +245,7 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 
 		if (TocResource->Header.IsEncrypted())
 		{
-			Toc->GetEncryptionKey().DecryptData(CompressedData, BlockCompressedSize);
+			TocPtr->GetEncryptionKey().DecryptData(CompressedData, BlockCompressedSize);
 		}
 
 		if (CompressionMethod.empty())
@@ -318,16 +323,18 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 	}
 }
 
-TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(TSharedPtr<GContext> Context, bool bSerializeDirectoryIndex)
+void FIoStoreReader::Initialize(TSharedPtr<GContext> Context, bool bSerializeDirectoryIndex)
 {
-	Toc->SetReader(shared_from_this());
-	auto TocResource = Toc->GetResource();
+	auto TocPtr = Toc.lock();
+
+	TocPtr->SetReader(shared_from_this());
+	auto TocResource = TocPtr->GetResource();
 
 	Ar = std::make_unique<FFileReader>(TocResource->TocPath.c_str());
 
 	FAESKey Key;
 	Context->EncryptionKeyManager.GetKey(TocResource->Header.EncryptionKeyGuid, Key);
-	Toc->SetKey(Key);
+	TocPtr->SetKey(Key);
 
 	if (bSerializeDirectoryIndex &&
 		EnumHasAnyFlags(TocResource->Header.ContainerFlags, EIoContainerFlags::Indexed) &&
@@ -335,7 +342,7 @@ TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(TSharedPtr<GContext> Context,
 	{
 		if (TocResource->Header.IsEncrypted() && Context->EncryptionKeyManager.HasKey(TocResource->Header.EncryptionKeyGuid))
 		{
-			Toc->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), uint32_t(TocResource->DirectoryIndexBuffer.size()));
+			TocPtr->GetEncryptionKey().DecryptData(TocResource->DirectoryIndexBuffer.data(), uint32_t(TocResource->DirectoryIndexBuffer.size()));
 		}
 
 		FMemoryReader DirectoryIndexReader(TocResource->DirectoryIndexBuffer);
@@ -346,7 +353,7 @@ TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(TSharedPtr<GContext> Context,
 		if (!DirectoryIndex.DirectoryEntries.size())
 		{
 			Log<Warning>("Directory index has 0 files.");
-			return nullptr;
+			return;
 		}
 
 		DirectoryIndex.MountPoint.pop_back();
@@ -356,6 +363,4 @@ TSharedPtr<FIoStoreToc> FIoStoreReader::Initialize(TSharedPtr<GContext> Context,
 		std::string _ = "";
 		this->ParseDirectoryIndex(DirectoryIndex, Context->FilesManager, _);
 	}
-
-	return Toc;
 }

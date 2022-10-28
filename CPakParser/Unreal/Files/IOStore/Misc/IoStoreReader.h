@@ -12,11 +12,11 @@ class FIoStoreReader : public std::enable_shared_from_this<FIoStoreReader>
 {
 public:
 
-	FIoStoreReader(const char* ContainerPath, std::atomic_int32_t& PartitionIndex);
+	FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_t& PartitionIndex);
 
-	TSharedPtr<FIoStoreToc> Initialize(TSharedPtr<class GContext> Context, bool bSerializeDirectoryIndex = false);
+	void Initialize(TSharedPtr<class GContext> Context, bool bSerializeDirectoryIndex = false);
 
-	FIoContainerHeader ReadContainerHeader();
+	void ReadContainerHeader();
 
 	TUniquePtr<uint8_t[]> Read(FIoChunkId ChunkId);
 	TUniquePtr<uint8_t[]> Read(FIoOffsetAndLength& OffsetAndLength);
@@ -35,7 +35,7 @@ public:
 
 	__forceinline TSharedPtr<FIoStoreToc> GetToc()
 	{
-		return Toc;
+		return Toc.lock();
 	}
 
 	//FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar);
@@ -48,7 +48,7 @@ private:
 	bool bHasPerfectHashMap = false;
 	TMap<FIoChunkId, FIoOffsetAndLength> TocImperfectHashMapFallback;
 	FFileIoStoreContainerFile Container;
-	TSharedPtr<FIoStoreToc> Toc;
+	TWeakPtr<FIoStoreToc> Toc;
 	FUniqueAr Ar;
 	std::mutex Lock;
 };
