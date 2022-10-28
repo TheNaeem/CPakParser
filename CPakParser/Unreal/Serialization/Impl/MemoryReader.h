@@ -15,7 +15,7 @@ public:
 	{
 		if (Num && Offset + Num <= TotalSize())
 		{
-			memcpy(Data, Bytes + Offset, Num);
+			memcpyfst(Data, Bytes + Offset, Num);
 			Offset += Num;
 		}
 	}

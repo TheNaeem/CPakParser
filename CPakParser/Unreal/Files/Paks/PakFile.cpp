@@ -35,7 +35,7 @@ static void DecodePakEntry(const uint8_t* SourcePtr, FPakEntry& OutEntry, FPakIn
 	}
 	else
 	{
-		memcpy(&OutEntry.Offset, SourcePtr, sizeof(int64_t));
+		memcpyfst(&OutEntry.Offset, SourcePtr, sizeof(int64_t));
 		SourcePtr += sizeof(int64_t);
 	}
 
@@ -47,7 +47,7 @@ static void DecodePakEntry(const uint8_t* SourcePtr, FPakEntry& OutEntry, FPakIn
 	}
 	else
 	{
-		memcpy(&OutEntry.UncompressedSize, SourcePtr, sizeof(int64_t));
+		memcpyfst(&OutEntry.UncompressedSize, SourcePtr, sizeof(int64_t));
 		SourcePtr += sizeof(int64_t);
 	}
 
@@ -61,7 +61,7 @@ static void DecodePakEntry(const uint8_t* SourcePtr, FPakEntry& OutEntry, FPakIn
 		}
 		else
 		{
-			memcpy(&OutEntry.Size, SourcePtr, sizeof(int64_t));
+			memcpyfst(&OutEntry.Size, SourcePtr, sizeof(int64_t));
 			SourcePtr += sizeof(int64_t);
 		}
 	}

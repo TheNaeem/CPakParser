@@ -168,7 +168,7 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 		Reader->Serialize(TempBuffer, Alignment);
 
 		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid, KeyManager);
-		memcpy(V, TempBuffer + Offset, CopySize);
+		memcpyfst(V, TempBuffer + Offset, CopySize);
 
 		V = (void*)((uint8_t*)V + CopySize);
 		ReadPos += CopySize;
@@ -189,7 +189,7 @@ void FPakReader<Encryption>::SerializeInternal(void* V, int64_t Length)
 	{
 		Reader->Serialize(TempBuffer, Alignment);
 		Encryption::DecryptBlock(TempBuffer, Alignment, EncryptionKeyGuid, KeyManager);
-		memcpy(V, TempBuffer, Length);
+		memcpyfst(V, TempBuffer, Length);
 	}
 }
 
@@ -214,7 +214,7 @@ void FPakReader<Encryption>::SerializeInternalCompressed(void* V, int64_t Length
 		FCompression::DecompressMemory(CompressionFormat, DecompressedBuffer, DecompressedSize, CompressedBuffer, CompressedSize);
 
 		if (CopyOut)
-			memcpy(CopyOut, DecompressedBuffer + CopyOffset, CopyLength);
+			memcpyfst(CopyOut, DecompressedBuffer + CopyOffset, CopyLength);
 	};
 
 	const auto CompressionBlockSize = Entry.CompressionBlockSize;
@@ -264,7 +264,7 @@ void FPakReader<Encryption>::SerializeInternalCompressed(void* V, int64_t Length
 
 		if (bCurrentScratchTempBufferValid)
 		{
-			memcpy(V, ScratchSpace->TempBuffer.get() + DirectCopyStart, WriteSize);
+			memcpyfst(V, ScratchSpace->TempBuffer.get() + DirectCopyStart, WriteSize);
 			NextIteration();
 			continue;
 		}

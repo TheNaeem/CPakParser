@@ -250,7 +250,7 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 
 		if (CompressionMethod.empty())
 		{
-			memcpy(DecompressedData, CompressedData + OffsetInBlock, UncompressedSize - OffsetInBlock);
+			memcpyfst(DecompressedData, CompressedData + OffsetInBlock, UncompressedSize - OffsetInBlock);
 		}
 		else if (OffsetInBlock || RemainingSize < UncompressedSize)
 		{
@@ -259,7 +259,7 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 			FCompression::DecompressMemory(CompressionMethod, TempBuffer.data(), UncompressedSize, CompressedData, CompressionBlock.GetCompressedSize());
 
 			auto CopySize = std::min(UncompressedSize - OffsetInBlock, RemainingSize);
-			memcpy(DecompressedData, TempBuffer.data() + OffsetInBlock, CopySize);
+			memcpyfst(DecompressedData, TempBuffer.data() + OffsetInBlock, CopySize);
 		}
 		else
 		{
