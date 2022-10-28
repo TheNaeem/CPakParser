@@ -14,10 +14,10 @@ int main()
 	Dataminer::Options::WithLogging(true);
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
-		auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
+	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
-		Core.Initialize();
-	}
+	Core.Initialize();
+	
 
 	Sleep(-1);
 
@@ -30,6 +30,4 @@ int main()
 	 auto End = std::chrono::steady_clock::now();
 
 	 printf("\nTime: %.02f ms\n", (End - Start).count() / 1000000.);*/
-
-	system("pause");
 }
