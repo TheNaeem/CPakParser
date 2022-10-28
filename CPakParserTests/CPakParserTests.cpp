@@ -1,18 +1,25 @@
 #include <iostream>
 #include <fstream>
 
+#include <Windows.h>
+
+#include "Exceptions.h"
+
 #include "Dataminer/Dataminer.h"
 
 int main()
 {
-	{
-		Dataminer::Options::WithLogging(true);
-		Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
+	SetUnhandledExceptionFilter(Exceptions::UnhandledHandler);
+
+	Dataminer::Options::WithLogging(true);
+	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 		auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
 		Core.Initialize();
 	}
+
+	Sleep(-1);
 
 	/* Core.Initialize();
 
