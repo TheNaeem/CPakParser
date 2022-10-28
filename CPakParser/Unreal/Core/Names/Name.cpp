@@ -66,10 +66,8 @@ struct FNameBatchLoader
 		std::vector<std::string> Ret(Headers.size());
 
 		uint32_t NameOffset = 0;
-		for (auto i = 0; i < Headers.size(); i++)
+		for (auto&& Header : Headers)
 		{
-			auto Header = Headers[i];
-
 			union
 			{
 				const uint8_t* Data;
@@ -91,7 +89,7 @@ struct FNameBatchLoader
 				NameString.assign(AnsiString, Header.Len());
 			}
 
-			Ret[i] = NameString;
+			Ret.push_back(NameString);
 			NameOffset += Header.IsUtf16() ? sizeof(wchar_t) * Header.Len() : sizeof(char) * Header.Len();
 		}
 
