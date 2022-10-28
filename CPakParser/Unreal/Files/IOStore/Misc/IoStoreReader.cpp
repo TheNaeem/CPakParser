@@ -299,7 +299,7 @@ void FIoStoreReader::ParseDirectoryIndex(FIoDirectoryIndexResource& DirectoryInd
 			FileName.pop_back();
 
 		FFileEntryInfo Entry(FileEntry.UserData);
-		Entry.SetOwningFile(Toc);
+		Entry.SetOwningFile(Toc.lock().get());
 
 		GameFiles.AddFile(FullDir, FileName, Entry);
 

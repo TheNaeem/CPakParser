@@ -16,18 +16,12 @@ int main()
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
+	//auto MappingsTask = Core.LoadTypeMappingsAsync("D:\\N's Stuff\\Output\\.data\\++Fortnite+Release-22.20-CL-22545427-Android_oo.usmap");
 	Core.Initialize();
-	
+
+	//MappingsTask.wait();
+
+	//Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
 
 	Sleep(-1);
-
-	/* Core.Initialize();
-
-	 auto Start = std::chrono::steady_clock::now();
-
-	 Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
-
-	 auto End = std::chrono::steady_clock::now();
-
-	 printf("\nTime: %.02f ms\n", (End - Start).count() / 1000000.);*/
 }

@@ -170,7 +170,7 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint
 
 			Name.pop_back(); // remove the null terminator
 
-			Entry.SetOwningFile(AssociatedPak);
+			Entry.SetOwningFile(AssociatedPak.get());
 
 #if HASH_DIRECTORY_INDEX
 			DirIdx.insert_or_assign(QUICK_STR_HASH(Name), Entry);

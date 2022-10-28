@@ -69,6 +69,7 @@ TSharedPtr<FIoStoreReader> Dataminer::MountToc(std::string InTocPath, FGuid Encr
 
 	auto Toc = std::make_shared<FIoStoreToc>(InTocPath);
 	auto Reader = std::make_shared<FIoStoreReader>(Toc, PartitionIndex);
+	Reader->Initialize(Context, true);
 
 	if (!Toc)
 		return nullptr;
