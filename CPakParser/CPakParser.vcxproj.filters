@@ -5,7 +5,7 @@
     <ClCompile Include="Unreal\Misc\Hashing\CityHash.cpp" />
     <ClCompile Include="Unreal\Core\Class.cpp" />
     <ClCompile Include="Unreal\Misc\Compression\GlobalCompression.cpp" />
-    <ClCompile Include="Dataminer\DataminerInternals.cpp" />
+    <ClCompile Include="Dataminer\DataminerMounting.cpp" />
     <ClCompile Include="Unreal\Serialization\Impl\FileReader.cpp" />
     <ClCompile Include="Unreal\Serialization\Archives.cpp" />
     <ClCompile Include="Dataminer\Dataminer.cpp" />
@@ -46,6 +46,10 @@
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\PackageSummary.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
+    <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
+    <ClCompile Include="Dataminer\DataminerLoading.cpp" />
+    <ClCompile Include="Unreal\Misc\Hashing\xxHash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -107,5 +111,19 @@
     <ClInclude Include="Unreal\Serialization\Impl\BorrowedArchive.h" />
     <ClInclude Include="Unreal\Files\IOStore\Misc\ScriptObjectEntry.h" />
     <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Mappings.h" />
+    <ClInclude Include="Unreal\Files\SerializableFile.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Property.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\PropertyTypes.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\EnumProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ArrayProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\MapProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ByteProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\xxHash.h" />
   </ItemGroup>
 </Project>

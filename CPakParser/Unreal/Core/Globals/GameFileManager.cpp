@@ -3,6 +3,14 @@
 #include "Files/Paks/PakEntryLocation.h"
 #include "Serialization/Archives.h"
 
+#if HASH_DIRECTORY_INDEX
+#include "Misc/Hashing/xxHash.h"
+
+#define QUICK_STR_HASH(str) XXH32(str.c_str(), str.size(), 0)
+#endif
+
+// TODO: hash directory index
+
 static const std::string BaseMountPoint("../../../");
 
 FGameFilePath::FGameFilePath()
@@ -54,27 +62,9 @@ void FGameFileManager::Reserve(size_t Count)
 	FileLibrary.reserve(Count);
 }
 
-void FGameFileManager::AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo)
+FDirectoryIndex FGameFileManager::GetFiles()
 {
-	if (!FileLibrary.contains(FileDir))
-	{
-		FileLibrary.insert_or_assign(FileDir, FPakDirectory());
-	}
-
-	FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
-}
-
-FFileEntryInfo FGameFileManager::FindFile(std::string& Directory, std::string& FileName)
-{
-	if (!FileLibrary.contains(Directory))
-		return FFileEntryInfo();
-
-	auto Dir = FileLibrary[Directory];
-
-	if (!Dir.contains(FileName))
-		return FFileEntryInfo();
-
-	return Dir[FileName];
+	return FileLibrary;
 }
 
 FFileEntryInfo FGameFileManager::FindFile(FGameFilePath& Path)
@@ -84,13 +74,18 @@ FFileEntryInfo FGameFileManager::FindFile(FGameFilePath& Path)
 
 FPakDirectory FGameFileManager::GetDirectory(std::string Directory)
 {
+#if HASH_DIRECTORY_INDEX
+	return FileLibrary[QUICK_STR_HASH(Directory)];
+#else
 	return FileLibrary[Directory];
+#endif
 }
 
 FGameFileCollection FGameFileManager::GetFilesByExtension(std::string Ext)
 {
 	FGameFileCollection Ret;
 
+#if !HASH_DIRECTORY_INDEX
 	if (!Ext.ends_with('\0'))
 		Ext.push_back('\0');
 
@@ -104,13 +99,31 @@ FGameFileCollection FGameFileManager::GetFilesByExtension(std::string Ext)
 			}
 		}
 	}
+#endif
 
 	return Ret;
 }
 
-FDirectoryIndex FGameFileManager::GetFiles()
+FFileEntryInfo FGameFileManager::FindFile(std::string& InDirectory, std::string& InFileName)
 {
-	return FileLibrary;
+#if HASH_DIRECTORY_INDEX
+	auto Directory = QUICK_STR_HASH(InDirectory);
+	auto FileName = QUICK_STR_HASH(InFileName);
+#else
+	auto& Directory = InDirectory;
+	auto& FileName = InFileName;
+#endif
+
+	if (!FileLibrary.contains(Directory))
+		return FFileEntryInfo();
+
+	auto Dir = FileLibrary[Directory];
+
+	if (!Dir.contains(FileName))
+		return FFileEntryInfo();
+
+	return Dir[FileName];
+
 }
 
 void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint, TSharedPtr<IDiskFile> AssociatedPak)
@@ -159,9 +172,24 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint
 
 			Entry.SetOwningFile(AssociatedPak);
 
+#if HASH_DIRECTORY_INDEX
+			DirIdx.insert_or_assign(QUICK_STR_HASH(Name), Entry);
+#else
 			DirIdx.insert_or_assign(Name, Entry);
+#endif
 		}
 
+#if HASH_DIRECTORY_INDEX
+		auto DirHash = QUICK_STR_HASH(DirectoryName);
+
+		if (!FileLibrary.contains(DirHash))
+		{
+			FileLibrary.insert_or_assign(DirHash, DirIdx);
+			continue;
+		}
+
+		FileLibrary[DirHash].merge(DirIdx);
+#else
 		if (!FileLibrary.contains(DirectoryName))
 		{
 			FileLibrary.insert_or_assign(DirectoryName, DirIdx);
@@ -169,5 +197,22 @@ void FGameFileManager::SerializePakIndexes(FArchive& Ar, std::string& MountPoint
 		}
 
 		FileLibrary[DirectoryName].merge(DirIdx);
+#endif
 	}
 }
+
+#if HASH_DIRECTORY_INDEX
+void FGameFileManager::AddFile(std::string& InFileDir, std::string& InFileName, FFileEntryInfo EntryInfo)
+{
+	auto FileDir = QUICK_STR_HASH(InFileDir);
+
+	if (!FileLibrary.contains(FileDir))
+	{
+		FileLibrary.insert_or_assign(FileDir, FPakDirectory());
+	}
+
+	auto FileName = QUICK_STR_HASH(InFileName);
+
+	FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
+}
+#endif

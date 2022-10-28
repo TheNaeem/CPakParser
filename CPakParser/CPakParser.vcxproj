@@ -20,8 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Core\Defines.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Mappings.h" />
     <ClInclude Include="Unreal\Core\Names\MappedName.h" />
     <ClInclude Include="Unreal\Core\Names\NameMap.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ArrayProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ByteProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\EnumProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\MapProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\PropertyTypes.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Property.h" />
     <ClInclude Include="Unreal\Files\DiskFile.h" />
     <ClInclude Include="Unreal\Files\FileEntry.h" />
     <ClInclude Include="Unreal\Files\IOStore\Container\IoContainerId.h" />
@@ -35,6 +47,7 @@
     <ClInclude Include="Unreal\Files\Paks\PakEntry.h" />
     <ClInclude Include="Unreal\Files\Paks\PakEntryLocation.h" />
     <ClInclude Include="Unreal\Files\Paks\PakInfo.h" />
+    <ClInclude Include="Unreal\Files\SerializableFile.h" />
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
     <ClInclude Include="Unreal\Misc\Encryption\EncryptionKeyManager.h" />
     <ClInclude Include="Unreal\Misc\Hashing\CityHash.h" />
@@ -43,6 +56,7 @@
     <ClInclude Include="Unreal\Misc\Hashing\IoChunkHash.h" />
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
     <ClInclude Include="Unreal\Misc\Hashing\ShaHash.h" />
+    <ClInclude Include="Unreal\Misc\Hashing\xxHash.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Misc\Versioning\EngineVersion.h" />
@@ -80,9 +94,12 @@
     <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
+    <ClCompile Include="Dataminer\DataminerLoading.cpp" />
     <ClCompile Include="Unreal\Core\Names\MappedName.cpp" />
     <ClCompile Include="Unreal\Core\Names\Name.cpp" />
     <ClCompile Include="Unreal\Core\Names\NameMap.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainer.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainerHeader.cpp" />
@@ -98,9 +115,10 @@
     <ClCompile Include="Unreal\Misc\Hashing\CityHash.cpp" />
     <ClCompile Include="Unreal\Core\Class.cpp" />
     <ClCompile Include="Unreal\Misc\Compression\GlobalCompression.cpp" />
-    <ClCompile Include="Dataminer\DataminerInternals.cpp" />
+    <ClCompile Include="Dataminer\DataminerMounting.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.cpp" />
+    <ClCompile Include="Unreal\Misc\Hashing\xxHash.c" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.cpp" />

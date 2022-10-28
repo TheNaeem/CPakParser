@@ -13,13 +13,20 @@ TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectInd
 	auto ScriptObject = Context->GlobalToc.ScriptObjectByGlobalIdMap[Index];
 	auto Name = Context->GlobalToc.NameMap.GetName(ScriptObject.MappedName);
 
-	auto Ret = std::make_shared<T>();
-	Ret->SetName(Name);
-
 	if (Context->ObjectArray.contains(Name))
 	{
-		return Context->ObjectArray[Name];
+		auto Ret = Context->ObjectArray[Name];
+
+		if (!Ret->GetOuter() && !ScriptObject.OuterIndex.IsNull()) // if this class is from mappings it doesnt have an outer bc usmaps dont have outer data
+		{
+			Ret->SetOuter(CreateScriptObject<UObject>(Context, ScriptObject.OuterIndex));
+		}
+
+		return Ret;
 	}
+	
+	auto Ret = std::make_shared<T>();
+	Ret->SetName(Name);
 
 	if (!ScriptObject.OuterIndex.IsNull())
 	{

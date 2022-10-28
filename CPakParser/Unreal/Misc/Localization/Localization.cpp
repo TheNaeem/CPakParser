@@ -6,8 +6,10 @@
 constexpr FGuid LOCRES_MAGIC = FGuid(0x7574140E, 0xFC034A67, 0x9D90154A, 0x1B7F37C3);
 constexpr FGuid LOCMETA_MAGIC = FGuid(0xA14CEE4F, 0x83554868, 0xBD464C6C, 0x7C50DA70);
 
-FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this instead of making it 1:1 with UE source
+void FLocalization::Serialize(FSharedAr ArPtr)// TODO: optimize this instead of making it 1:1 with UE source
 {
+	auto& Ar = *ArPtr;
+
 	FGuid Magic;
 	Ar << Magic;
 
@@ -24,7 +26,7 @@ FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this in
 
 	if (VersionNumber > ELocResVersion::Latest)
 	{
-		return Ar;
+		return;
 	}
 
 	std::vector<FTextLocalizationResourceString> LocalizedStringArray;
@@ -65,7 +67,7 @@ FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this in
 		uint32_t EntriesCount;
 		Ar << EntriesCount;
 
-		Loc.Entries.reserve(Loc.Entries.size() + EntriesCount);
+		Entries.reserve(Entries.size() + EntriesCount);
 	}
 
 	uint32_t NamespaceCount;
@@ -103,9 +105,9 @@ FArchive& operator<<(FArchive& Ar, FLocalization& Loc) // TODO: optimize this in
 				Ar << Val;
 			}
 
-			Loc.Entries.insert_or_assign(FTextId(Namespace, Key), Val);
+			Entries.insert_or_assign(FTextId(Namespace, Key), Val);
 		}
 	}
 
-	return Ar;
+	return;
 }

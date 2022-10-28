@@ -4,16 +4,27 @@
 #include "Files/FileEntry.h"
 #include "Misc/Hashing/Map.h"
 
+#define HASH_DIRECTORY_INDEX 1
+
+#if HASH_DIRECTORY_INDEX
+
+typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
+typedef TMap<uint32_t, FFileEntryInfo> FPakDirectory;
+typedef phmap::parallel_flat_hash_map<uint32_t, FPakDirectory> FDirectoryIndex;
+
+#else
+
 typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
 typedef TMap<std::string, FFileEntryInfo> FPakDirectory;
-typedef TMap<std::string, FPakDirectory> FDirectoryIndex;
+typedef phmap::parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
+
+#endif
 
 class FGameFileManager // TODO: FDirectoryIterator
 {
 public:
 
 	void Reserve(size_t Count);
-	void AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo);
 
 	/// <summary>
 	/// </summary>
@@ -33,6 +44,20 @@ public:
 	FDirectoryIndex GetFiles();
 
 	void SerializePakIndexes(FArchive& Ar, std::string& MountPoint, TSharedPtr<class IDiskFile> AssociatedPak);
+
+#if HASH_DIRECTORY_INDEX
+	void AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo);
+#else
+	__forceinline void AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo)
+	{
+		if (!FileLibrary.contains(FileDir))
+		{
+			FileLibrary.insert_or_assign(FileDir, FPakDirectory());
+		}
+
+		FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
+}
+#endif
 
 private:
 

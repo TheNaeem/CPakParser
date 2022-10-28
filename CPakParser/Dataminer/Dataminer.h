@@ -5,6 +5,8 @@
 #include "Misc/Guid.h"
 #include "Misc/Encryption/AES.h"
 #include "Misc/Hashing/Map.h"
+#include "Files/SerializableFile.h"
+#include <future>
 
 class Dataminer
 {
@@ -34,6 +36,8 @@ private:
 	void MountAllPakFiles();
 	void OnPakMounted(TSharedPtr<class FPakFile> Pak);
 
+	void SerializeFileInternal(FGameFilePath& FilePath, TSharedPtr<ISerializableFile> OutFile);
+
 public:
 
 	const std::string PaksDirectory;
@@ -42,10 +46,23 @@ public:
 
 	bool Initialize();
 	bool SubmitKey(const char* AesKeyString, const char* GuidString = nullptr);
-	struct FLocalization ReadLocRes(struct FGameFilePath FilePath);
-	struct FLocalization ReadLocRes(struct FFileEntryInfo Entry);
+	bool LoadTypeMappings(std::string UsmapFilePath);
+	std::future<bool> LoadTypeMappingsAsync(std::string UsmapFilePath);
+
 	std::vector<TSharedPtr<IDiskFile>> GetMountedFiles();
 	TMap<FGuid, std::string> GetUnmountedPaks();
 	void Test(FGameFilePath Path);
 	FDirectoryIndex Files();
+
+	template <typename T>
+	TSharedPtr<T> SerializeFile(FGameFilePath FilePath)
+	{
+		static_assert(std::is_base_of<ISerializableFile, T>::value, "File to serialize must inherit from ISerializableFile");
+
+		auto Ret = std::make_shared<T>();
+
+		SerializeFileInternal(Ret);
+
+		return Ret;
+	}
 };
