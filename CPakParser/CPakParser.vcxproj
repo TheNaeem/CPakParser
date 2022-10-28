@@ -56,7 +56,6 @@
     <ClInclude Include="Unreal\Misc\Hashing\IoChunkHash.h" />
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
     <ClInclude Include="Unreal\Misc\Hashing\ShaHash.h" />
-    <ClInclude Include="Unreal\Misc\Hashing\xxHash.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Misc\Versioning\EngineVersion.h" />
@@ -118,7 +117,6 @@
     <ClCompile Include="Dataminer\DataminerMounting.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.cpp" />
-    <ClCompile Include="Unreal\Misc\Hashing\xxHash.c" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.cpp" />

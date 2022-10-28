@@ -1,6 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <intrin.h>
+
+#define memcpyfst(d, s, c) __movsb((unsigned char*)d, s, c)
 
 #define MIN_int32 ((int32_t)0x80000000)
 #define MAX_int32 ((int32_t)0x7fffffff)

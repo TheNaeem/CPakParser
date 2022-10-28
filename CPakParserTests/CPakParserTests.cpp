@@ -1,11 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include <Windows.h>
 
 #include "Exceptions.h"
+#include "Logger.h"
 
 #include "Dataminer/Dataminer.h"
+
 
 int main()
 {
@@ -14,10 +17,18 @@ int main()
 	Dataminer::Options::WithLogging(true);
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
-	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
+	auto Core = Dataminer("D:\\Fortnite\\FortniteGame\\Content\\Paks");
 
 	//auto MappingsTask = Core.LoadTypeMappingsAsync("D:\\N's Stuff\\Output\\.data\\++Fortnite+Release-22.20-CL-22545427-Android_oo.usmap");
+
+	auto t1 = std::chrono::high_resolution_clock::now();
 	Core.Initialize();
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	auto ms_int = duration_cast<std::chrono::milliseconds>(t2 - t1);
+
+	std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+	printf("Initalized in %fms\n", ms_double.count());
 
 	//MappingsTask.wait();
 

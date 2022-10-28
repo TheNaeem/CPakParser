@@ -4,9 +4,12 @@
 #include "Serialization/Archives.h"
 
 #if HASH_DIRECTORY_INDEX
-#include "Misc/Hashing/xxHash.h"
+static constexpr auto Hash(const char* s, int off = 0) -> unsigned int
+{
+	return !s[off] ? 5381 : (Hash(s, off + 1) * 33) ^ s[off];
+}
 
-#define QUICK_STR_HASH(str) XXH32(str.c_str(), str.size(), 0)
+#define QUICK_STR_HASH(str) Hash(str.c_str())
 #endif
 
 // TODO: hash directory index

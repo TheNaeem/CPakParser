@@ -49,7 +49,6 @@
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
     <ClCompile Include="Dataminer\DataminerLoading.cpp" />
-    <ClCompile Include="Unreal\Misc\Hashing\xxHash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -124,6 +123,5 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
-    <ClInclude Include="Unreal\Misc\Hashing\xxHash.h" />
   </ItemGroup>
 </Project>
