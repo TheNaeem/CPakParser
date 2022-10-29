@@ -8,6 +8,7 @@
 #include "Logger.h"
 
 #include "Dataminer/Dataminer.h"
+#include "Core/Reflection/PropertyIterator.h"
 
 
 int main()
@@ -19,10 +20,20 @@ int main()
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
-	Core.LoadTypeMappings("D:\\N's Stuff\\Output\\.data\\++Fortnite+Release-22.20-CL-22545427-Android_oo.usmap");
-	Core.Initialize();
+	Core.LoadTypeMappings("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64\\Mappings.usmap");
 
-	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
+	auto Class = Core.GetObjectArray()["AthenaCharacterItemDefinition"];
+
+	for (FPropertyIterator It(Class.As<UStruct>()); It; It.Next())
+	{
+		auto Prop = *It;
+
+		std::cout << Prop->GetName() << std::endl;
+	}
+
+	//Core.Initialize();
+
+	//Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
 
 	Sleep(-1);
 }

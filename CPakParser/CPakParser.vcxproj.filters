@@ -123,5 +123,6 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
+    <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
   </ItemGroup>
 </Project>

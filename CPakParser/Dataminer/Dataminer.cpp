@@ -30,3 +30,8 @@ FDirectoryIndex Dataminer::Files()
 {
 	return Context->FilesManager.GetFiles();
 }
+
+TMap<std::string, UObjectPtr> Dataminer::GetObjectArray()
+{
+	return Context->ObjectArray;
+}

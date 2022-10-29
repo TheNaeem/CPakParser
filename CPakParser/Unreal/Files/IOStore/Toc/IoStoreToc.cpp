@@ -166,7 +166,7 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 	return Header;
 }
 
-void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pass in loader
+void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pass in loader. TODO: micro optimizations
 {
 	FZenPackageData PackageData;
 

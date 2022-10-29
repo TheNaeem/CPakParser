@@ -7,7 +7,7 @@
 #include "../LazyPackageObject.h"
 #include "Logger.h"
 
-template <typename T>
+template <typename T = UObject>
 TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
 {
 	auto ScriptObject = Context->GlobalToc.ScriptObjectByGlobalIdMap[Index];
@@ -33,11 +33,6 @@ TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectInd
 		Ret->SetOuter(CreateScriptObject<UObject>(Context, ScriptObject.OuterIndex));
 	}
 
-	if (!ScriptObject.CDOClassIndex.IsNull())
-	{
-		Ret->SetClass(CreateScriptObject<UClass>(Context, ScriptObject.OuterIndex));
-	}
-
 	Ret->SetFlags(UObject::Flags::RF_NeedLoad);
 
 	return Ret;
@@ -47,7 +42,7 @@ template <typename T>
 UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index)
 {
 	if (Index.IsNull())
-		return TObjectPtr<T>();
+		return {};
 
 	if (Index.IsExport())
 	{
@@ -58,10 +53,10 @@ UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector
 	{
 		if (Index.IsScriptImport())
 		{
-			auto Ret = CreateScriptObject<T>(Context, Index);
+			auto Ret = CreateScriptObject(Context, Index);
 
 			if (!Context->ObjectArray.contains(Ret->GetName()))
-				Context->ObjectArray.insert_or_assign(Ret->GetName(), Ret);
+				Context->ObjectArray.insert_or_assign(Ret->GetName(), Ret); // TODO: refactor this to use weak ptr
 
 			return Ret;
 		}
@@ -73,7 +68,7 @@ UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector
 		}
 	}
 
-	return TObjectPtr<T>();
+	return {};
 }
 
 void UZenPackage::ProcessExports(FZenPackageData& PackageData)

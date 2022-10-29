@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Defines.h"
+#include "Core/UObject.h"
 #include "Core/Globals/GameFileManager.h"
 #include "Misc/Guid.h"
 #include "Misc/Encryption/AES.h"
@@ -53,6 +54,7 @@ public:
 	TMap<FGuid, std::string> GetUnmountedPaks();
 	void Test(FGameFilePath Path);
 	FDirectoryIndex Files();
+	TMap<std::string, UObjectPtr> GetObjectArray();
 
 	template <typename T>
 	TSharedPtr<T> SerializeFile(FGameFilePath FilePath)

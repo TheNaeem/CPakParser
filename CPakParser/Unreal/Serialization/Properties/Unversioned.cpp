@@ -1,5 +1,6 @@
 #include "Unversioned.h"
 
+#include "Core/Reflection/PropertyIterator.h"
 #include <bitset>
 #include <vector>
 
@@ -102,6 +103,7 @@ struct FUnversionedHeader
 
 void UnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, uint8_t* Data, UStructPtr DefaultsStruct, uint8_t* DefaultsData)
 {
+
 	FUnversionedHeader Header;
 	*Ar << Header;
 

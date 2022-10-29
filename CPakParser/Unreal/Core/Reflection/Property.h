@@ -45,3 +45,4 @@ public:
 		return Next;
 	}
 };
+

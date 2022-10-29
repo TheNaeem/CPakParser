@@ -30,12 +30,12 @@ public:
 	{
 	}
 
-	ObjectType* operator->()
+	__forceinline ObjectType* operator->()
 	{
-		if (!Val->IsLoaded())
-		{
-			Val->Load(); // TODO:
-		}
+		//if (!Val->IsLoaded())
+		//{
+		//	Val->Load(); // TODO:
+		//}
 
 		return Val.get();
 	}

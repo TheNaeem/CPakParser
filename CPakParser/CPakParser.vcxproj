@@ -34,6 +34,7 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Property.h" />
+    <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
     <ClInclude Include="Unreal\Files\DiskFile.h" />
     <ClInclude Include="Unreal\Files\FileEntry.h" />
     <ClInclude Include="Unreal\Files\IOStore\Container\IoContainerId.h" />

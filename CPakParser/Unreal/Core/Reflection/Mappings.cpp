@@ -119,7 +119,7 @@ class FPropertyFactory
 		case EPropertyType::StructProperty:
 		{
 			auto Ret = new FStructProperty;
-			Ret->Struct = GetOrCreateObject<UStruct>(ReadName(Ar, Names), ObjectArray);
+			Ret->Struct = GetOrCreateObject<UClass>(ReadName(Ar, Names), ObjectArray);
 			return Ret;
 		}
 		case EPropertyType::ArrayProperty:
@@ -201,7 +201,7 @@ public:
 	}
 };
 
-bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjectPtr>& ObjectArray)
+bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjectPtr>& ObjectArray) // TODO: try to save memory
 {
 	FFileReader FileAr(Path.c_str());
 
@@ -296,7 +296,8 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 	for (size_t i = 0; i < StructCount; i++)
 	{
 		auto& ClassName = ReadName(Ar, Names);
-		auto Struct = GetOrCreateObject<UStruct>(ClassName, ObjectArray);
+
+		auto Struct = GetOrCreateObject<UClass>(ClassName, ObjectArray);
 
 		auto& SuperName = ReadName(Ar, Names);
 
@@ -304,7 +305,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 		{
 			if (ObjectArray.contains(SuperName))
 			{
-				Struct->SetSuper(ObjectArray[ClassName].As<UStruct>());
+				Struct->SetSuper(ObjectArray[SuperName].As<UStruct>());
 			}
 			else
 			{
