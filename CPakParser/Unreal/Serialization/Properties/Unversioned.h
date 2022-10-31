@@ -3,7 +3,7 @@
 #include "Core/Class.h"
 #include "../Impl/ExportReader.h"
 
-namespace UnversionedSerializer
+struct FUnversionedSerializer
 {
-	void SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, uint8_t* Data, UStructPtr DefaultsStruct, uint8_t* DefaultsData);
-}
+	static void SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, UObjectPtr Object);
+};

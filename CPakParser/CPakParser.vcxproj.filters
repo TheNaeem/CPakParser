@@ -49,6 +49,9 @@
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
     <ClCompile Include="Dataminer\DataminerLoading.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
+    <ClCompile Include="Unreal\Files\Packaging\PackageIndex.cpp" />
+    <ClCompile Include="Unreal\Misc\Delegates\Delegates.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -84,7 +87,7 @@
     <ClInclude Include="Unreal\Files\Paks\PakFile.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenData.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
-    <ClInclude Include="Unreal\Files\Packaging\PackageIndex.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageObjectIndex.h" />
     <ClInclude Include="Unreal\Misc\Hashing\ShaHash.h" />
     <ClInclude Include="Unreal\Misc\Hashing\IoChunkHash.h" />
     <ClInclude Include="Unreal\Files\IOStore\Toc\IoStoreToc.h" />
@@ -124,5 +127,12 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
+    <ClInclude Include="Unreal\Core\Reflection\PropertyType.h" />
+    <ClInclude Include="Unreal\Core\Reflection\PropertyValue.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\MulticastDelegateProperty.h" />
+    <ClInclude Include="Unreal\Misc\Delegates\MulticastScriptDelegate.h" />
+    <ClInclude Include="Unreal\Misc\Delegates\ScriptDelegate.h" />
+    <ClInclude Include="Unreal\Files\Packaging\PackageIndex.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\DelegateProperty.h" />
   </ItemGroup>
 </Project>

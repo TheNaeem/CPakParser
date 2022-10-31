@@ -8,30 +8,18 @@ class FPropertyIterator
 
 public:
 
-	__forceinline FPropertyIterator(UStructPtr Struct) : CurrentStruct(Struct)
+	__forceinline FPropertyIterator(UStructPtr InStruct) : Struct(InStruct)
 	{
-		for (auto Super = Struct; Super; Super = Super->GetSuper())
-			StructChain.push_back(Super);
-
-		StructIndex = StructChain.size() - 1;
-		CurrentStruct = StructChain[StructIndex];
 	}
 
 	void Next()
 	{
 		PropIndex++;
 
-		if (PropIndex >= CurrentStruct->GetProperties().size())
+		if (PropIndex >= Struct->GetProperties().size())
 		{
-			if (!StructIndex) // we've finished iterating the properties
-			{
-				PropIndex = Invalid;
-				return;
-			}
-
-			StructIndex--;
 			PropIndex = 0;
-			CurrentStruct = StructChain[StructIndex];
+			Struct = Struct->GetSuper();
 		}
 	}
 
@@ -40,24 +28,28 @@ public:
 		Next();
 	}
 
+	__forceinline void operator+=(int Num)
+	{
+		while (Num--)
+			Next();
+	}
+
 	__forceinline operator bool() const
 	{
-		return PropIndex != Invalid;
+		return Struct;
 	}
 
 	__forceinline FProperty* operator*()
 	{
-		while (!CurrentStruct->GetProperties().size())
+		while (!Struct->GetProperties().size())
 			Next();
 
-		return CurrentStruct->GetProperties()[PropIndex];
+		return Struct->GetProperties()[PropIndex];
 	}
 
 private:
 
-	std::vector<UStructPtr> StructChain;
-	UStructPtr& CurrentStruct;
+	UStructPtr Struct;
 
 	int PropIndex = 0;
-	int StructIndex = 0;
 };

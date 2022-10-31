@@ -1,87 +1,100 @@
 #pragma once
 
-class FPackageObjectIndex
+#include <cstdint>
+
+class FPackageIndex
 {
-	static constexpr uint64_t IndexBits = 62ull;
-	static constexpr uint64_t IndexMask = (1ull << IndexBits) - 1ull;
-	static constexpr uint64_t TypeMask = ~IndexMask;
-	static constexpr uint64_t TypeShift = IndexBits;
-	static constexpr uint64_t Invalid = ~0ull;
+	/**
+	 * Values greater than zero indicate that this is an index into the ExportMap.  The
+	 * actual array index will be (FPackageIndex - 1).
+	 *
+	 * Values less than zero indicate that this is an index into the ImportMap. The actual
+	 * array index will be (-FPackageIndex - 1)
+	 */
+	int32_t Index;
 
-	uint64_t TypeAndId = Invalid;
-
-	enum EType
+	/** Internal constructor, sets the index directly **/
+	__forceinline explicit FPackageIndex(int32_t InIndex)
+		: Index(InIndex)
 	{
-		Export,
-		ScriptImport,
-		PackageImport,
-		Null,
-		TypeCount = Null,
-	};
-
-	__forceinline explicit FPackageObjectIndex(EType InType, uint64_t InId) : TypeAndId((uint64_t(InType) << TypeShift) | InId) {}
+	}
 
 public:
-
-	FPackageObjectIndex() = default;
-
-	__forceinline static FPackageObjectIndex FromExportIndex(const int32_t Index)
+	/** Constructor, sets the value to null **/
+	__forceinline FPackageIndex()
+		: Index(0)
 	{
-		return FPackageObjectIndex(Export, Index);
-	}
 
-	__forceinline bool IsNull() const
-	{
-		return TypeAndId == Invalid;
 	}
-
-	__forceinline bool IsExport() const
-	{
-		return (TypeAndId >> TypeShift) == Export;
-	}
-
+	/** return true if this is an index into the import map **/
 	__forceinline bool IsImport() const
 	{
-		return IsScriptImport() || IsPackageImport();
+		return Index < 0;
 	}
-
-	__forceinline bool IsScriptImport() const
+	/** return true if this is an index into the export map **/
+	__forceinline bool IsExport() const
 	{
-		return (TypeAndId >> TypeShift) == ScriptImport;
+		return Index > 0;
 	}
-
-	__forceinline bool IsPackageImport() const
+	/** return true if this null (i.e. neither an import nor an export) **/
+	__forceinline bool IsNull() const
 	{
-		return (TypeAndId >> TypeShift) == PackageImport;
+		return Index == 0;
 	}
-
+	/** Check that this is an import and return the index into the import map **/
+	__forceinline uint32_t ToImport() const
+	{
+		return -Index - 1;
+	}
+	/** Check that this is an export and return the index into the export map **/
 	__forceinline uint32_t ToExport() const
 	{
-		return uint32_t(TypeAndId);
+		return Index - 1;
+	}
+	/** Return the raw value, for debugging purposes**/
+	__forceinline uint32_t ForDebugging() const
+	{
+		return Index;
 	}
 
-	__forceinline uint64_t Value() const
+	/** Compare package indecies for equality **/
+	__forceinline bool operator==(const FPackageIndex& Other) const
 	{
-		return TypeAndId & IndexMask;
+		return Index == Other.Index;
+	}
+	/** Compare package indecies for inequality **/
+	__forceinline bool operator!=(const FPackageIndex& Other) const
+	{
+		return Index != Other.Index;
 	}
 
-	__forceinline bool operator==(FPackageObjectIndex Other) const
+	/** Compare package indecies **/
+	__forceinline bool operator<(const FPackageIndex& Other) const
 	{
-		return TypeAndId == Other.TypeAndId;
+		return Index < Other.Index;
 	}
-
-	__forceinline bool operator!=(FPackageObjectIndex Other) const
+	__forceinline bool operator>(const FPackageIndex& Other) const
 	{
-		return TypeAndId != Other.TypeAndId;
+		return Index > Other.Index;
 	}
-
-	__forceinline uint32_t GetImportedPackageIndex() const
+	__forceinline bool operator<=(const FPackageIndex& Other) const
 	{
-		return static_cast<uint32_t>((TypeAndId & IndexMask) >> 32);
+		return Index <= Other.Index;
 	}
-
-	__forceinline friend uint32_t hash_value(const FPackageObjectIndex& Value)
+	__forceinline bool operator>=(const FPackageIndex& Other) const
 	{
-		return uint32_t(Value.TypeAndId);
+		return Index >= Other.Index;
+	}
+	/**
+	 * Serializes a package index value from or into an archive.
+	 *
+	 * @param Ar - The archive to serialize from or to.
+	 * @param Value - The value to serialize.
+	 */
+	friend class FArchive& operator<<(FArchive& Ar, FPackageIndex& Value);
+
+	__forceinline friend uint32_t hash_value(const FPackageIndex& In)
+	{
+		return uint32_t(In.Index);
 	}
 };

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Defines.h"
+#include "Reflection/PropertyValue.h"
 #include <string>
+#include <vector>
 
 template <typename ObjectType>
 class TObjectPtr
@@ -86,6 +88,7 @@ public:
 	UObject() = default;
 
 	friend class UZenPackage;
+	friend class FUnversionedSerializer;
 
 	enum Flags
 	{
@@ -127,6 +130,7 @@ protected:
 	UObjectPtr Outer;
 	std::string Name;
 	Flags ObjectFlags;
+	std::vector<std::pair<const std::string&, TUniquePtr<IPropValue>>> PropertyValues;
 
 	template <typename T = UObject>
 	__forceinline TObjectPtr<T> This()

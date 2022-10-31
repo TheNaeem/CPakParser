@@ -24,7 +24,7 @@ public:
 	UStructPtr GetSuper();
 	std::vector<FProperty*> GetProperties();
 
-	void SerializeScriptProperties(TSharedPtr<class FExportReader> Ar, uint8_t* Data, UStructPtr DefaultsStruct, uint8_t* Defaults);
+	void SerializeScriptProperties(TSharedPtr<FExportReader> Ar, UObjectPtr Object);
 };
 
 

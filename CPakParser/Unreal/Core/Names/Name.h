@@ -9,6 +9,8 @@ class FName
 
 public:
 
+	FName() = default;
+
 	FName(std::string& InStr) : Val(InStr)
 	{
 	}

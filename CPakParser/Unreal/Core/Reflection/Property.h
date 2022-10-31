@@ -10,18 +10,55 @@
 * Also, properties should only live as long as their parent class, which handles freeing them.
 */
 
+enum class EPropertyType : uint8_t
+{
+	ByteProperty,
+	BoolProperty,
+	IntProperty,
+	FloatProperty,
+	ObjectProperty,
+	NameProperty,
+	DelegateProperty,
+	DoubleProperty,
+	ArrayProperty,
+	StructProperty,
+	StrProperty,
+	TextProperty,
+	InterfaceProperty,
+	MulticastDelegateProperty,
+	WeakObjectProperty,
+	LazyObjectProperty,
+	AssetObjectProperty,
+	SoftObjectProperty,
+	UInt64Property,
+	UInt32Property,
+	UInt16Property,
+	Int64Property,
+	Int16Property,
+	Int8Property,
+	MapProperty,
+	SetProperty,
+	EnumProperty,
+	FieldPathProperty,
+
+	Unknown = 0xFF
+};
+
 class FProperty
 {
 public:
 
 	friend class FPropertyFactory;
+	friend class FUnversionedSerializer;
+
+	virtual ~FProperty() = default;
 
 private:
 
 	std::string Name;
 	uint16_t Index;
 	uint8_t ArrayDim;
-	FProperty* Next;
+	EPropertyType Type;
 
 public:
 
@@ -40,9 +77,8 @@ public:
 		return ArrayDim;
 	}
 
-	__forceinline FProperty* GetNext()
+	virtual TUniquePtr<class IPropValue> Serialize(FSharedAr Ar) 
 	{
-		return Next;
+		return nullptr;
 	}
 };
-

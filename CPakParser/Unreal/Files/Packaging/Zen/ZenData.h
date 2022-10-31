@@ -5,7 +5,7 @@
 #include "Misc/Versioning/PackageFileVersion.h"
 #include "Misc/Versioning/CustomVersion.h"
 #include "../PackageId.h"
-#include "../PackageIndex.h"
+#include "../PackageObjectIndex.h"
 #include <vector>
 
 enum class EExportFilterFlags : uint8_t

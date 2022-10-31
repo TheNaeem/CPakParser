@@ -20,20 +20,11 @@ int main()
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 
-	Core.LoadTypeMappings("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64\\Mappings.usmap");
+	auto MappingsTask = Core.LoadTypeMappingsAsync("C:\\Users\\zkana\\Downloads\\FortniteRelease-22.20-CL-22545427-Android_oo.usmap");
+	Core.Initialize();
+	MappingsTask.wait();
 
-	auto Class = Core.GetObjectArray()["AthenaCharacterItemDefinition"];
-
-	for (FPropertyIterator It(Class.As<UStruct>()); It; It.Next())
-	{
-		auto Prop = *It;
-
-		std::cout << Prop->GetName() << std::endl;
-	}
-
-	//Core.Initialize();
-
-	//Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_478_Athena_Commando_F_WorldCup.uasset");
+	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_246_Athena_Commando_F_Grave.uasset");
 
 	Sleep(-1);
 }

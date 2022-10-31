@@ -31,11 +31,11 @@ std::vector<FProperty*> UStruct::GetProperties()
 	return Properties;
 }
 
-void UStruct::SerializeScriptProperties(TSharedPtr<FExportReader> Ar, uint8_t* Data, UStructPtr DefaultsStruct, uint8_t* Defaults)
+void UStruct::SerializeScriptProperties(TSharedPtr<FExportReader> Ar, UObjectPtr Object)
 {
 	if (Ar->UseUnversionedPropertySerialization())
 	{
-		UnversionedSerializer::SerializeUnversionedProperties(This<UStruct>(), Ar, Data, DefaultsStruct, Defaults);
+		FUnversionedSerializer::SerializeUnversionedProperties(This<UStruct>(), Ar, Object);
 		return;
 	}
 

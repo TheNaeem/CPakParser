@@ -1,6 +1,7 @@
 #include "IoStoreToc.h"
 
 #include "IoTocResource.h"
+#include "Files/Packaging/PackageIndex.h"
 #include "Serialization/Impl/ExportReader.h"
 #include "Files/Packaging/Zen/ZenPackage.h"
 #include "Files/Packaging/PackageFlags.h"
@@ -36,6 +37,45 @@ public:
 		}
 
 		Name = NameStr;
+
+		return *this;
+	}
+
+	virtual FArchive& operator<<(UObjectPtr& Object) override
+	{
+		auto& Ar = *this;
+
+		FPackageIndex Index;
+		Ar << Index;
+
+		if (Index.IsNull())
+		{
+			Object = nullptr;
+			return *this;
+		}
+
+		if (Index.IsExport())
+		{
+			auto ExportIndex = Index.ToExport();
+			if (ExportIndex < PackageData.Exports.size())
+			{
+				Object = PackageData.Exports[ExportIndex].Object;
+			}
+			else Log<Error>("Export index read is not a valid index.");
+
+			return *this;
+		}
+
+		auto& ImportMap = PackageData.Header.ImportMap;
+
+		if (Index.IsImport() && Index.ToImport() < ImportMap.size())
+		{
+			Object = PackageData.Package->IndexToObject(
+				PackageData.Header,
+				PackageData.Exports,
+				PackageData.Header.ImportMap[Index.ToImport()]);
+		}
+		else Log<Error>("Bad object import index.");
 
 		return *this;
 	}
@@ -173,10 +213,10 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 	PackageData.Header = ReadZenPackageHeader(Ar, Reader->GetContainer());
 	auto ExportDataSize = Ar->TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar->Data()));
 
+	auto Package = PackageData.Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
+
 	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
 	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
-
-	auto Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
 
 	Package->ProcessExports(PackageData);
 }

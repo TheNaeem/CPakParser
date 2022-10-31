@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Names/MappedName.h"
-#include "Files/Packaging/PackageIndex.h"
+#include "Files/Packaging/PackageObjectIndex.h"
 
 struct FScriptObjectEntry
 {

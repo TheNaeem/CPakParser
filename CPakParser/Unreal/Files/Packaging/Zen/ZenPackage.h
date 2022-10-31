@@ -11,6 +11,7 @@ struct FExportObject
 
 struct FZenPackageData
 {
+	TSharedPtr<class UZenPackage> Package;
 	TSharedPtr<class FExportReader> Reader;
 	FZenPackageHeaderData Header;
 	std::vector<FExportObject> Exports;
@@ -23,9 +24,6 @@ struct FZenPackageData
 
 class UZenPackage : public UPackage
 {
-	template <typename T = UObject>
-	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index);
-
 public:
 
 	UZenPackage(FZenPackageHeaderData& InHeader, TSharedPtr<GContext> InContext)
@@ -37,4 +35,7 @@ public:
 	void ProcessExports(FZenPackageData& PackageData);
 	void CreateExport(class FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex);
 	void SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex);
+
+	template <typename T = UObject>
+	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index);
 };

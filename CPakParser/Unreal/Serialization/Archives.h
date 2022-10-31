@@ -2,6 +2,7 @@
 
 #include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
+#include "Core/UObject.h"
 
 class FArchive 
 {
@@ -12,6 +13,11 @@ private:
 public:
 
 	virtual void Serialize(void* V, int64_t Length) { }
+
+	virtual FArchive& operator<<(UObjectPtr& Value)
+	{
+		return *this;
+	}
 
 	virtual FArchive& operator<<(class FName& Value)
 	{

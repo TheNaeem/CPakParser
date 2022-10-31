@@ -101,26 +101,100 @@ struct FUnversionedHeader
 	}
 };
 
-void UnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, uint8_t* Data, UStructPtr DefaultsStruct, uint8_t* DefaultsData)
+class FUnversionedIterator // TODO: refactor this
 {
+public:
 
+	__forceinline FUnversionedIterator(const FUnversionedHeader& Header, UStructPtr& Struct)
+		: It(Struct)
+		, ZeroMask(Header.ZeroMask)
+		, FragmentIt(Header.Fragments.data())
+		, bDone(!Header.HasValues())
+	{
+		if (!bDone)
+		{
+			Skip();
+		}
+	}
+
+	void Next()
+	{
+		++It;
+		--RemainingFragmentValues;
+		ZeroMaskIndex += FragmentIt->bHasAnyZeroes;
+
+		if (RemainingFragmentValues == 0)
+		{
+			if (FragmentIt->bIsLast)
+			{
+				bDone = true;
+			}
+			else
+			{
+				++FragmentIt;
+				Skip();
+			}
+		}
+	}
+
+	explicit operator bool() const
+	{
+		return !bDone;
+	}
+
+	bool IsNonZero() const
+	{
+		return !FragmentIt->bHasAnyZeroes || !ZeroMask[ZeroMaskIndex];
+	}
+
+	__forceinline FProperty* operator*()
+	{
+		return *It;
+	}
+
+private:
+
+	FPropertyIterator It;
+	const std::vector<bool>& ZeroMask;
+	const FUnversionedHeader::FFragment* FragmentIt = nullptr;
+	bool bDone = false;
+	uint32_t ZeroMaskIndex = 0;
+	uint32_t RemainingFragmentValues = 0;
+
+	void Skip()
+	{
+		It += FragmentIt->SkipNum;
+
+		while (FragmentIt->ValueNum == 0)
+		{
+			++FragmentIt;
+			It += FragmentIt->SkipNum;
+		}
+
+		RemainingFragmentValues = FragmentIt->ValueNum;
+	}
+};
+
+void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, UObjectPtr Object)
+{
 	FUnversionedHeader Header;
 	*Ar << Header;
 
 	if (!Header.HasValues() || !Header.HasNonZeroValues())
 		return;
 
-	uint32_t ZeroMaskIndex = 0;
-
-	for (auto& Fragment : Header.Fragments)
+	for (FUnversionedIterator It(Header, Struct); It; It.Next())
 	{
-		ZeroMaskIndex += Fragment.bHasAnyZeroes;
-
-		if (Fragment.bHasAnyZeroes && Header.ZeroMask[ZeroMaskIndex])
-		{
+		if (!It.IsNonZero())
 			continue;
-		}
 
+		auto Prop = *It;
+		auto Value = Prop->Serialize(Ar);
 
+		if (!Value)
+			continue;
+
+		Object->PropertyValues.push_back(
+			std::pair<const std::string&, TUniquePtr<IPropValue>>(Prop->Name, std::move(Value)));
 	}
 }

@@ -16,10 +16,6 @@ void UObject::Serialize(TSharedPtr<FExportReader> Ar)
 
 	if (Class)
 	{
-		Class->SerializeScriptProperties(
-			Ar,
-			reinterpret_cast<uint8_t*>(this),
-			HasAnyFlags(RF_ClassDefaultObject) ? Class->GetSuper() : Class.As<UStruct>(),
-			reinterpret_cast<uint8_t*>(Ar->GetArchetype().Get()));
+		Class->SerializeScriptProperties(Ar, This());
 	}
 }

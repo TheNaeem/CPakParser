@@ -62,40 +62,6 @@ enum class EUsmapCompressionMethod : uint8_t
 	Unknown = 0xFF
 };
 
-enum class EPropertyType : uint8_t
-{
-	ByteProperty,
-	BoolProperty,
-	IntProperty,
-	FloatProperty,
-	ObjectProperty,
-	NameProperty,
-	DelegateProperty,
-	DoubleProperty,
-	ArrayProperty,
-	StructProperty,
-	StrProperty,
-	TextProperty,
-	InterfaceProperty,
-	MulticastDelegateProperty,
-	WeakObjectProperty, //
-	LazyObjectProperty, // When deserialized, these 3 properties will be SoftObjects
-	AssetObjectProperty, //
-	SoftObjectProperty,
-	UInt64Property,
-	UInt32Property,
-	UInt16Property,
-	Int64Property,
-	Int16Property,
-	Int8Property,
-	MapProperty,
-	SetProperty,
-	EnumProperty,
-	FieldPathProperty,
-
-	Unknown = 0xFF
-};
-
 class FPropertyFactory
 {
 	TMap<std::string, UObjectPtr>& ObjectArray;
@@ -107,44 +73,58 @@ class FPropertyFactory
 		EPropertyType Type;
 		Ar.Serialize(&Type, sizeof(Type));
 
+		FProperty* Ret = nullptr;
+
 		switch (Type)
 		{
 		case EPropertyType::EnumProperty:
 		{
-			auto Ret = new FEnumProperty;
-			Ret->UnderlyingProp = SerializePropertyInternal(Ar);
-			Ret->Enum = Enums[ReadName(Ar, Names)]; 
-			return Ret;
+			auto Prop = new FEnumProperty;
+			Prop->UnderlyingProp = SerializePropertyInternal(Ar);
+			Prop->Enum = Enums[ReadName(Ar, Names)];
+			Ret = Prop;
+			break;
 		}
 		case EPropertyType::StructProperty:
 		{
-			auto Ret = new FStructProperty;
-			Ret->Struct = GetOrCreateObject<UClass>(ReadName(Ar, Names), ObjectArray);
-			return Ret;
+			auto Prop = new FStructProperty;
+			Prop->Struct = GetOrCreateObject<UClass>(ReadName(Ar, Names), ObjectArray);
+			Ret = Prop;
+			break;
 		}
 		case EPropertyType::ArrayProperty:
 		{
-			auto Ret = new FArrayProperty;
-			Ret->ElementType = SerializePropertyInternal(Ar);
-			return Ret;
+			auto Prop = new FArrayProperty;
+			Prop->ElementType = SerializePropertyInternal(Ar);
+			Ret = Prop;
+			break;
 		}
 		case EPropertyType::SetProperty:
 		{
-			auto Ret = new FSetProperty;
-			Ret->ElementType = SerializePropertyInternal(Ar);
-			return Ret;
+			auto Prop = new FSetProperty;
+			Prop->ElementType = SerializePropertyInternal(Ar);
+			Ret = Prop;
+			break;
 		}
 		case EPropertyType::MapProperty:
 		{
-			auto Ret = new FMapProperty;
-			Ret->KeyType = SerializePropertyInternal(Ar);
-			Ret->ValueType = SerializePropertyInternal(Ar);
+			auto Prop = new FMapProperty;
+			Prop->KeyType = SerializePropertyInternal(Ar);
+			Prop->ValueType = SerializePropertyInternal(Ar);
+			Ret = Prop;
+			break;
 		}
-		case EPropertyType::ObjectProperty: return new FObjectProperty;
-		case EPropertyType::ByteProperty: return new FByteProperty;
-		case EPropertyType::BoolProperty: return new FBoolProperty;
-		default: return new FProperty;
+		case EPropertyType::ObjectProperty: Ret = new FObjectProperty; break;
+		case EPropertyType::ByteProperty: Ret = new FByteProperty; break;
+		case EPropertyType::BoolProperty: Ret = new FBoolProperty; break;
+		case EPropertyType::DelegateProperty: Ret = new FDelegateProperty; break;
+		case EPropertyType::MulticastDelegateProperty: Ret = new FMulticastDelegateProperty; break;
+		default: Ret = new FProperty; break;
 		};
+
+		Ret->Type = Type;
+
+		return Ret;
 	}
 
 public:
