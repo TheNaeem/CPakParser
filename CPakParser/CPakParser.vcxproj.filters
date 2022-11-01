@@ -52,6 +52,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\PackageIndex.cpp" />
     <ClCompile Include="Unreal\Misc\Delegates\Delegates.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />

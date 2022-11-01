@@ -15,5 +15,7 @@ constexpr EPropertyType GetPropertyType() // TODO: add everything
 	RUNTIME_TYPE(float, EPropertyType::FloatProperty);
 	RUNTIME_TYPE(UObjectPtr, EPropertyType::ObjectProperty);
 
+	
+
 	return EPropertyType::Unknown;
 }

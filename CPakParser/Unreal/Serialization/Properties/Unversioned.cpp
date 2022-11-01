@@ -194,7 +194,6 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, T
 		if (!Value)
 			continue;
 
-		Object->PropertyValues.push_back(
-			std::pair<const std::string&, TUniquePtr<IPropValue>>(Prop->Name, std::move(Value)));
+		Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
 	}
 }

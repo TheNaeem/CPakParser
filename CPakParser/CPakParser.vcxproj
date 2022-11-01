@@ -107,6 +107,7 @@
     <ClCompile Include="Unreal\Core\Names\Name.cpp" />
     <ClCompile Include="Unreal\Core\Names\NameMap.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainer.cpp" />
