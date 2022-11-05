@@ -57,6 +57,8 @@
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.cpp" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.cpp" />
+    <ClCompile Include="Unreal\Structs\Math\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -142,5 +144,6 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.h" />
     <ClInclude Include="Unreal\Misc\Paths\SoftObjectPath.h" />
     <ClInclude Include="Unreal\Misc\Paths\TopLevelAssetPath.h" />
+    <ClInclude Include="Unreal\Structs\Math\Vector.h" />
   </ItemGroup>
 </Project>

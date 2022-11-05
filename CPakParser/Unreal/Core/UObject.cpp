@@ -2,7 +2,7 @@
 
 #include "Serialization/Impl/ExportReader.h"
 
-void UObject::Serialize(TSharedPtr<FExportReader> Ar)
+void UObject::Serialize(FSharedAr Ar)
 {
 	/*if (Class->HasAnyFlags(RF_NeedLoad)) // TODO:
 	{

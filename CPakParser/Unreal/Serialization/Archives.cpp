@@ -30,49 +30,55 @@ FArchive& operator<<(FArchive& Ar, std::string& InString)
 FArchive& operator<<(FArchive& Ar, int32_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, uint32_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, uint64_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, int64_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, uint8_t& InByte)
 {
 	Ar.Serialize(&InByte, sizeof(InByte));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, int16_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
-
 	return Ar;
 }
 
 FArchive& operator<<(FArchive& Ar, uint16_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));
+	return Ar;
+}
 
+
+FArchive& operator<<(FArchive& Ar, float& InNum)
+{
+	Ar.Serialize(&InNum, sizeof(InNum));
+	return Ar;
+}
+
+FArchive& operator<<(FArchive& Ar, double& InNum)
+{
+	Ar.Serialize(&InNum, sizeof(InNum));
 	return Ar;
 }
 

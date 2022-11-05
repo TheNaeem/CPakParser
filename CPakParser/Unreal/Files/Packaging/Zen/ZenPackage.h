@@ -12,7 +12,7 @@ struct FExportObject
 struct FZenPackageData
 {
 	TSharedPtr<class UZenPackage> Package;
-	TSharedPtr<class FExportReader> Reader;
+	FSharedAr Reader;
 	FZenPackageHeaderData Header;
 	std::vector<FExportObject> Exports;
 

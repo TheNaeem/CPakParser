@@ -20,6 +20,5 @@ TUniquePtr<IPropValue> FArrayProperty::Serialize(FSharedAr Archive)
 		return Ret;
 	}
 
-
 	return nullptr; // TODO: property tag crap
 }

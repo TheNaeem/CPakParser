@@ -47,9 +47,14 @@ public:
 		return Val.operator bool();
 	}
 
-	ObjectType* Get()
+	__forceinline ObjectType* Get()
 	{
 		return Val.get();
+	}
+
+	__forceinline ObjectType* operator*()
+	{
+		return Get();
 	}
 
 	template <typename T>
@@ -208,5 +213,5 @@ public:
 
 	virtual void Load() { }
 
-	virtual void Serialize(TSharedPtr<class FExportReader> Ar);
+	virtual void Serialize(FSharedAr Ar);
 };

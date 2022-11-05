@@ -24,15 +24,13 @@ public:
 	UStructPtr GetSuper();
 	std::vector<FProperty*> GetProperties();
 
-	void SerializeScriptProperties(TSharedPtr<FExportReader> Ar, UObjectPtr Object);
+	void SerializeScriptProperties(FSharedAr Ar, UObjectPtr Object);
 };
 
 
 class UClass : public UStruct
 {
 public:
-
-
 
 	friend class UObject;
 };

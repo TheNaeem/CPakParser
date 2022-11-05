@@ -175,7 +175,7 @@ private:
 	}
 };
 
-void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, TSharedPtr<FExportReader> Ar, UObjectPtr Object)
+void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, FSharedAr Ar, UObjectPtr Object)
 {
 	FUnversionedHeader Header;
 	*Ar << Header;

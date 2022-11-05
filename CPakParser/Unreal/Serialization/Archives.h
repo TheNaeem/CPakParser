@@ -143,6 +143,8 @@ public:
 	friend FArchive& operator<<(FArchive& Ar, int64_t& InNum);
 	friend FArchive& operator<<(FArchive& Ar, uint8_t& InNum);
 	friend FArchive& operator<<(FArchive& Ar, uint16_t& InNum);
+	friend FArchive& operator<<(FArchive& Ar, float& InNum);
+	friend FArchive& operator<<(FArchive& Ar, double& InNum);
 	friend FArchive& operator<<(FArchive& Ar, int16_t& InNum);
 	friend FArchive& operator<<(FArchive& Ar, bool& InBool);
 

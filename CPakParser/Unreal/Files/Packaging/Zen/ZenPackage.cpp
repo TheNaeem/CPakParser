@@ -166,9 +166,5 @@ void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExp
 	}
 	else*/
 
-	PackageData.Reader->SetArchetype(ExportObject.TemplateObject);
-
 	Object->Serialize(PackageData.Reader);
-
-	PackageData.Reader->SetArchetype({});
 }

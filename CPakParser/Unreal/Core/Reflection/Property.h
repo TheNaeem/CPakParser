@@ -53,7 +53,7 @@ public:
 
 	virtual ~FProperty() = default;
 
-private:
+protected:
 
 	std::string Name;
 	uint16_t Index;

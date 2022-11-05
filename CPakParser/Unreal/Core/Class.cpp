@@ -31,7 +31,7 @@ std::vector<FProperty*> UStruct::GetProperties()
 	return Properties;
 }
 
-void UStruct::SerializeScriptProperties(TSharedPtr<FExportReader> Ar, UObjectPtr Object)
+void UStruct::SerializeScriptProperties(FSharedAr Ar, UObjectPtr Object)
 {
 	if (Ar->UseUnversionedPropertySerialization())
 	{
