@@ -79,3 +79,13 @@ bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 
 	return false;
 }
+
+void Dataminer::SetVersionUE5(int Version)
+{
+	Context->GPackageFileUEVersion = FPackageFileVersion(522, Version);
+}
+
+void Dataminer::SetVersionUE4(int Version)
+{
+	Context->GPackageFileUEVersion = FPackageFileVersion::CreateUE4Version(Version);
+}

@@ -2,6 +2,7 @@
 
 #include "../Property.h"
 #include "../PropertyValue.h"
+#include <vector>
 
 class FArrayProperty : public FProperty
 {
@@ -22,7 +23,7 @@ public:
 
 		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
 		{
-			
+			// TODO:
 		}
 	};
 

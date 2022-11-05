@@ -6,6 +6,7 @@
 #include "Misc/Guid.h"
 #include "Misc/Encryption/AES.h"
 #include "Misc/Hashing/Map.h"
+#include "Misc/Versioning/PackageFileVersion.h"
 #include "Files/SerializableFile.h"
 #include <future>
 
@@ -55,6 +56,8 @@ public:
 	void Test(FGameFilePath Path);
 	FDirectoryIndex Files();
 	TMap<std::string, UObjectPtr> GetObjectArray();
+	void SetVersionUE5(int Version);
+	void SetVersionUE4(int Version);
 
 	template <typename T>
 	TSharedPtr<T> SerializeFile(FGameFilePath FilePath)
@@ -68,3 +71,35 @@ public:
 		return Ret;
 	}
 };
+
+// Shoutout to CUE4Parse for these values
+#define UE4_1 342
+#define UE4_2 352
+#define UE4_3 363
+#define UE4_4 382
+#define UE4_5 385
+#define UE4_6 401
+#define UE4_7 413
+#define UE4_8 434
+#define UE4_9 451
+#define UE4_10 482
+#define UE4_11 482
+#define UE4_12 498
+#define UE4_13 504
+#define UE4_14 505
+#define UE4_15 508
+#define UE4_16 510
+#define UE4_17 513
+#define UE4_18 513
+#define UE4_19 514
+#define UE4_20 516
+#define UE4_21 516
+#define UE4_22 517
+#define UE4_23 517
+#define UE4_24 517
+#define UE4_25 518
+#define UE4_26 518
+#define UE4_27 522
+
+#define UE5_0 1004
+#define UE5_1 1006

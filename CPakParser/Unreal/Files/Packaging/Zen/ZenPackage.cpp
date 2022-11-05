@@ -62,6 +62,9 @@ UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector
 		}
 		else if (Index.IsPackageImport())
 		{
+			if (Index.GetImportedPackageIndex() >= Header.ImportedPackageIds.size())
+				return {};
+
 			auto PackageId = Header.ImportedPackageIds[Index.GetImportedPackageIndex()];
 
 			return UObjectPtr(std::make_shared<ULazyPackageObject>(PackageId));

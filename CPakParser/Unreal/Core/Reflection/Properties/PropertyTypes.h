@@ -11,3 +11,4 @@
 #include "ByteProperty.h"
 #include "MulticastDelegateProperty.h"
 #include "DelegateProperty.h"
+#include "SoftObjectProperty.h"

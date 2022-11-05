@@ -3,12 +3,14 @@
 #include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
 #include "Core/UObject.h"
+#include "Misc/Versioning/PackageFileVersion.h"
 
 class FArchive 
 {
 private:
 
 	bool bUseUnversionedProperties = false;
+	FPackageFileVersion Version;
 
 public:
 
@@ -177,5 +179,15 @@ public:
 	__forceinline void SetUnversionedProperties(bool IsUsingUnversionedProperties)
 	{
 		bUseUnversionedProperties = IsUsingUnversionedProperties;
+	}
+
+	__forceinline FPackageFileVersion UEVer() const
+	{
+		return Version;
+	}
+
+	__forceinline void SetUEVer(FPackageFileVersion InVersion) 
+	{
+		Version = InVersion;
 	}
 };

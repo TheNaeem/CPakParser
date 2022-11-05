@@ -114,9 +114,12 @@ class FPropertyFactory
 			Ret = Prop;
 			break;
 		}
+		case EPropertyType::WeakObjectProperty:
+		case EPropertyType::LazyObjectProperty:
 		case EPropertyType::ObjectProperty: Ret = new FObjectProperty; break;
 		case EPropertyType::ByteProperty: Ret = new FByteProperty; break;
 		case EPropertyType::BoolProperty: Ret = new FBoolProperty; break;
+		case EPropertyType::SoftObjectProperty: Ret = new FSoftObjectProperty; break;
 		case EPropertyType::DelegateProperty: Ret = new FDelegateProperty; break;
 		case EPropertyType::MulticastDelegateProperty: Ret = new FMulticastDelegateProperty; break;
 		default: Ret = new FProperty; break;

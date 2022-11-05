@@ -5,6 +5,7 @@
 #include "Serialization/Impl/ExportReader.h"
 #include "Files/Packaging/Zen/ZenPackage.h"
 #include "Files/Packaging/PackageFlags.h"
+#include "Core/Globals/GlobalContext.h"
 #include "Files/FileEntry.h"
 #include "../Misc/IoStoreReader.h"
 #include "Logger.h"
@@ -13,7 +14,7 @@ class FIoExportArchive : public FExportReader
 {
 public:
 
-	FIoExportArchive(uint8_t* InBytes, size_t Size, FZenPackageData& InPackageData, bool bFreeBuffer = false) 
+	FIoExportArchive(uint8_t* InBytes, size_t Size, FZenPackageData& InPackageData, bool bFreeBuffer = false)
 		: FExportReader(InBytes, Size, bFreeBuffer), PackageData(InPackageData)
 	{
 	}
@@ -28,7 +29,7 @@ public:
 		Ar << Number;
 
 		auto MappedName = FMappedName::Create(NameIndex, Number, FMappedName::EType::Package);
-		
+
 		auto NameStr = PackageData.Header.NameMap.GetName(MappedName);
 
 		if (NameStr.empty())
@@ -108,7 +109,7 @@ TSharedPtr<FIoStoreTocResource> FIoStoreToc::GetResource()
 	return Toc;
 }
 
-std::string FIoStoreToc::GetDiskPath() 
+std::string FIoStoreToc::GetDiskPath()
 {
 	return Toc->TocPath;
 }
@@ -128,7 +129,7 @@ int32_t FIoStoreToc::GetTocEntryIndex(struct FIoChunkId& ChunkId)
 	return ChunkIdToIndex[ChunkId];
 }
 
-FIoOffsetAndLength FIoStoreToc::GetOffsetAndLength(FIoChunkId& ChunkId) 
+FIoOffsetAndLength FIoStoreToc::GetOffsetAndLength(FIoChunkId& ChunkId)
 {
 	if (!ChunkIdToIndex.contains(ChunkId))
 		return FIoOffsetAndLength();
@@ -138,7 +139,7 @@ FIoOffsetAndLength FIoStoreToc::GetOffsetAndLength(FIoChunkId& ChunkId)
 	return Toc->ChunkOffsetLengths[Index];
 }
 
-FSharedAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo) 
+FSharedAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo)
 {
 	if (EntryInfo.GetTocIndex() >= Toc->ChunkOffsetLengths.size())
 		return nullptr;
@@ -194,6 +195,11 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 
 		Header.ExportCount = StoreEntry.ExportCount;
 
+		auto ImportedPackagesCount = StoreEntry.ImportedPackages.Num();
+
+		Header.ImportedPackageIds.resize(ImportedPackagesCount);
+		memcpy(Header.ImportedPackageIds.data(), StoreEntry.ImportedPackages.Data(), sizeof(FPackageId) * ImportedPackagesCount);
+
 		Ar->Seek(PackageDataOffset + Summary.GraphDataOffset);
 		Ar->BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry.ExportBundleCount);
 
@@ -217,6 +223,17 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 
 	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
 	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
+
+	auto& PackageVer = PackageData.Header.VersioningInfo.PackageVersion;
+
+	if (PackageVer.IsValid())
+	{
+		PackageData.Reader->SetUEVer(PackageVer);
+	}
+	else
+	{
+		PackageData.Reader->SetUEVer(Context->GPackageFileUEVersion);
+	}
 
 	Package->ProcessExports(PackageData);
 }

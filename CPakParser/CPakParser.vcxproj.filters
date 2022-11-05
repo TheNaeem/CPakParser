@@ -53,6 +53,10 @@
     <ClCompile Include="Unreal\Files\Packaging\PackageIndex.cpp" />
     <ClCompile Include="Unreal\Misc\Delegates\Delegates.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.cpp" />
+    <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.cpp" />
+    <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -135,5 +139,8 @@
     <ClInclude Include="Unreal\Misc\Delegates\ScriptDelegate.h" />
     <ClInclude Include="Unreal\Files\Packaging\PackageIndex.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\DelegateProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.h" />
+    <ClInclude Include="Unreal\Misc\Paths\SoftObjectPath.h" />
+    <ClInclude Include="Unreal\Misc\Paths\TopLevelAssetPath.h" />
   </ItemGroup>
 </Project>

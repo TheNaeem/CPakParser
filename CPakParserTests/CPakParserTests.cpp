@@ -19,6 +19,7 @@ int main()
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
+	Core.SetVersionUE5(UE5_1);
 
 	auto MappingsTask = Core.LoadTypeMappingsAsync("C:\\Users\\zkana\\Downloads\\FortniteRelease-22.20-CL-22545427-Android_oo.usmap");
 	Core.Initialize();

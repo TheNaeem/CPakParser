@@ -17,7 +17,7 @@ TUniquePtr<IPropValue> FArrayProperty::Serialize(FSharedAr Archive)
 		for (size_t i = 0; i < ArrayCount; i++)
 			Ret->Array[i] = ElementType->Serialize(Archive);
 
-		return;
+		return Ret;
 	}
 
 

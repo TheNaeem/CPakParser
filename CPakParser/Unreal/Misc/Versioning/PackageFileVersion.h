@@ -2,7 +2,7 @@
 
 class FArchive;
 
-enum class EUnrealEngineObjectUE5Version : unsigned __int32
+enum class EUnrealEngineObjectUE5Version : __int32
 {
 	// Note that currently the oldest loadable package version is EUnrealEngineObjectUEVersion::VER_UE4_OLDEST_LOADABLE_PACKAGE
 	// this can be enabled should we ever deprecate UE4 versions entirely
@@ -31,6 +31,9 @@ enum class EUnrealEngineObjectUE5Version : unsigned __int32
 
 	// Replace FName asset path in FSoftObjectPath with (package name, asset name) pair FTopLevelAssetPath
 	FSOFTOBJECTPATH_REMOVE_ASSET_PATH_FNAMES,
+
+	// Add a soft object path list to the package summary for fast remap
+	ADD_SOFTOBJECTPATH_LIST,
 
 	// -----<new versions can be added before this line>-------------------------------------------------
 	// - this needs to be the last line (see note below)
@@ -692,6 +695,12 @@ struct FPackageFileVersion
 	{
 	}
 
+	FPackageFileVersion(__int32 UE4Version, __int32 UE5Version)
+		: FileVersionUE4(UE4Version)
+		, FileVersionUE5(UE5Version)
+	{
+	}
+
 	void Reset();
 
 	static FPackageFileVersion CreateUE4Version(__int32 Version);
@@ -710,6 +719,11 @@ struct FPackageFileVersion
 	bool operator!=(const FPackageFileVersion& Other) const;
 
 	friend FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version);
+
+	__forceinline bool IsValid()
+	{
+		return FileVersionUE4 != 0 or FileVersionUE5 != 0;
+	}
 
 	__int32	FileVersionUE4 = 0;
 	__int32	FileVersionUE5 = 0;

@@ -15,6 +15,10 @@ public:
 	{
 	}
 
+	FName(std::string_view& StrView) : Val(StrView)
+	{
+	}
+
 	__forceinline std::string ToString() const
 	{
 		return Val;

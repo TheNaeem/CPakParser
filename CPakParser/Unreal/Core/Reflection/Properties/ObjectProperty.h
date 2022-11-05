@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Property.h"
+#include "../PropertyValue.h"
+#include "Core/UObject.h"
 
 class FObjectProperty : public FProperty
 {
@@ -21,9 +23,8 @@ public:
 		{
 			if (Type == EPropertyType::ObjectProperty)
 				memcpy(OutBuffer, &Object, sizeof(Object));
-			
 		}
 	};
 
-	TUniquePtr<class IPropValue> Serialize(FSharedAr Ar) override;
+	TUniquePtr<IPropValue> Serialize(FSharedAr Ar) override;
 };

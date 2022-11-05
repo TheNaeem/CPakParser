@@ -34,6 +34,7 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\PropertyTypes.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Property.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
@@ -65,6 +66,8 @@
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
     <ClInclude Include="Unreal\Misc\Hashing\ShaHash.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
+    <ClInclude Include="Unreal\Misc\Paths\SoftObjectPath.h" />
+    <ClInclude Include="Unreal\Misc\Paths\TopLevelAssetPath.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Misc\Versioning\EngineVersion.h" />
     <ClInclude Include="Unreal\Misc\Versioning\PackageFileVersion.h" />
@@ -109,6 +112,8 @@
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainer.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainerHeader.cpp" />
@@ -130,6 +135,8 @@
     <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.cpp" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
+    <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.cpp" />
+    <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
