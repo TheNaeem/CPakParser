@@ -15,6 +15,13 @@ enum class ELocResVersion : uint8_t
 	Latest = LatestPlusOne - 1
 };
 
+enum class ETextGender : uint8_t
+{
+	Masculine,
+	Feminine,
+	Neuter
+};
+
 struct FTextLocalizationResourceString
 {
 	FTextLocalizationResourceString() = default;
@@ -53,6 +60,7 @@ public:
 		return Str;
 	}
 
+	void SerializeAsString(FArchive& Ar);
 	void Serialize(FArchive& Ar, ELocResVersion& Ver);
 
 private:
@@ -63,6 +71,8 @@ private:
 
 struct FTextId
 {
+	FTextId() = default;
+
 	FTextId(const FTextKey& InNamespace, const FTextKey& InKey)
 		: Namespace(InNamespace)
 		, Key(InKey)
@@ -83,4 +93,43 @@ struct FTextId
 
 	FTextKey Namespace;
 	FTextKey Key;
+};
+
+class ITextData
+{
+public:
+
+	virtual ~ITextData() = default;
+	virtual std::string& GetString() = 0;
+	virtual void Serialize(class FArchive& Ar);
+};
+
+class FText
+{
+public:
+
+	FText() = default;
+
+	__forceinline std::string GetCultureInvariantString()
+	{
+		return CultureInvariantString;
+	}
+
+	__forceinline int32_t GetFlags()
+	{
+		return Flags;
+	}
+
+	__forceinline std::string& ToString()
+	{
+		return Data->GetString();
+	}
+
+	friend class FArchive& operator<<(class FArchive& Ar, FText& Value);
+
+private:
+
+	int32_t Flags;
+	std::string CultureInvariantString;
+	TUniquePtr<ITextData> Data;
 };

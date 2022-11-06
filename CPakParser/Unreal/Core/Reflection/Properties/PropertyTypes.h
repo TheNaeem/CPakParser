@@ -12,3 +12,4 @@
 #include "MulticastDelegateProperty.h"
 #include "DelegateProperty.h"
 #include "SoftObjectProperty.h"
+#include "TextProperty.h"

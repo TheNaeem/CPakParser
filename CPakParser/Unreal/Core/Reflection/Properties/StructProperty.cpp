@@ -16,7 +16,7 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
 {
 	{ "Guid", SerializeNativeStruct<FGuid> },
-	{ "Vector", SerializeNativeStruct<FVector> }
+	{ "Vector", SerializeNativeStruct<FVector> } // TODO: add everything else
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FSharedAr Ar)

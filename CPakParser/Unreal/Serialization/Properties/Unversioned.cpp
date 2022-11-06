@@ -180,20 +180,20 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 	FUnversionedHeader Header;
 	*Ar << Header;
 
-	if (!Header.HasValues() || !Header.HasNonZeroValues())
-		return;
-
-	for (FUnversionedIterator It(Header, Struct); It; It.Next())
+	if (Header.HasValues())
 	{
-		if (!It.IsNonZero())
-			continue;
+		for (FUnversionedIterator It(Header, Struct); It; It.Next())
+		{
+			if (!It.IsNonZero())
+				continue;
 
-		auto Prop = *It;
-		auto Value = Prop->Serialize(Ar);
+			auto Prop = *It;
+			auto Value = Prop->Serialize(Ar);
 
-		if (!Value)
-			continue;
+			if (!Value)
+				continue;
 
-		Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
+			Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
+		}
 	}
 }

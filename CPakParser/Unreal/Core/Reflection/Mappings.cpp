@@ -117,6 +117,7 @@ class FPropertyFactory
 		case EPropertyType::WeakObjectProperty:
 		case EPropertyType::LazyObjectProperty:
 		case EPropertyType::ObjectProperty: Ret = new FObjectProperty; break;
+		case EPropertyType::TextProperty: Ret = new FTextProperty; break;
 		case EPropertyType::ByteProperty: Ret = new FByteProperty; break;
 		case EPropertyType::BoolProperty: Ret = new FBoolProperty; break;
 		case EPropertyType::SoftObjectProperty: Ret = new FSoftObjectProperty; break;

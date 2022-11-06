@@ -57,6 +57,12 @@ FArchive& operator<<(FArchive& Ar, uint8_t& InByte)
 	return Ar;
 }
 
+FArchive& operator<<(FArchive& Ar, int8_t& InByte)
+{
+	Ar.Serialize(&InByte, sizeof(InByte));
+	return Ar;
+}
+
 FArchive& operator<<(FArchive& Ar, int16_t& InNum)
 {
 	Ar.Serialize(&InNum, sizeof(InNum));

@@ -36,6 +36,7 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\TextProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Property.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyType.h" />
@@ -116,6 +117,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.cpp" />
     <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainer.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Container\IoContainerHeader.cpp" />
