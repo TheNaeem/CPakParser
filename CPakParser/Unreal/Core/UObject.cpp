@@ -16,6 +16,6 @@ void UObject::Serialize(FSharedAr Ar)
 
 	if (Class)
 	{
-		Class->SerializeScriptProperties(Ar, This());
+		Class->SerializeScriptProperties(*Ar, This());
 	}
 }

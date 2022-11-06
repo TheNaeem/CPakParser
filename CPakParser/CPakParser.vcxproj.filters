@@ -60,6 +60,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.cpp" />
     <ClCompile Include="Unreal\Structs\Math\Vector.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -130,10 +131,8 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\ArrayProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\MapProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\ByteProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\IntProperties.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyType.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyValue.h" />
@@ -147,5 +146,7 @@
     <ClInclude Include="Unreal\Misc\Paths\TopLevelAssetPath.h" />
     <ClInclude Include="Unreal\Structs\Math\Vector.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\TextProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\NumericProperty.h" />
+    <ClInclude Include="Unreal\Core\Reflection\Properties\NameProperty.h" />
   </ItemGroup>
 </Project>

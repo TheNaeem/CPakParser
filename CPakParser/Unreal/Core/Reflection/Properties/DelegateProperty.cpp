@@ -3,18 +3,18 @@
 
 #include "Serialization/Archives.h"
 
-TUniquePtr<IPropValue> FMulticastDelegateProperty::Serialize(FSharedAr Ar)
+TUniquePtr<IPropValue> FMulticastDelegateProperty::Serialize(FArchive& Ar)
 {
 	auto Ret = std::make_unique<Value>();
-	*Ar << Ret->Delegate;
+	Ar << Ret->Delegate;
 	
 	return Ret;
 }
 
-TUniquePtr<IPropValue> FDelegateProperty::Serialize(FSharedAr Ar)
+TUniquePtr<IPropValue> FDelegateProperty::Serialize(FArchive& Ar)
 {
 	auto Ret = std::make_unique<Value>();
-	*Ar << Ret->Delegate;
+	Ar << Ret->Delegate;
 
 	return Ret;
 }

@@ -3,12 +3,12 @@
 #include "Serialization/Archives.h"
 #include "Logger.h"
 
-typedef std::vector<std::pair<std::string, class FFormatArgumentValue>> FFormatNamedArguments;
-typedef std::vector<class FFormatArgumentValue> FFormatOrderedArguments;
+typedef std::vector<std::pair<std::string, struct FFormatArgumentValue>> FFormatNamedArguments;
+typedef std::vector<struct FFormatArgumentValue> FFormatOrderedArguments;
 
 struct FNumberFormattingOptions
 {
-	FNumberFormattingOptions();
+	FNumberFormattingOptions() = default;
 
 	enum ERoundingMode
 	{
@@ -33,7 +33,10 @@ struct FNumberFormattingOptions
 	{
 		Ar << Value.AlwaysSign;
 		Ar << Value.UseGrouping;
-		Ar << (int8_t&)Value.RoundingMode;
+
+		int8_t ByteRoundingMode;
+		Ar << ByteRoundingMode;
+		Value.RoundingMode = static_cast<ERoundingMode>(ByteRoundingMode);
 
 		Ar.Serialize(&Value.MinimumIntegralDigits, sizeof(int32_t) * 4);
 	}
@@ -49,6 +52,19 @@ namespace EFormatArgumentType
 		Double,
 		Text,
 		Gender,
+	};
+}
+
+namespace EDateTimeStyle
+{
+	enum Type
+	{
+		Default,
+		Short,
+		Medium,
+		Long,
+		Full,
+		Custom
 	};
 }
 
@@ -159,10 +175,12 @@ struct FFormatArgumentData
 		switch (Value.ArgumentValueType)
 		{
 		case EFormatArgumentType::Int:
+		{
 			int32_t IntValue = static_cast<int32_t>(Value.ArgumentValueInt);
 			Ar << IntValue;
 			Value.ArgumentValueInt = static_cast<int64_t>(IntValue);
 			break;
+		}
 		case EFormatArgumentType::Float:
 			Ar << Value.ArgumentValueFloat;
 			break;
@@ -214,7 +232,14 @@ class FTextBaseHistory : public ITextData
 {
 public:
 
-	FTextBaseHistory(FTextId& InTextId, std::string&& InSourceString)
+	FTextBaseHistory() = default;
+
+	FTextBaseHistory(std::string& InSourceString)
+		: SourceString(InSourceString), TextId({})
+	{
+	}
+
+	FTextBaseHistory(FTextId& InTextId, std::string& InSourceString)
 		: TextId(InTextId), SourceString(InSourceString)
 	{
 	}
@@ -353,9 +378,105 @@ public:
 	std::string CurrencyCode;
 };
 
+class FTextDate : public ITextData
+{
+public:
+
+	void Serialize(FArchive& Ar) override
+	{
+		Ar << SourceDateTime;
+
+		int8_t DateStyleInt8;
+		Ar << DateStyleInt8;
+		DateStyle = static_cast<EDateTimeStyle::Type>(DateStyleInt8);
+
+		if (Ar.UEVer() >= VER_UE4_FTEXT_HISTORY_DATE_TIMEZONE)
+		{
+			Ar << TimeZone;
+		}
+
+		Ar << TargetCulture;
+	}
+
+	__forceinline std::string& GetString() override
+	{
+		static std::string Temp = "[CPakParser] TODO: Return a formatted datetime from FText.";
+		return Temp; // TODO: return a formatted result
+	}
+
+	int64_t SourceDateTime;
+	EDateTimeStyle::Type DateStyle;
+	std::string TimeZone;
+	std::string TargetCulture;
+};
+
+class FTextDateTime : public ITextData
+{
+public:
+
+	void Serialize(FArchive& Ar) override
+	{
+		Ar << SourceDateTime;
+
+		int8_t DateStyleInt8;
+		Ar << DateStyleInt8;
+		DateStyle = static_cast<EDateTimeStyle::Type>(DateStyleInt8);
+
+		int8_t TimeStyleInt8;
+		Ar << TimeStyleInt8;
+		TimeStyle = static_cast<EDateTimeStyle::Type>(TimeStyleInt8);
+
+		if (DateStyle == EDateTimeStyle::Custom)
+		{
+			Ar << CustomPattern;
+		}
+
+		Ar << TimeZone;
+		Ar << TargetCulture;
+	}
+
+	__forceinline std::string& GetString() override
+	{
+		static std::string Temp = "[CPakParser] TODO: Return a formatted datetime from FText.";
+		return Temp; // TODO: return a formatted result
+	}
+
+	int64_t SourceDateTime;
+	EDateTimeStyle::Type DateStyle;
+	EDateTimeStyle::Type TimeStyle;
+	std::string CustomPattern;
+	std::string TimeZone;
+	std::string TargetCulture;
+};
+
+class FTextTransform : public ITextData
+{
+public:
+
+	enum class ETransformType : uint8_t
+	{
+		ToLower = 0,
+		ToUpper,
+	};
+
+	void Serialize(FArchive& Ar) override
+	{
+		Ar << SourceText;
+		uint8_t& TransformTypeRef = (uint8_t&)TransformType;
+		Ar << TransformTypeRef;
+	}
+
+	__forceinline std::string& GetString() override
+	{
+		return SourceText.ToString();
+	}
+
+	FText SourceText;
+	ETransformType TransformType;
+};
+
 FArchive& operator<<(FArchive& Ar, FText& Value)
 {
-	// TODO: VER_UE4_FTEXT_HISTORY
 	if (Ar.UEVer() < VER_UE4_FTEXT_HISTORY)
 	{
 		std::string SourceStringToImplantIntoHistory;
@@ -414,39 +535,42 @@ FArchive& operator<<(FArchive& Ar, FText& Value)
 			Value.Data = std::make_unique<FTextCurrency>();
 			break;
 		}
+		case ETextHistoryType::AsTime:
 		case ETextHistoryType::AsDate:
 		{
-			Value.Data = MakeShared<FTextHistory_AsDate, ESPMode::ThreadSafe>();
-			break;
-		}
-		case ETextHistoryType::AsTime:
-		{
-			Value.Data = MakeShared<FTextHistory_AsTime, ESPMode::ThreadSafe>();
+			Value.Data = std::make_unique<FTextDate>();
 			break;
 		}
 		case ETextHistoryType::AsDateTime:
 		{
-			Value.Data = MakeShared<FTextHistory_AsDateTime, ESPMode::ThreadSafe>();
+			Value.Data = std::make_unique<FTextDateTime>();
 			break;
 		}
 		case ETextHistoryType::Transform:
 		{
-			Value.Data = MakeShared<FTextHistory_Transform, ESPMode::ThreadSafe>();
+			Value.Data = std::make_unique<FTextTransform>();
 			break;
 		}
 		case ETextHistoryType::StringTableEntry:
-		{
-			Value.Data = MakeShared<FTextHistory_StringTableEntry, ESPMode::ThreadSafe>();
-			break;
-		}
 		case ETextHistoryType::TextGenerator:
 		{
-			Value.Data = MakeShared<FTextHistory_TextGenerator, ESPMode::ThreadSafe>();
-			break;
+			Log<Error>("Unsupported Text history type. Wasn't gonna implement this until I actually encountered it.");
+			return Ar;
 		}
 		default:
 		{
-			Value.Data = std::make_unique<FTextBaseHistory>();
+			bool bHasCultureInvariantString = false;
+			Ar << bHasCultureInvariantString;
+
+			if (bHasCultureInvariantString)
+			{
+				std::string CultureInvariantString;
+				Ar << CultureInvariantString;
+
+				Value.Data = std::make_unique<FTextBaseHistory>(CultureInvariantString);
+			}
+			else Value.Data = std::make_unique<FTextBaseHistory>();
+
 			return Ar;
 		}
 		}

@@ -2,28 +2,32 @@
 
 #include "../Property.h"
 #include "../PropertyValue.h"
-#include "Misc/Delegates/ScriptDelegate.h"
+#include "Core/Names/Name.h"
 
-struct FDelegateProperty : public FProperty
+class FNameProperty : public FProperty
 {
-	struct Value : public IPropValue
+public:
+
+	class Value : public IPropValue
 	{
-		FScriptDelegate Delegate;
+	public:
+
+		FName Name;
 
 		__forceinline bool IsAcceptableType(EPropertyType Type) override
 		{
-			return Type == EPropertyType::DelegateProperty;
+			return Type == EPropertyType::NameProperty or Type == EPropertyType::StrProperty;
 		}
 
 		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
 		{
-			if (Type == EPropertyType::DelegateProperty)
+			if (Type == EPropertyType::NameProperty)
 			{
-				memcpy(OutBuffer, &Delegate, sizeof(Delegate));
+				memcpy(OutBuffer, &Name, sizeof(Name));
 			}
 			else if (Type == EPropertyType::StrProperty)
 			{
-				*((std::string*)OutBuffer) = Delegate.GetFunctionName();
+				memcpy(OutBuffer, &Name.Val, sizeof(std::string));
 			}
 		}
 	};

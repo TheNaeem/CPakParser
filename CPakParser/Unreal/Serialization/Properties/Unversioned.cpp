@@ -175,10 +175,10 @@ private:
 	}
 };
 
-void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, FSharedAr Ar, UObjectPtr Object)
+void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, FArchive& Ar, UObjectPtr Object)
 {
 	FUnversionedHeader Header;
-	*Ar << Header;
+	Ar << Header;
 
 	if (Header.HasValues())
 	{

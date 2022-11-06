@@ -114,11 +114,21 @@ class FPropertyFactory
 			Ret = Prop;
 			break;
 		}
+		case EPropertyType::ByteProperty: Ret = new FByteProperty; break;
+		case EPropertyType::Int8Property: Ret = new FInt8Property; break;
+		case EPropertyType::Int16Property: Ret = new FInt16Property; break;
+		case EPropertyType::IntProperty: Ret = new FIntProperty; break;
+		case EPropertyType::Int64Property: Ret = new FInt64Property; break;
+		case EPropertyType::UInt16Property: Ret = new FUInt16Property; break;
+		case EPropertyType::UInt32Property: Ret = new FUInt32Property; break;
+		case EPropertyType::UInt64Property: Ret = new FUInt64Property; break;
+		case EPropertyType::DoubleProperty: Ret = new FDoubleProperty; break;
+		case EPropertyType::FloatProperty: Ret = new FFloatProperty; break;
+		case EPropertyType::NameProperty: Ret = new FNameProperty; break;
 		case EPropertyType::WeakObjectProperty:
 		case EPropertyType::LazyObjectProperty:
 		case EPropertyType::ObjectProperty: Ret = new FObjectProperty; break;
 		case EPropertyType::TextProperty: Ret = new FTextProperty; break;
-		case EPropertyType::ByteProperty: Ret = new FByteProperty; break;
 		case EPropertyType::BoolProperty: Ret = new FBoolProperty; break;
 		case EPropertyType::SoftObjectProperty: Ret = new FSoftObjectProperty; break;
 		case EPropertyType::DelegateProperty: Ret = new FDelegateProperty; break;

@@ -2,10 +2,10 @@
 
 #include "Serialization/Archives.h"
 
-TUniquePtr<IPropValue> FObjectProperty::Serialize(FSharedAr Ar)
+TUniquePtr<IPropValue> FObjectProperty::Serialize(FArchive& Ar)
 {
 	auto Ret = std::make_unique<FObjectProperty::Value>();
-	*Ar << Ret->Object;
+	Ar << Ret->Object;
 
 	return Ret;
 }

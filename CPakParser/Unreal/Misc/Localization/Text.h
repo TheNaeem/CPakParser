@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Defines.h"
 #include <string>
 
 class FArchive;
@@ -99,9 +100,8 @@ class ITextData
 {
 public:
 
-	virtual ~ITextData() = default;
 	virtual std::string& GetString() = 0;
-	virtual void Serialize(class FArchive& Ar);
+	virtual void Serialize(class FArchive& Ar) = 0;
 };
 
 class FText

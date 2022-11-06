@@ -24,5 +24,5 @@ struct FMulticastDelegateProperty : public FProperty
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(FSharedAr Ar) override;
+	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override;
 };

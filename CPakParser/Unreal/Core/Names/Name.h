@@ -9,6 +9,8 @@ class FName
 
 public:
 
+	friend class FNameProperty;
+
 	FName() = default;
 
 	FName(std::string& InStr) : Val(InStr)

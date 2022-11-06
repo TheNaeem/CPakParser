@@ -25,5 +25,5 @@ public:
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(FSharedAr Ar) override;
+	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override;
 };

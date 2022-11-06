@@ -24,7 +24,7 @@ public:
 	UStructPtr GetSuper();
 	std::vector<FProperty*> GetProperties();
 
-	void SerializeScriptProperties(FSharedAr Ar, UObjectPtr Object);
+	void SerializeScriptProperties(FArchive& Ar, UObjectPtr Object);
 };
 
 

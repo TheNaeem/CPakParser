@@ -2,10 +2,9 @@
 
 #include "Serialization/Archives.h"
 
-TUniquePtr<IPropValue> FArrayProperty::Serialize(FSharedAr Archive)
+TUniquePtr<IPropValue> FArrayProperty::Serialize(FArchive& Ar)
 {
 	auto Ret = std::make_unique<FArrayProperty::Value>();
-	auto& Ar = *Archive;
 
 	if (Ar.UseUnversionedPropertySerialization())
 	{
@@ -15,7 +14,7 @@ TUniquePtr<IPropValue> FArrayProperty::Serialize(FSharedAr Archive)
 		Ret->Array.resize(ArrayCount);
 
 		for (size_t i = 0; i < ArrayCount; i++)
-			Ret->Array[i] = ElementType->Serialize(Archive);
+			Ret->Array[i] = ElementType->Serialize(Ar);
 
 		return Ret;
 	}

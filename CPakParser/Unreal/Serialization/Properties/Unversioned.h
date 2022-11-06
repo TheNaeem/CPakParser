@@ -5,5 +5,5 @@
 
 struct FUnversionedSerializer
 {
-	static void SerializeUnversionedProperties(UStructPtr Struct, FSharedAr Ar, UObjectPtr Object);
+	static void SerializeUnversionedProperties(UStructPtr Struct, FArchive& Ar, UObjectPtr Object);
 };

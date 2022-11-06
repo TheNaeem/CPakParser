@@ -77,7 +77,7 @@ public:
 		return ArrayDim;
 	}
 
-	virtual TUniquePtr<class IPropValue> Serialize(FSharedAr Ar) 
+	virtual TUniquePtr<class IPropValue> Serialize(FArchive& Ar) 
 	{
 		return nullptr;
 	}

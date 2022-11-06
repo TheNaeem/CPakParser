@@ -19,19 +19,18 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "Vector", SerializeNativeStruct<FVector> } // TODO: add everything else
 };
 
-TUniquePtr<IPropValue> FStructProperty::Serialize(FSharedAr Ar)
+TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
 {
 	auto StructName = Struct->GetName();
 	if (NativeStructs.contains(StructName))
 	{
-		return NativeStructs[StructName](*Ar);
+		return NativeStructs[StructName](Ar);
 	}
 
 	auto Ret = std::make_unique<Value>();
 
 	Ret->StructObject = std::make_shared<UObject>();
 	Ret->StructObject->SetClass(Struct);
-	Ret->StructObject->SetName(this->Name);
 
 	Struct->SerializeScriptProperties(Ar, Ret->StructObject);
 
