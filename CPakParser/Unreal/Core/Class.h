@@ -16,13 +16,17 @@ public:
 private:
 
 	UStructPtr Super;
-	std::vector<FProperty*> Properties;
+	FProperty* PropertyLink = nullptr;
 
 public:
 
 	void SetSuper(UStructPtr Val);
 	UStructPtr GetSuper();
-	std::vector<FProperty*> GetProperties();
+
+	__forceinline FProperty* GetPropertyLink()
+	{
+		return PropertyLink;
+	}
 
 	void SerializeScriptProperties(FArchive& Ar, UObjectPtr Object);
 };

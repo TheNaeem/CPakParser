@@ -3,6 +3,7 @@
 #include "Serialization/Archives.h"
 #include "Misc/Guid.h"
 #include "Structs/Math/Vector.h"
+#include "Structs/Tags/GameplayTagContainer.h"
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -16,7 +17,8 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
 {
 	{ "Guid", SerializeNativeStruct<FGuid> },
-	{ "Vector", SerializeNativeStruct<FVector> } // TODO: add everything else
+	{ "Vector", SerializeNativeStruct<FVector> },
+	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> }// TODO: add everything else
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)

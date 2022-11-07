@@ -61,6 +61,7 @@
     <ClCompile Include="Unreal\Structs\Math\Vector.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.cpp" />
+    <ClCompile Include="Unreal\Structs\Tags\GameplayTags.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -148,5 +149,7 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\TextProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\NumericProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\NameProperty.h" />
+    <ClInclude Include="Unreal\Structs\Tags\GameplayTagContainer.h" />
+    <ClInclude Include="Unreal\Structs\Tags\GameplayTag.h" />
   </ItemGroup>
 </Project>

@@ -21,7 +21,7 @@ int main()
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
 	Core.SetVersionUE5(UE5_1);
 
-	auto MappingsTask = Core.LoadTypeMappingsAsync("C:\\Users\\zkana\\Downloads\\FortniteRelease-22.20-CL-22545427-Android_oo.usmap");
+	auto MappingsTask = Core.LoadTypeMappingsAsync("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64\\Mappings.usmap");
 	Core.Initialize();
 	MappingsTask.wait();
 

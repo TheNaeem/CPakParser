@@ -50,6 +50,7 @@ public:
 
 	friend class FPropertyFactory;
 	friend class FUnversionedSerializer;
+	friend class Mappings;
 
 	virtual ~FProperty() = default;
 
@@ -59,6 +60,7 @@ protected:
 	uint16_t Index;
 	uint8_t ArrayDim;
 	EPropertyType Type;
+	FProperty* Next = nullptr;
 
 public:
 
@@ -75,6 +77,11 @@ public:
 	__forceinline uint8_t GetArrayDim()
 	{
 		return ArrayDim;
+	}
+
+	__forceinline FProperty* GetNext()
+	{
+		return Next;
 	}
 
 	virtual TUniquePtr<class IPropValue> Serialize(FArchive& Ar) 

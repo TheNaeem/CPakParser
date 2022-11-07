@@ -31,7 +31,7 @@ struct FUnversionedHeader
 			bIsLast = (Int & IsLastMask) != 0;
 		}
 	};
-	
+
 	friend FArchive& operator<<(FArchive& Ar, FUnversionedHeader& Header)
 	{
 		uint32_t ZeroMaskNum = 0;
@@ -180,20 +180,22 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 	FUnversionedHeader Header;
 	Ar << Header;
 
-	if (Header.HasValues())
+	if (!Header.HasValues())
 	{
-		for (FUnversionedIterator It(Header, Struct); It; It.Next())
-		{
-			if (!It.IsNonZero())
-				continue;
+		return;
+	}
 
-			auto Prop = *It;
-			auto Value = Prop->Serialize(Ar);
+	for (FUnversionedIterator It(Header, Struct); It; It.Next())
+	{
+		if (!It.IsNonZero())
+			continue;
 
-			if (!Value)
-				continue;
+		auto Prop = *It;
+		auto Value = Prop->Serialize(Ar);
 
-			Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
-		}
+		if (!Value)
+			continue;
+
+		Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
 	}
 }

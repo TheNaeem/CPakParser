@@ -5,14 +5,11 @@
 
 UStruct::~UStruct()
 {
-	for (size_t i = 0; i < Properties.size(); i++)
+	while (PropertyLink)
 	{
-		auto Prop = Properties[i];
-		auto ArraySize = Prop->GetArrayDim();
-
-		delete Prop;
-
-		i += ArraySize - 1;
+		auto LinkCopy = PropertyLink;
+		PropertyLink = PropertyLink->GetNext();
+		delete LinkCopy;
 	}
 }
 
@@ -24,11 +21,6 @@ UStructPtr UStruct::GetSuper()
 void UStruct::SetSuper(UStructPtr Val)
 {
 	Super = Val;
-}
-
-std::vector<FProperty*> UStruct::GetProperties()
-{
-	return Properties;
 }
 
 void UStruct::SerializeScriptProperties(FArchive& Ar, UObjectPtr Object)

@@ -177,7 +177,7 @@ public:
 		}
 	}
 
-	FProperty* SerializeProperty(FArchive& Ar) // TODO: make ustruct free properties
+	FProperty* SerializeProperty(FArchive& Ar)
 	{
 		uint16_t Index;
 		uint8_t ArrayDim;
@@ -313,16 +313,24 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 		uint16_t PropCount, SerializablePropCount;
 		Ar << PropCount << SerializablePropCount;
 
-		auto& Properties = Struct->Properties;
-		Properties.resize(PropCount);
-
-		for (size_t i = 0; i < SerializablePropCount; i++)
+		if (SerializablePropCount)
 		{
-			auto Prop = Factory.SerializeProperty(Ar);
+			auto& Link = Struct->PropertyLink;
+			FProperty* Previous = nullptr;
 
-			for (auto j = 0; j < Prop->GetArrayDim(); j++)
+			Link = Previous = Factory.SerializeProperty(Ar);
+
+			for (size_t i = 1; i < SerializablePropCount; i++)
 			{
-				Properties[Prop->GetIndex() + j] = Prop;
+				auto Prop = Factory.SerializeProperty(Ar);
+
+				Previous->Next = Prop;
+				Previous = Prop;
+
+				/*for (auto j = 0; j < Prop->GetArrayDim(); j++)
+				{
+					Properties[Prop->GetIndex() + j] = Prop;
+				}*/
 			}
 		}
 	}

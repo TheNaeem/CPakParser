@@ -104,6 +104,8 @@
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
     <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
     <ClInclude Include="Unreal\Structs\Math\Vector.h" />
+    <ClInclude Include="Unreal\Structs\Tags\GameplayTag.h" />
+    <ClInclude Include="Unreal\Structs\Tags\GameplayTagContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
@@ -166,6 +168,7 @@
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Structs\Math\Vector.cpp" />
+    <ClCompile Include="Unreal\Structs\Tags\GameplayTags.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

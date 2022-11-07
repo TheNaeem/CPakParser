@@ -8,19 +8,29 @@ class FPropertyIterator
 
 public:
 
-	__forceinline FPropertyIterator(UStructPtr InStruct) : Struct(InStruct)
+	__forceinline FPropertyIterator(UStructPtr InStruct) 
+		: Struct(InStruct), Link(InStruct->GetPropertyLink())
 	{
 	}
 
 	void Next()
 	{
-		PropIndex++;
-
-		if (PropIndex >= Struct->GetProperties().size())
+		if (ArrayIndex + 1 == Link->GetArrayDim())
 		{
-			PropIndex = 0;
-			Struct = Struct->GetSuper();
+			Link = Link->GetNext();
+			ArrayIndex = 0;
+
+			while (!Link)
+			{
+				Struct = Struct->GetSuper();
+
+				if (!Struct)
+					break;
+
+				Link = Struct->GetPropertyLink();
+			}
 		}
+		else ++ArrayIndex;
 	}
 
 	__forceinline void operator++()
@@ -36,20 +46,17 @@ public:
 
 	__forceinline operator bool() const
 	{
-		return Struct;
+		return Link;
 	}
 
 	__forceinline FProperty* operator*()
 	{
-		while (!Struct->GetProperties().size())
-			Next();
-
-		return Struct->GetProperties()[PropIndex];
+		return Link;
 	}
 
 private:
 
 	UStructPtr Struct;
-
-	int PropIndex = 0;
+	FProperty* Link = nullptr;
+	uint32_t ArrayIndex = 0;
 };
