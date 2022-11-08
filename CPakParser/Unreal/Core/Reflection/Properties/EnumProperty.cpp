@@ -9,8 +9,18 @@ TUniquePtr<IPropValue> FEnumProperty::Serialize(FArchive& Ar)
 	if (Enum and UnderlyingProp)
 	{
 		auto EnumVal = UnderlyingProp->Serialize(Ar);
-		auto IntVal = EnumVal->TryGetValue<int32_t>();
+		auto IntValOpt = EnumVal->TryGetValue<int64_t>();
+
+		if (!IntValOpt.has_value())
+			return nullptr;
+
+		auto EnumIndex = IntValOpt.value();
+
+		if (EnumIndex >= Enum->Enum.size())
+			return nullptr;
+
+		Ret->EnumName = Enum->Enum[EnumIndex];
 	}
 
-	return Ret;
+	return std::move(Ret);
 }

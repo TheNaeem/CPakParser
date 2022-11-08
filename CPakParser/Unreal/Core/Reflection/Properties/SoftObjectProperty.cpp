@@ -7,5 +7,5 @@ TUniquePtr<IPropValue> FSoftObjectProperty::Serialize(FArchive& Archive)
 	auto Ret = std::make_unique<Value>();
 	Archive << Ret->Path;
 
-	return Ret;
+	return std::move(Ret);
 }

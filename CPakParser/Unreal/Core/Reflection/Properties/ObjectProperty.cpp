@@ -7,5 +7,5 @@ TUniquePtr<IPropValue> FObjectProperty::Serialize(FArchive& Ar)
 	auto Ret = std::make_unique<FObjectProperty::Value>();
 	Ar << Ret->Object;
 
-	return Ret;
+	return std::move(Ret);
 }

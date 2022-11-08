@@ -126,11 +126,11 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 		return;
 	}
 
-	if (Context->ObjectArray.contains(ObjectName))
+	/*if (Context->ObjectArray.contains(ObjectName))
 	{
 		Object = Context->ObjectArray[ObjectName];
 		return;
-	}
+	}*/
 
 	Object->Name = ObjectName;
 

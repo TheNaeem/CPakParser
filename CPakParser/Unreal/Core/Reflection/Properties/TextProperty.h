@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Property.h"
 #include "../PropertyValue.h"
 #include "Misc/Localization/Text.h"
 

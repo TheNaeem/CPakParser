@@ -8,7 +8,7 @@ TUniquePtr<IPropValue> FMulticastDelegateProperty::Serialize(FArchive& Ar)
 	auto Ret = std::make_unique<Value>();
 	Ar << Ret->Delegate;
 	
-	return Ret;
+	return std::move(Ret);
 }
 
 TUniquePtr<IPropValue> FDelegateProperty::Serialize(FArchive& Ar)
@@ -16,5 +16,5 @@ TUniquePtr<IPropValue> FDelegateProperty::Serialize(FArchive& Ar)
 	auto Ret = std::make_unique<Value>();
 	Ar << Ret->Delegate;
 
-	return Ret;
+	return std::move(Ret);
 }

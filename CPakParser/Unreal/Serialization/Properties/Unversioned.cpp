@@ -195,7 +195,7 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 
 		if (!Value)
 			continue;
-
+		
 		Object->PropertyValues.push_back({ Prop->Name, std::move(Value) });
 	}
 }

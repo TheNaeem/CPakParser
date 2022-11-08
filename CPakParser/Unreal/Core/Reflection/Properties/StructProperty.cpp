@@ -11,7 +11,7 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 	auto Ret = std::make_unique<FStructProperty::NativeValue<StructType>>();
 	Ar << Ret->Value;
 
-	return Ret;
+	return std::move(Ret);
 }
 
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
@@ -26,7 +26,7 @@ TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
 	auto StructName = Struct->GetName();
 	if (NativeStructs.contains(StructName))
 	{
-		return NativeStructs[StructName](Ar);
+		return std::move(NativeStructs[StructName](Ar));
 	}
 
 	auto Ret = std::make_unique<Value>();
@@ -36,5 +36,5 @@ TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
 
 	Struct->SerializeScriptProperties(Ar, Ret->StructObject);
 
-	return Ret;
+	return std::move(Ret);
 }

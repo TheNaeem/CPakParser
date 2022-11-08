@@ -7,5 +7,5 @@ TUniquePtr<IPropValue> FNameProperty::Serialize(FArchive& Ar)
 	auto Ret = std::make_unique<Value>();
 	Ar << Ret->Name;
 
-	return Ret;
+	return std::move(Ret);
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Property.h"
 #include "../PropertyValue.h"
 
 #include <vector>
@@ -19,6 +18,9 @@ public:
 
 	struct Value : public IPropValue
 	{
+		int64_t BinaryValue = 0;
+		std::string EnumName;
+
 		__forceinline bool IsAcceptableType(EPropertyType Type) override
 		{
 			return Type == EPropertyType::EnumProperty;

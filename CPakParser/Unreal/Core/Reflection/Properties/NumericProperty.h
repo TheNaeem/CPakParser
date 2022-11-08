@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Property.h"
 #include "../PropertyValue.h"
 #include "Serialization/Archives.h"
 
@@ -73,7 +72,7 @@ public:
 		auto Ret = std::make_unique<Value>();
 		Ar << Ret->Val;
 
-		return Ret;
+		return std::move(Ret);
 	}
 };
 
@@ -93,6 +92,6 @@ public:
 
 	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override
 	{
-		return TNumericProperty::Serialize(Ar); // TODO: enum crap
+		return std::move(TNumericProperty::Serialize(Ar)); // TODO: enum crap
 	}
 };

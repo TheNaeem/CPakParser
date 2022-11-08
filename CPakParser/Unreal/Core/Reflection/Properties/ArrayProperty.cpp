@@ -16,7 +16,7 @@ TUniquePtr<IPropValue> FArrayProperty::Serialize(FArchive& Ar)
 		for (size_t i = 0; i < ArrayCount; i++)
 			Ret->Array[i] = ElementType->Serialize(Ar);
 
-		return Ret;
+		return std::move(Ret);
 	}
 
 	return nullptr; // TODO: property tag crap
