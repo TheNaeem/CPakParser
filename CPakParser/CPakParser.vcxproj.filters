@@ -62,6 +62,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.cpp" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTags.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\EnumProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />

@@ -326,11 +326,6 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 
 				Previous->Next = Prop;
 				Previous = Prop;
-
-				/*for (auto j = 0; j < Prop->GetArrayDim(); j++)
-				{
-					Properties[Prop->GetIndex() + j] = Prop;
-				}*/
 			}
 		}
 	}

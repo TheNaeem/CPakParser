@@ -135,7 +135,7 @@ protected:
 	UObjectPtr Outer;
 	std::string Name;
 	Flags ObjectFlags;
-	std::vector<std::pair<const std::string&, TUniquePtr<IPropValue>>> PropertyValues;
+	std::vector<std::pair<const std::string&, TUniquePtr<class IPropValue>>> PropertyValues;
 
 	template <typename T = UObject>
 	__forceinline TObjectPtr<T> This()

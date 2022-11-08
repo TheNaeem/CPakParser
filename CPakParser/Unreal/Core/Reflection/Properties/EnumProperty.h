@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Property.h"
+#include "../PropertyValue.h"
 
 #include <vector>
 
@@ -15,6 +16,18 @@ class FEnumProperty : public FProperty
 public: 
 
 	friend class FPropertyFactory;
+
+	struct Value : public IPropValue
+	{
+		__forceinline bool IsAcceptableType(EPropertyType Type) override
+		{
+			return Type == EPropertyType::EnumProperty;
+		}
+
+		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
+		{
+		}
+	};
 
 private:
 
@@ -37,4 +50,6 @@ public:
 	{
 		return Enum->EnumName;
 	}
+
+	TUniquePtr<IPropValue> Serialize(class FArchive& Ar) override;
 };

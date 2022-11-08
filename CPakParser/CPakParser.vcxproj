@@ -116,6 +116,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\EnumProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
