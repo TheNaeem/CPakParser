@@ -4,7 +4,7 @@
 #include "Misc/Hashing/Map.h"
 #include "Misc/Paths/SoftObjectPath.h"
 
-#include "Structs/Math/Vector.h"
+#include "Structs/Math/Box.h"
 #include "Structs/Tags/GameplayTagContainer.h"
 #include "Structs/Misc/DateTime.h"
 
@@ -27,7 +27,8 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "Vector2D", SerializeNativeStruct<FVector2D> },
 	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
-	{ "DateTime", SerializeNativeStruct<FDateTime> }// TODO: add everything else
+	{ "DateTime", SerializeNativeStruct<FDateTime> },
+	{ "Box", SerializeNativeStruct<FBox> }
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)

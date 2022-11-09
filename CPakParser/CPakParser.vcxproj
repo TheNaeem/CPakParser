@@ -103,6 +103,7 @@
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenData.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
     <ClInclude Include="Unreal\Serialization\Properties\Unversioned.h" />
+    <ClInclude Include="Unreal\Structs\Math\Box.h" />
     <ClInclude Include="Unreal\Structs\Math\Vector.h" />
     <ClInclude Include="Unreal\Structs\Misc\DateTime.h" />
     <ClInclude Include="Unreal\Structs\Tags\GameplayTag.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="Unreal\Core\UObject.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
+    <ClCompile Include="Unreal\Structs\Math\Box.cpp" />
     <ClCompile Include="Unreal\Structs\Math\Vector.cpp" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.cpp" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTags.cpp" />
