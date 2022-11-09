@@ -23,7 +23,7 @@ public:
 		{
 			if (Type == EPropertyType::SoftObjectProperty)
 			{
-				memcpy(OutBuffer, &Path, sizeof(Path));
+				*((FSoftObjectPath*)OutBuffer) = Path;
 			}
 			else if (Type == EPropertyType::ObjectProperty)
 			{

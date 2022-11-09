@@ -22,11 +22,11 @@ public:
 		{
 			if (Type == EPropertyType::NameProperty)
 			{
-				memcpy(OutBuffer, &Name, sizeof(Name));
+				*((FName*)OutBuffer) = Name;
 			}
 			else if (Type == EPropertyType::StrProperty)
 			{
-				memcpy(OutBuffer, &Name.Val, sizeof(std::string));
+				((std::string*)OutBuffer)->assign(Name.Val);
 			}
 		}
 	};

@@ -2,6 +2,7 @@
 
 #include "Serialization/Impl/ExportReader.h"
 #include "Serialization/Properties/Unversioned.h"
+#include "Logger.h"
 
 UStruct::~UStruct()
 {
@@ -30,6 +31,9 @@ void UStruct::SerializeScriptProperties(FArchive& Ar, UObjectPtr Object)
 		FUnversionedSerializer::SerializeUnversionedProperties(This<UStruct>(), Ar, Object);
 		return;
 	}
-
+	else
+	{
+		Log<Error>("SerializeVersionedTaggedProperties not yet implemented.");
+	}
 	// TODO: SerializeVersionedTaggedProperties
 }

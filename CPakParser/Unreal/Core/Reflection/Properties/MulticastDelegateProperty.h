@@ -19,7 +19,7 @@ struct FMulticastDelegateProperty : public FProperty
 		{
 			if (Type == EPropertyType::MulticastDelegateProperty)
 			{
-				memcpy(OutBuffer, &Delegate, sizeof(Delegate));
+				*((FMulticastScriptDelegate*)OutBuffer) = Delegate;
 			}
 		}
 	};

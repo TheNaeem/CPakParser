@@ -21,7 +21,7 @@ public:
 		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
 		{
 			if (Type == EPropertyType::ObjectProperty)
-				memcpy(OutBuffer, &Object, sizeof(Object));
+				*((UObjectPtr*)OutBuffer) = Object;
 		}
 	};
 
