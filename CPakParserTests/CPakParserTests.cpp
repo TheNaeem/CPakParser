@@ -27,7 +27,7 @@ int main()
 
 	auto Start = std::chrono::steady_clock::now();
 	
-	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_246_Athena_Commando_F_Grave.uasset");
+	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_664_Athena_Commando_M_Gummi.uasset");
 
 	auto End = std::chrono::steady_clock::now();
 	printf("[+] Exported Skull Ranger in %.02f ms\n", (End - Start).count() / 1000000.);

@@ -64,6 +64,7 @@
     <ClCompile Include="Unreal\Structs\Tags\GameplayTags.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\EnumProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\BoolProperty.cpp" />
+    <ClCompile Include="Unreal\Structs\Misc\DateTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
@@ -153,5 +154,6 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\NameProperty.h" />
     <ClInclude Include="Unreal\Structs\Tags\GameplayTagContainer.h" />
     <ClInclude Include="Unreal\Structs\Tags\GameplayTag.h" />
+    <ClInclude Include="Unreal\Structs\Misc\DateTime.h" />
   </ItemGroup>
 </Project>

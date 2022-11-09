@@ -1,9 +1,15 @@
 #include "StructProperty.h"
 
-#include "Serialization/Archives.h"
 #include "Misc/Guid.h"
+#include "Misc/Hashing/Map.h"
+#include "Misc/Paths/SoftObjectPath.h"
+
 #include "Structs/Math/Vector.h"
 #include "Structs/Tags/GameplayTagContainer.h"
+#include "Structs/Misc/DateTime.h"
+
+#include "Serialization/Archives.h"
+#include <functional>
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -13,12 +19,15 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 
 	return std::move(Ret);
 }
-
+ 
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
 {
 	{ "Guid", SerializeNativeStruct<FGuid> },
 	{ "Vector", SerializeNativeStruct<FVector> },
-	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> }// TODO: add everything else
+	{ "Vector2D", SerializeNativeStruct<FVector2D> },
+	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
+	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
+	{ "DateTime", SerializeNativeStruct<FDateTime> }// TODO: add everything else
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)

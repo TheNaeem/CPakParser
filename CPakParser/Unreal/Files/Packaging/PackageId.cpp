@@ -2,6 +2,7 @@
 
 #include "Serialization/Archives.h"
 #include "Misc/Hashing/CityHash.h"
+#include <algorithm>
 
 FPackageId::FPackageId(std::string Name)
 {

@@ -5,7 +5,7 @@
 class FSoftObjectPath
 {
 public:
-
+	 
 	FSoftObjectPath()
 	{
 		Reset();

@@ -1,6 +1,6 @@
 #include "Text.h"
 
-#include "Serialization/Archives.h"
+#include "Misc/Hashing/Map.h"
 #include "Logger.h"
 
 typedef std::vector<std::pair<std::string, struct FFormatArgumentValue>> FFormatNamedArguments;
