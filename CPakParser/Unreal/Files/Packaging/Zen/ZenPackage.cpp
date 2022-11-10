@@ -5,7 +5,7 @@
 #include "Serialization/Impl/ExportReader.h"
 #include "Files/IOStore/Misc/ScriptObjectEntry.h"
 #include "../LazyPackageObject.h"
-#include "Logger.h"
+#include "Logging.h"
 
 template <typename T = UObject>
 TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
@@ -122,7 +122,7 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 
 	if (!TemplateObject)
 	{
-		Log<Error>("Template object could not be loaded for zen package.");
+		LogError("Template object could not be loaded for zen package.");
 		return;
 	}
 

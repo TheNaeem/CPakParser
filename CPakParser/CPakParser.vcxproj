@@ -90,7 +90,7 @@
     <ClInclude Include="Unreal\Files\Packaging\LazyPackageObject.h" />
     <ClInclude Include="Unreal\Files\Loader.h" />
     <ClInclude Include="Unreal\Misc\Localization\Localization.h" />
-    <ClInclude Include="Logger.h" />
+    <ClInclude Include="Logging.h" />
     <ClInclude Include="Unreal\Serialization\Impl\MemoryReader.h" />
     <ClInclude Include="Unreal\Core\Names\Name.h" />
     <ClInclude Include="Unreal\Misc\Compression\Oodle.h" />

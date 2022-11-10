@@ -2,7 +2,7 @@
 
 #include "Serialization/Archives.h"
 #include "Misc/Hashing/ShaHash.h"
-#include "Logger.h"
+#include "Logging.h"
 
 int64_t FPakInfo::GetSerializedSize(int32_t InVersion) const
 {
@@ -54,7 +54,7 @@ void FPakInfo::Serialize(FArchive& Ar, int32_t InVersion)
 		Ar << bIndexIsFrozen;
 
 		if (bIndexIsFrozen)
-			Log<Error>("Pak frozen with unsupported version");
+			LogError("Pak frozen with unsupported version");
 	}
 
 	if (Version < PakFile_Version_FNameBasedCompressionMethod)

@@ -4,5 +4,5 @@
 
 FArchive& operator<<(FArchive& Ar, FDateTime& DateTime)
 {
-	Ar << DateTime.Ticks;
+	return Ar << DateTime.Ticks;
 }

@@ -2,7 +2,7 @@
 
 #include "Serialization/Impl/ExportReader.h"
 #include "Serialization/Properties/Unversioned.h"
-#include "Logger.h"
+#include "Logging.h"
 
 UStruct::~UStruct()
 {
@@ -33,7 +33,7 @@ void UStruct::SerializeScriptProperties(FArchive& Ar, UObjectPtr Object)
 	}
 	else
 	{
-		Log<Error>("SerializeVersionedTaggedProperties not yet implemented.");
+		LogError("SerializeVersionedTaggedProperties not yet implemented.");
 	}
 	// TODO: SerializeVersionedTaggedProperties
 }

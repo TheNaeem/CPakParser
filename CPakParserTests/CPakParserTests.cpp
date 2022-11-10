@@ -5,7 +5,7 @@
 #include <Windows.h>
 
 #include "Exceptions.h"
-#include "Logger.h"
+#include "Logging.h"
 
 #include "Dataminer/Dataminer.h"
 #include "Core/Reflection/PropertyIterator.h"

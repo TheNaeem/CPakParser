@@ -2,7 +2,7 @@
 
 #include "Core/Globals/GlobalContext.h"
 #include "Misc/Compression/Oodle.h"
-#include "Logger.h"
+#include "Logging.h"
 
 // getters and setters
 

@@ -1,7 +1,7 @@
 #include "PackageSummary.h"
 
 #include "Serialization/Archives.h"
-#include "Logger.h"
+#include "Logging.h"
 #include "PackageFlags.h"
 #include "Misc/Compression/GlobalCompression.h"
 
@@ -16,7 +16,7 @@ FArchive& operator<<(FArchive& Ar, FPackageFileSummary& Summary)
 	{
 		Summary.Tag = PACKAGE_FILE_TAG;
 
-		Log<Warning>("Package summary must be endian swapped. TODO");
+		LogError("Package summary must be endian swapped. TODO");
 	}
 
 	constexpr int32_t CurrentLegacyFileVersion = -8;

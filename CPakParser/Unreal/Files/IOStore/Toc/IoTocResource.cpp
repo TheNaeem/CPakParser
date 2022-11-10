@@ -6,7 +6,7 @@
 #include "Misc/Hashing/ShaHash.h"
 #include "../Misc/IoOffsetAndLength.h"
 #include "../Misc/IoChunkId.h"
-#include "Logger.h"
+#include "Logging.h"
 
 enum class EIoStoreTocVersion : uint8_t
 {
@@ -33,7 +33,7 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 
 	if (!TocFileReader.IsValid())
 	{
-		Log<Error>("Failed to open IoStore TOC file: " + TocFilePath);
+		LogError("Failed to open IoStore TOC file %s", TocFilePath.c_str());
 		return;
 	}
 
@@ -41,16 +41,16 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 
 	if (!Header.CheckMagic())
 	{
-		Log<Error>("Could not read TOC file magic: " + TocFilePath);
+		LogError("Could not read TOC file magic %s", TocFilePath.c_str());
 		return;
 	}
 
 	if (Header.TocHeaderSize != sizeof(FIoStoreTocHeader))
-		Log<Error>("User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
+		LogError("User defined FIoStoreTocHeader is not the same size as the one used in the TOC");
 
 
 	if (Header.TocCompressedBlockEntrySize != sizeof(FIoStoreTocCompressedBlockEntry))
-		Log<Error>("User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
+		LogError("User defined FIoStoreTocCompressedBlockEntry is not the same size as the one used in the TOC");
 
 	uint64_t TotalTocSize = TocFileReader.TotalSize() - sizeof(FIoStoreTocHeader);
 	uint64_t TocMetaSize = Header.TocEntryCount * sizeof(FIoStoreTocEntryMeta);
@@ -144,7 +144,7 @@ FIoStoreTocResource::FIoStoreTocResource(std::string TocFilePath, EIoStoreTocRea
 		Header.PartitionSize = MAX_uint64;
 	}
 
-	Log<Success>("Successfully processed TOC header: " + TocFilePath);
+	Log("Successfully processed TOC header %s", TocFilePath.c_str());
 }
 
 uint64_t FIoStoreTocResource::HashChunkIdWithSeed(int32_t Seed, const FIoChunkId& ChunkId)

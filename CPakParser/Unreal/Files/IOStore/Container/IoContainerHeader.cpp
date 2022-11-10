@@ -1,7 +1,7 @@
 #include "IoContainerHeader.h"
 
 #include "Serialization/Archives.h"
-#include "Logger.h"
+#include "Logging.h"
 
 enum class EIoContainerHeaderVersion : uint32_t
 {
@@ -20,7 +20,7 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 
 	if (Signature != FIoContainerHeader::Signature)
 	{
-		Log<Warning>("FIoContainerHeader signature read does not match the correct one.");
+		LogWarn("FIoContainerHeader signature read does not match the correct one.");
 		return Ar;
 	}
 

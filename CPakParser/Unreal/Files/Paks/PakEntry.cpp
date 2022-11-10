@@ -1,7 +1,7 @@
 #include "PakEntry.h"
 
 #include "PakInfo.h"
-#include "Logger.h"
+#include "Logging.h"
 #include "Serialization/Archives.h"
 #include "Misc/Compression/GlobalCompression.h"
 
@@ -74,7 +74,7 @@ void FPakEntry::Serialize(FArchive& Ar, int32_t Version)
 		else if (LegacyCompressionMethod & COMPRESS_ZLIB) CompressionMethodIndex = 1;
 		else if (LegacyCompressionMethod & COMPRESS_GZIP) CompressionMethodIndex = 2;
 		else if (LegacyCompressionMethod & COMPRESS_Custom) CompressionMethodIndex = 3;
-		else Log<Error>("Found an unknown compression type in pak file, will need to be supported for legacy files");
+		else LogError("Found an unknown compression type in pak file, will need to be supported for legacy files");
 	}
 	else
 	{

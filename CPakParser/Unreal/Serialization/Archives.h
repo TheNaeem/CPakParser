@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Defines.h"
 #include "Core/UObject.h"
+#include "Core/Defines.h"
 #include "Misc/Versioning/PackageFileVersion.h"
 
 class FArchive 

@@ -7,7 +7,7 @@
 #include "Files/Paks/PakFile.h"
 #include "Misc/Multithreading/Lock.h"
 #include <filesystem>
-#include "Logger.h"
+#include "Logging.h"
 
 void Dataminer::OnPakMounted(TSharedPtr<FPakFile> Pak)
 {
@@ -15,14 +15,14 @@ void Dataminer::OnPakMounted(TSharedPtr<FPakFile> Pak)
 
 	Pak->SetIsMounted(true);
 
-	Log<Success>("Sucessfully mounted PAK file: " + Pak->GetDiskPath());
+	Log("Sucessfully mounted PAK file %s", Pak->GetDiskPath().c_str());
 
 	MountedFiles.push_back(Pak);
 }
 
 bool Dataminer::MountPak(std::string InPakFilePath, bool bLoadIndex) //TODO: attempt to mount a toc even 
 {
-	Log<Success>("Mounting PAK file: " + InPakFilePath);
+	Log("Mounting PAK file %s", InPakFilePath.c_str());
 
 	auto Pak = std::make_shared<FPakFile>(InPakFilePath, Context);
 	Pak->Initialize(bLoadIndex);
@@ -53,7 +53,7 @@ bool Dataminer::MountPak(std::string InPakFilePath, bool bLoadIndex) //TODO: att
 			UnmountedPaks.insert_or_assign(PakGuid, InPakFilePath);
 		}
 
-		Log<Warning>("Encryption key could not be found for " + InPakFilePath + " so it will be deferred until it's registered");
+		LogWarn("Encryption key could not be found for %s so it will be deferred until it's registered", InPakFilePath.c_str());
 
 		return false;
 	}
@@ -65,7 +65,7 @@ bool Dataminer::MountPak(std::string InPakFilePath, bool bLoadIndex) //TODO: att
 
 TSharedPtr<FIoStoreReader> Dataminer::MountToc(std::string InTocPath, FGuid EncryptionKeyGuid, FAESKey EncryptionKey)
 {
-	Log<Success>("Mounting TOC: " + InTocPath);
+	Log("Mounting TOC %s", InTocPath.c_str());
 
 	auto Toc = std::make_shared<FIoStoreToc>(InTocPath);
 	auto Reader = std::make_shared<FIoStoreReader>(Toc, PartitionIndex);
@@ -120,9 +120,9 @@ void Dataminer::MountAllPakFiles()
 
 		if (!MountPak(PakPath.string()))
 		{
-			Log<Warning>("Could not mount PAK file: " + PakPath.filename().string());
+			LogWarn("Could not mount PAK file %s", PakPath.filename().string().c_str());
 		}
 	}
 
-	Log<Success>("Mounted all available PAK files");
+	Log("Mounted all available PAK files");
 }

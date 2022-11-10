@@ -8,7 +8,8 @@
 #include "Serialization/Impl/MemoryReader.h"
 #include "../Toc/IoTocResource.h"
 #include "../Toc/IoStoreToc.h"
-#include "Logger.h"
+#include "Logging.h"
+#include <sstream>
 
 bool FIoStoreReader::IsEncrypted() const
 {
@@ -59,7 +60,7 @@ void FIoStoreReader::ReadContainerHeader()
 
 	if (!OffsetAndLength.IsValid())
 	{
-		Log<Error>("Container header chunk not found: " + this->Container.FilePath);
+		LogWarn("Container header chunk not found %s", this->Container.FilePath.c_str());
 		return;
 	}
 
@@ -82,7 +83,7 @@ void FIoStoreReader::ReadContainerHeader()
 		auto ContainerFileHandle = FFileReader(Container.Partitions[PartitionIndex].FilePath.c_str());
 
 		if (!ContainerFileHandle.IsValid())
-			Log<Error>("Failed to open container file for TOC"); //expect a crash if this happens 
+			LogError("Failed to open container file for TOC"); 
 
 		ContainerFileHandle.Seek(RawOffset);
 		ContainerFileHandle.Serialize(IoBuffer.get(), BufSize);
@@ -119,7 +120,7 @@ FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_
 
 	if (!TocPtr)
 	{
-		Log<Error>("Toc weak pointer passed into FIoStoreReader is invalid!");
+		LogError("Toc weak pointer passed into FIoStoreReader is invalid!");
 		return;
 	}
 
@@ -129,7 +130,7 @@ FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_
 
 	if (!ContainerPathView.ends_with(".utoc"))
 	{
-		Log<Error>(std::string(ContainerPathView) + " was not a .utoc file.");
+		LogError("%s was not a .utoc file", ContainerPathView.data());
 		return;
 	}
 
@@ -158,7 +159,7 @@ FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_
 
 		if (!Partition.OpenContainer(Partition.FilePath.c_str()))
 		{
-			Log<Error>("Failed to open IoStore container file " + Partition.FilePath);
+			LogError("Failed to open IoStore container file %s", Partition.FilePath.c_str());
 			return;
 		}
 
@@ -352,7 +353,7 @@ void FIoStoreReader::Initialize(TSharedPtr<GContext> Context, bool bSerializeDir
 
 		if (!DirectoryIndex.DirectoryEntries.size())
 		{
-			Log<Warning>("Directory index has 0 files.");
+			LogWarn("Directory index has 0 files.");
 			return;
 		}
 

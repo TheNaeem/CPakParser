@@ -1,7 +1,7 @@
 #include "Text.h"
 
 #include "Misc/Hashing/Map.h"
-#include "Logger.h"
+#include "Logging.h"
 
 typedef std::vector<std::pair<std::string, struct FFormatArgumentValue>> FFormatNamedArguments;
 typedef std::vector<struct FFormatArgumentValue> FFormatOrderedArguments;
@@ -554,7 +554,7 @@ FArchive& operator<<(FArchive& Ar, FText& Value)
 		case ETextHistoryType::StringTableEntry:
 		case ETextHistoryType::TextGenerator:
 		{
-			Log<Error>("Unsupported Text history type. Wasn't gonna implement this until I actually encountered it.");
+			LogError("Unsupported Text history type. Wasn't gonna implement this until I actually encountered it.");
 			return Ar;
 		}
 		default:

@@ -5,7 +5,7 @@
 #include "Serialization/Impl/MemoryReader.h"
 #include "Serialization/Impl/FileReader.h"
 #include "Misc/Hashing/ShaHash.h"
-#include "Logger.h"
+#include "Logging.h"
 
 //TODO: right now im just directly porting engine code, but once I have everything laid out, I should refactor it to be more practical for my usage of it
 
@@ -194,7 +194,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 	if (CachedTotalSize < (Info.IndexOffset + Info.IndexSize))
 	{
-		Log<Error>("Corrupted index offset in pak file.");
+		LogError("Corrupted index offset in pak file.");
 		return false;
 	}
 
@@ -300,7 +300,7 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 	}
 	else
 	{
-		Log<Error>("Corrupt pak PrimaryIndex detected!");
+		LogError("Corrupt pak PrimaryIndex detected!");
 		return false;
 	}
 

@@ -1,7 +1,7 @@
 #include "GameplayTagContainer.h"
 
 #include "Serialization/Archives.h"
-#include "Logger.h"
+#include "Logging.h"
 
 void operator<<(FArchive& Ar, FGameplayTag& GameplayTag)
 {
@@ -14,7 +14,7 @@ void operator<<(FArchive& Ar, FGameplayTagContainer& GameplayTagContainer)
 	{
 		std::vector<FName> Tags_DEPRECATED;
 		Ar << Tags_DEPRECATED;
-		Log<Error>("Failed to load old GameplayTag container, too old to migrate correctly");
+		LogError("Failed to load old GameplayTag container, too old to migrate correctly");
 	}
 	else Ar << GameplayTagContainer.GameplayTags;
 }

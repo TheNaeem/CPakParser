@@ -5,7 +5,7 @@
 #include "Serialization/Impl/MemoryReader.h"
 #include "Misc/Compression/Oodle.h"
 #include "Core/Reflection/Properties/PropertyTypes.h"
-#include "Logger.h"
+#include "Logging.h"
 
 #define USMAP_FILE_MAGIC 0x30C4
 
@@ -201,7 +201,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 
 	if (!FileAr.IsValid())
 	{
-		Log<Error>("Could not open handle to usmap file or it does not exist. Returning.");
+		LogError("Could not open handle to usmap file or it does not exist. Returning.");
 		return false;
 	}
 
@@ -210,7 +210,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 
 	if (Magic != USMAP_FILE_MAGIC)
 	{
-		Log<Error>("Invalid usmap file magic. Returning.");
+		LogError("Invalid usmap file magic. Returning.");
 		return false;
 	}
 
@@ -219,7 +219,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 
 	if (Ver < EUsmapVersion::Initial || Ver > EUsmapVersion::Latest)
 	{
-		Log<Error>("Invalid usmap file version. Returning.");
+		LogError("Invalid usmap file version. Returning.");
 		return false;
 	}
 
@@ -239,7 +239,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 	{
 		if (CompressedSize != DecompressedSize)
 		{
-			Log<Error>("Usmap compression method is uncompressed but the compressed and decompressed size are different. Returning.");
+			LogError("Usmap compression method is uncompressed but the compressed and decompressed size are different. Returning.");
 			return false;
 		}
 
@@ -257,7 +257,7 @@ bool Mappings::RegisterTypesFromUsmap(std::string Path, TMap<std::string, UObjec
 	// TODO: brotli and zstandard
 	default:
 	{
-		Log<Error>("Invalid usmap compression method.");
+		LogError("Invalid usmap compression method.");
 		return false;
 	}
 	}

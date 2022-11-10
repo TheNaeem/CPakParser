@@ -8,7 +8,7 @@
 #include "Core/Globals/GlobalContext.h"
 #include "Files/FileEntry.h"
 #include "../Misc/IoStoreReader.h"
-#include "Logger.h"
+#include "Logging.h"
 
 class FIoExportArchive : public FExportReader
 {
@@ -34,7 +34,7 @@ public:
 
 		if (NameStr.empty())
 		{
-			Log<Warning>("Name serialized with FIoExportArchive is empty or invalid");
+			LogWarn("Name serialized with FIoExportArchive is empty or invalid");
 		}
 
 		Name = NameStr;
@@ -62,7 +62,7 @@ public:
 			{
 				Object = PackageData.Exports[ExportIndex].Object;
 			}
-			else Log<Error>("Export index read is not a valid index.");
+			else LogError("Export index read is not a valid index.");
 
 			return *this;
 		}
@@ -76,7 +76,7 @@ public:
 				PackageData.Exports,
 				PackageData.Header.ImportMap[Index.ToImport()]);
 		}
-		else Log<Error>("Bad object import index.");
+		else LogError("Bad object import index.");
 
 		return *this;
 	}
@@ -155,7 +155,7 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 
 	if (!PackageHeaderDataPtr)
 	{
-		Log<Warning>("Package header data is null, which either means something went wrong or the archive passed in is not a memory archive. Expect issues.");
+		LogWarn("Package header data is null, which either means something went wrong or the archive passed in is not a memory archive. Expect issues.");
 	}
 
 	auto PackageDataOffset = Ar->Tell();

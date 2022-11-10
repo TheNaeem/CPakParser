@@ -2,7 +2,7 @@
 
 #include "Core/Globals/GlobalContext.h"
 #include "Misc/Multithreading/Lock.h"
-#include "Logger.h"
+#include "Logging.h"
 #include <filesystem>
 #include <future>
 
@@ -18,7 +18,7 @@ bool Dataminer::Initialize()
 
 	if (!std::filesystem::is_directory(PaksDirectory))
 	{
-		Log<Error>("Invalid paks directory.");
+		LogError("Invalid paks directory %s", PaksDirectory.c_str());
 		return false;
 	}
 
@@ -30,7 +30,7 @@ bool Dataminer::Initialize()
 	{
 		GlobalMountTask = std::async(std::launch::async, [this, &GlobalUTocPath]()
 			{
-				Log<Info>("Mounting global.utoc");
+				Log("Mounting global.utoc");
 
 				auto GlobalReader = MountToc(GlobalUTocPath.string(), FGuid(), FAESKey());
 
@@ -39,7 +39,7 @@ bool Dataminer::Initialize()
 
 				Context->GlobalToc.Serialize(GlobalReader);
 
-				Log<Success>("Successfully mounted Global TOC");
+				Log("Successfully mounted Global TOC");
 			});
 	}
 
@@ -57,7 +57,7 @@ bool Dataminer::SubmitKey(const char* AesKeyString, const char* GuidString)
 
 	if (Context->EncryptionKeyManager.HasKey(Guid))
 	{
-		Log<Warning>("Attempting to register a key with a GUID that has already been registered.");
+		LogWarn("Attempting to register a key with a GUID that has already been registered.");
 		return false;
 	}
 
