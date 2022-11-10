@@ -49,7 +49,7 @@ class FProperty
 public:
 
 	friend class FPropertyFactory;
-	friend class FUnversionedSerializer;
+	friend struct FUnversionedSerializer;
 	friend class Mappings;
 
 	virtual ~FProperty() = default;

@@ -4,6 +4,10 @@
 #include <bitset>
 #include <vector>
 
+#if EXTENSIVE_LOGGING
+#include "Logging.h"
+#endif
+
 struct FUnversionedHeader
 {
 	struct FFragment
@@ -191,6 +195,11 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 			continue;
 
 		auto Prop = *It;
+
+#if EXTENSIVE_LOGGING
+		Log("Serializing property %s %d", Prop->Name.c_str(), (int)Prop->Type);
+#endif
+
 		auto Value = Prop->Serialize(Ar);
 
 		if (!Value)

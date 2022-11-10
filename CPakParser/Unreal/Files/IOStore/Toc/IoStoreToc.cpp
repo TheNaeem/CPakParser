@@ -224,6 +224,8 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
 	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
 
+	Log("Loading package %s", PackageData.Header.PackageName.c_str());
+
 	auto& PackageVer = PackageData.Header.VersioningInfo.PackageVersion;
 
 	if (PackageVer.IsValid())

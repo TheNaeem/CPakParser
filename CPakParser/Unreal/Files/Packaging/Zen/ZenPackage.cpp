@@ -107,6 +107,8 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 				continue;
 
 			SerializeExport(PackageData, BundleEntry.LocalExportIndex);
+
+			PackageData.Reader->Seek(ExportMapEntry.CookedSerialSize);
 		}
 	}
 }
@@ -167,4 +169,6 @@ void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExp
 	else*/
 
 	Object->Serialize(PackageData.Reader);
+
+	Log("Serialized export %s", Object->Name.c_str());
 }

@@ -93,7 +93,7 @@ public:
 	UObject() = default;
 
 	friend class UZenPackage;
-	friend class FUnversionedSerializer;
+	friend struct FUnversionedSerializer;
 
 	enum Flags
 	{

@@ -8,7 +8,6 @@
 #include "Logging.h"
 
 #include "Dataminer/Dataminer.h"
-#include "Core/Reflection/PropertyIterator.h"
 
 
 int main()
@@ -30,7 +29,7 @@ int main()
 	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_664_Athena_Commando_M_Gummi.uasset");
 
 	auto End = std::chrono::steady_clock::now();
-	printf("[+] Exported Skull Ranger in %.02f ms\n", (End - Start).count() / 1000000.);
+	printf("[+] Exported Gummi in %.02f ms\n", (End - Start).count() / 1000000.);
 
 	Sleep(-1);
 }
