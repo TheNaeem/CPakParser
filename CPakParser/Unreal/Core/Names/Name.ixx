@@ -1,9 +1,10 @@
-#pragma once
+export module Name;
 
-#include <string>
-#include <vector>
+export import <string>;
+import <vector>;
+import FArchiveBase;
 
-class FName
+export class FName
 {
 	std::string Val;
 
@@ -27,4 +28,4 @@ public:
 	}
 };
 
-std::vector<std::string> LoadNameBatch(class FArchive& Ar);
+export std::vector<std::string> LoadNameBatch(FArchive& Ar);

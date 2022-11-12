@@ -1,6 +1,10 @@
-#pragma once
+module;
 
-#include "../FileEntry.h"
+#include "Core/Defines.h"
+
+export module PakEntryLocation;
+
+export import FileEntry;
 
 struct FPakEntryLocation : public FFileEntryInfo
 {

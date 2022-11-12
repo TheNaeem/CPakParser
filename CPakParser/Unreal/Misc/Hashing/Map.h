@@ -1,12 +1,10 @@
-module;
+#pragma once
 
-#include "parallel_hashmap/phmap.h";
+#include "parallel_hashmap/phmap.h"
 
-export module TMap;
+import FArchiveBase;
 
-import FArchive;
-
-export template <class K, class V>
+template <class K, class V>
 using TMap = phmap::flat_hash_map<K, V>;
 
 template<class T>
@@ -34,7 +32,7 @@ template<class Key, class Value>
 FArchive& operator<<(FArchive& Ar, TMap<Key, Value>& InMap)
 {
 	auto Pairs = phmap::flat_hash_set<std::pair<Key, Value>>();
-
+	
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
 

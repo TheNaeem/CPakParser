@@ -1,8 +1,11 @@
-#pragma once
+export module GameplayTagContainer;
 
-#include "GameplayTag.h"
+export import GameplayTag;
+import <vector>;
+import FArchiveBase;
+import Logging;
 
-class FGameplayTagContainer
+export class FGameplayTagContainer
 {
 public:
 
@@ -49,7 +52,16 @@ public:
 		return GameplayTags.size() > 0 ? GameplayTags.back() : FGameplayTag();
 	}
 
-	friend void operator<<(class FArchive& Ar, FGameplayTagContainer& GameplayTagContainer);
+	friend void operator<<(FArchive& Ar, FGameplayTagContainer& GameplayTagContainer)
+	{
+		if (Ar.UEVer() < VER_UE4_GAMEPLAY_TAG_CONTAINER_TAG_TYPE_CHANGE)
+		{
+			std::vector<FName> Tags_DEPRECATED;
+			Ar << Tags_DEPRECATED;
+			LogError("Failed to load old GameplayTag container, too old to migrate correctly");
+		}
+		else Ar << GameplayTagContainer.GameplayTags;
+	}
 
 private:
 

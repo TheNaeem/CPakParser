@@ -9,7 +9,7 @@
 #include "Files/SerializableFile.h"
 #include <future>
 
-import UObject;
+import UObjectCore;
 
 class Dataminer
 {

@@ -1,7 +1,9 @@
-#include "Name.h"
-
-#include "Serialization/Archives.h"
 #include <span>
+#include <vector>
+
+import Name;
+import FArchiveBase;
+import FArchiveBase;
 
 struct FSerializedNameHeader
 {

@@ -1,10 +1,10 @@
-#pragma once
+export module Logging;
 
-#include <stdio.h>
+import <cstdio>;
 
-inline bool LOGGING_ENABLED = false;
+export inline bool LOGGING_ENABLED = false;
 
-template <typename... Args>
+export template <typename... Args>
 __forceinline constexpr void Log(const char* Txt, Args... args)
 {
 	if (!LOGGING_ENABLED)
@@ -15,7 +15,7 @@ __forceinline constexpr void Log(const char* Txt, Args... args)
 	printf("\n");
 }
 
-template <typename... Args>
+export template <typename... Args>
 __forceinline constexpr void LogError(const char* Txt, Args... args)
 {
 	if (!LOGGING_ENABLED)
@@ -26,7 +26,7 @@ __forceinline constexpr void LogError(const char* Txt, Args... args)
 	printf("\n");
 }
 
-template <typename... Args>
+export template <typename... Args>
 __forceinline constexpr void LogWarn(const char* Txt, Args... args)
 {
 	if (!LOGGING_ENABLED)

@@ -1,18 +1,20 @@
-#pragma once
+export module BorrowedArchive;
 
-#include "Files/DiskFile.h"
-#include "Misc/Multithreading/Lock.h"
-#include <vector>
+import DiskFile;
+import <vector>;
+import "Misc/Multithreading/Lock.h";
 
-class FBorrowedArchive final // TODO: how to implement this across Tocs and Paks
+export import FArchiveBase;
+
+export class FBorrowedArchive final // TODO: how to implement this across Tocs and Paks
 {
 	friend class FPakReaderCollection;
 
-	class FArchive* Archive = nullptr;
+	FArchive* Archive = nullptr;
 	class FPakReaderCollection* Owner = nullptr;
 
-	FBorrowedArchive(FArchive* InArchive, FPakReaderCollection* InOwner);
-	
+	FBorrowedArchive(FArchive* InArchive, class FPakReaderCollection* InOwner);
+
 public:
 
 	~FBorrowedArchive();
@@ -27,7 +29,7 @@ public:
 	FArchive& GetArchive();
 };
 
-class FPakReaderCollection
+export class FPakReaderCollection
 {
 public:
 
@@ -44,5 +46,5 @@ private:
 public:
 
 	FBorrowedArchive BorrowReader();
-	void ReturnReader(class FArchive* SharedReader);
+	void ReturnReader(FArchive* SharedReader);
 };

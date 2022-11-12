@@ -1,8 +1,11 @@
-#pragma once
+module;
 
-#include "Core/UObject.h"
 #include "Misc/Hashing/Map.h"
-#include <string>
+
+export module Mappings;
+
+import UObjectCore;
+import <string>;
 
 class Mappings // make it a class instead of a namespace so it can be a friend to other classes
 {

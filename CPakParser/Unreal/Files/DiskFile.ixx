@@ -12,5 +12,5 @@ public:
 
 	virtual std::string GetDiskPath() = 0;
 	virtual TSharedPtr<class FArchive> CreateEntryArchive(struct FFileEntryInfo EntryInfo) = 0;
-	virtual void DoWork(FSharedAr Ar, TSharedPtr<class GContext> Context) = 0;
+	virtual void DoWork(TSharedPtr<class FArchive> Ar, TSharedPtr<class GContext> Context) = 0;
 };

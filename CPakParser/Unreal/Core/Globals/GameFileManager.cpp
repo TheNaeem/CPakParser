@@ -1,9 +1,7 @@
-
-
-#include "Files/Paks/PakEntryLocation.h"
-#include "Serialization/Archives.h"
+#include <string>
 
 import GameFileManager;
+import PakEntryLocation;
 
 #if HASH_DIRECTORY_INDEX
 static constexpr auto Hash(const char* s, int off = 0) -> unsigned int

@@ -1,8 +1,12 @@
-#pragma once
+module;
 
-#include "../Archives.h"
+#include "Core/Defines.h"
 
-class FMemoryReader : public FArchive
+export module MemoryReader;
+
+export import FArchiveBase;
+
+export class FMemoryReader : public FArchive
 {
 public:
 

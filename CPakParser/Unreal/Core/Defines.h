@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <intrin.h>
+import <memory>;
+import <intrin.h>;
 
 #define HASH_DIRECTORY_INDEX 1
 #define EXTENSIVE_LOGGING 0
@@ -41,9 +41,6 @@ using TSharedPtr = std::shared_ptr<T>;
 
 template <typename T>
 using TWeakPtr = std::weak_ptr<T>;
-
-typedef TUniquePtr<class FArchive> FUniqueAr;
-typedef TSharedPtr<class FArchive> FSharedAr;
 
 template <typename T>
 static __forceinline constexpr T Align(T Val, uint64_t Alignment)

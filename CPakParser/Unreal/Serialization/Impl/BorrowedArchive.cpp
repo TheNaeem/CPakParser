@@ -1,6 +1,7 @@
-#include "BorrowedArchive.h"
+#include "Misc/Multithreading/Lock.h"
 
-#include "FileReader.h"
+import BorrowedArchive;
+import FileReader;
 
 FBorrowedArchive::FBorrowedArchive(FArchive* InArchive, FPakReaderCollection* InOwner)
 	: Archive(InArchive), Owner(InOwner)

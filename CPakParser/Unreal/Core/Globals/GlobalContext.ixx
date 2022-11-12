@@ -1,10 +1,11 @@
 export module GlobalContext;
 
-import UObject;
-#include "GameFileManager.h"
 #include "Files/IOStore/Toc/GlobalTocData.h"
 #include "Misc/Encryption/EncryptionKeyManager.h"
-#include "Misc/Versioning/PackageFileVersion.h"
+
+import UObjectCore;
+import PackageFileVersion;
+import GameFileManager;
 
 class GContext
 {

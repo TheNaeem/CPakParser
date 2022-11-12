@@ -1,4 +1,4 @@
-export module UObject;
+export module UObjectCore;
 
 export import "Defines.h";
 import <string>;
@@ -212,5 +212,5 @@ public:
 
 	virtual void Load() { }
 
-	virtual void Serialize(FSharedAr Ar);
+	virtual void Serialize(TSharedPtr<class FArchive> Ar);
 };

@@ -1,11 +1,13 @@
-#include "Mappings.h"
 
-#include "Core/Class.h"
+
 #include "Serialization/Impl/FileReader.h"
 #include "Serialization/Impl/MemoryReader.h"
 #include "Misc/Compression/Oodle.h"
 #include "Core/Reflection/Properties/PropertyTypes.h"
 #include "Logging.h"
+
+import Mappings;
+import UClass;
 
 #define USMAP_FILE_MAGIC 0x30C4
 

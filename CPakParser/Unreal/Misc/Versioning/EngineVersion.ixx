@@ -1,7 +1,7 @@
 export module EngineVersion;
 
 import <string>;
-import FArchive;
+import FArchiveBase;
 
 export class FEngineVersionBase
 {
@@ -53,7 +53,7 @@ public:
 
 	friend FArchive& operator<<(FArchive& Ar, FEngineVersion& Version)
 	{
-		Ar << Version.Branch;
+		return Ar << Version.Branch;
 	}
 
 	const std::string GetBranch() const

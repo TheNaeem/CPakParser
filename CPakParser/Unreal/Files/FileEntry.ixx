@@ -1,7 +1,7 @@
 export module FileEntry;
 
 export import DiskFile;
-import FArchive;
+import FArchiveBase;
 import <string>;
 
 export struct FFileEntryInfo

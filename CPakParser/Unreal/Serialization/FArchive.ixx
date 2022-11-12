@@ -1,11 +1,14 @@
-export module FArchive;
+module;
 
-import "Core/Defines.h";
+#include "Core/Defines.h"
+
+export module FArchiveBase;
+
 import <string>;
 import <vector>;
 
 import PackageFileVersion;
-import UObject;
+import UObjectCore;
 
 export class FArchive
 {
@@ -151,3 +154,6 @@ public:
 		Version = InVersion;
 	}
 };
+
+export typedef TUniquePtr<FArchive> FUniqueAr;
+export typedef TSharedPtr<FArchive> FSharedAr;

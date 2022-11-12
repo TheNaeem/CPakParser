@@ -8,7 +8,7 @@
 #include <filesystem>
 #include "Logging.h"
 
-import FArchive;
+import FArchiveBase;
 
 void Dataminer::OnPakMounted(TSharedPtr<FPakFile> Pak)
 {

@@ -1,6 +1,6 @@
 export module UClass;
 
-export import UObject;
+export import UObjectCore;
 import FProperty;
 
 export class UStruct : public UObject
