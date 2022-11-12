@@ -1,6 +1,5 @@
 #include "Dataminer.h"
 
-#include "Serialization/Archives.h"
 #include "Core/Globals/GlobalContext.h"
 #include "Files/IOStore/Toc/IoStoreToc.h"
 #include "Files/IOStore/Misc/IoStoreReader.h"
@@ -8,6 +7,8 @@
 #include "Misc/Multithreading/Lock.h"
 #include <filesystem>
 #include "Logging.h"
+
+import FArchive;
 
 void Dataminer::OnPakMounted(TSharedPtr<FPakFile> Pak)
 {

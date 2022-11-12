@@ -1,11 +1,10 @@
-#pragma once
+export module UObject;
 
-#include "Defines.h"
-#include "Reflection/PropertyValue.h"
-#include <string>
-#include <vector>
+export import "Defines.h";
+import <string>;
+import <vector>;
 
-template <typename ObjectType>
+export template <typename ObjectType>
 class TObjectPtr
 {
 	//static_assert(std::is_base_of<UObject, ObjectType>::value, "Type passed into UObjectPtr must be a UObject type");
@@ -71,22 +70,22 @@ public:
 
 	template <typename T>
 	__forceinline operator TObjectPtr<T>() const
-	{ 
+	{
 		return TObjectPtr<T>(std::dynamic_pointer_cast<T>(Val));
 	}
 
 	template <typename T>
-	__forceinline operator TObjectPtr<T>() 
+	__forceinline operator TObjectPtr<T>()
 	{
 		return TObjectPtr<T>(std::dynamic_pointer_cast<T>(Val));
 	}
 };
 
-typedef TObjectPtr<class UObject> UObjectPtr;
-typedef TObjectPtr<class UClass> UClassPtr;
-typedef TObjectPtr<class UStruct> UStructPtr;
+export typedef TObjectPtr<class UObject> UObjectPtr;
+export typedef TObjectPtr<class UClass> UClassPtr;
+export typedef TObjectPtr<class UStruct> UStructPtr;
 
-class UObject : public std::enable_shared_from_this<UObject>
+export class UObject : public std::enable_shared_from_this<UObject>
 {
 public:
 

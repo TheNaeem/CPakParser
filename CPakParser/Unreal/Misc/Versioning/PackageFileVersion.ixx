@@ -1,8 +1,6 @@
-#pragma once
+export module PackageFileVersion;
 
-class FArchive;
-
-enum class EUnrealEngineObjectUE5Version : __int32
+export enum class EUnrealEngineObjectUE5Version : __int32
 {
 	// Note that currently the oldest loadable package version is EUnrealEngineObjectUEVersion::VER_UE4_OLDEST_LOADABLE_PACKAGE
 	// this can be enabled should we ever deprecate UE4 versions entirely
@@ -42,7 +40,7 @@ enum class EUnrealEngineObjectUE5Version : __int32
 };
 
 /** This enum is the version for UE4 and should ONLY be edited in UE4 Main branch! */
-enum EUnrealEngineObjectUE4Version
+export enum EUnrealEngineObjectUE4Version
 {
 	VER_UE4_OLDEST_LOADABLE_PACKAGE = 214,
 
@@ -676,7 +674,7 @@ enum EUnrealEngineObjectUE4Version
 	VER_UE4_AUTOMATIC_VERSION = VER_UE4_AUTOMATIC_VERSION_PLUS_ONE - 1
 };
 
-enum EUnrealEngineObjectLicenseeUEVersion
+export enum EUnrealEngineObjectLicenseeUEVersion
 {
 	VER_LIC_NONE = 0,
 	// - this needs to be the last line (see note below)
@@ -686,7 +684,7 @@ enum EUnrealEngineObjectLicenseeUEVersion
 
 static_assert(EUnrealEngineObjectUE4Version::VER_UE4_AUTOMATIC_VERSION < (__int32)EUnrealEngineObjectUE5Version::INITIAL_VERSION, "UE4 versioning must be lower than the start of UE5 versioning");
 
-struct FPackageFileVersion
+export struct FPackageFileVersion
 {
 	FPackageFileVersion() = default;
 	FPackageFileVersion(__int32 UE4Version, EUnrealEngineObjectUE5Version UE5Version)
@@ -718,7 +716,7 @@ struct FPackageFileVersion
 	bool operator==(const FPackageFileVersion& Other) const;
 	bool operator!=(const FPackageFileVersion& Other) const;
 
-	friend FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version);
+	friend class FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version);
 
 	__forceinline bool IsValid()
 	{
@@ -729,4 +727,4 @@ struct FPackageFileVersion
 	__int32	FileVersionUE5 = 0;
 };
 
-void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, class FEngineVersion& Version);
+export void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, class FEngineVersion& Version);

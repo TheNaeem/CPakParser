@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "Core/UObject.h"
 #include "Core/Globals/GameFileManager.h"
 #include "Misc/Guid.h"
 #include "Misc/Encryption/AES.h"
@@ -9,6 +8,8 @@
 #include "Misc/Versioning/PackageFileVersion.h"
 #include "Files/SerializableFile.h"
 #include <future>
+
+import UObject;
 
 class Dataminer
 {

@@ -1,7 +1,7 @@
-#include "PackageFileVersion.h"
-
-#include "Serialization/Archives.h"
 #include "EngineVersion.h"
+
+import PackageFileVersion;
+import FArchive;
 
 FPackageFileVersion FPackageFileVersion::CreateUE4Version(__int32 Version)
 {

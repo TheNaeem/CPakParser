@@ -1,26 +1,29 @@
-#pragma once
+module;
 
-#include "Core/Defines.h"
-#include "Files/FileEntry.h"
-#include "Misc/Hashing/Map.h"
+#include "../Defines.h"
 
-#define HASH_DIRECTORY_INDEX 1
+export module GameFileManager;
+
+import FileEntry;
+import TMap;
+import <vector>;
+import <string>;
 
 #if HASH_DIRECTORY_INDEX
 
-typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
-typedef TMap<uint32_t, FFileEntryInfo> FPakDirectory;
-typedef phmap::parallel_flat_hash_map<uint32_t, FPakDirectory> FDirectoryIndex;
+	typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
+	typedef TMap<uint32_t, FFileEntryInfo> FPakDirectory;
+	typedef phmap::parallel_flat_hash_map<uint32_t, FPakDirectory> FDirectoryIndex;
 
 #else
 
-typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
-typedef TMap<std::string, FFileEntryInfo> FPakDirectory;
-typedef phmap::parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
+	typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
+	typedef TMap<std::string, FFileEntryInfo> FPakDirectory;
+	typedef phmap::parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 #endif
 
-class FGameFileManager // TODO: FDirectoryIterator
+export class FGameFileManager // TODO: FDirectoryIterator
 {
 public:
 
@@ -43,7 +46,7 @@ public:
 	FGameFileCollection GetFilesByExtension(std::string Ext);
 	FDirectoryIndex GetFiles();
 
-	void SerializePakIndexes(FArchive& Ar, std::string& MountPoint, TSharedPtr<class IDiskFile> AssociatedPak);
+	void SerializePakIndexes(class FArchive& Ar, std::string& MountPoint, TSharedPtr<class IDiskFile> AssociatedPak);
 
 #if HASH_DIRECTORY_INDEX
 	void AddFile(std::string& FileDir, std::string& FileName, FFileEntryInfo EntryInfo);
@@ -56,7 +59,7 @@ public:
 		}
 
 		FileLibrary[FileDir].insert_or_assign(FileName, EntryInfo);
-}
+	}
 #endif
 
 private:

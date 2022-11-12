@@ -1,4 +1,7 @@
-#include "Archives.h"
+#include "Core/Defines.h"
+#include <string>
+
+import FArchive;
 
 FArchive& operator<<(FArchive& Ar, std::string& InString)
 {

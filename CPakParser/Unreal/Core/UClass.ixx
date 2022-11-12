@@ -1,10 +1,9 @@
-#pragma once
+export module UClass;
 
-#include "UObject.h"
-#include "Reflection/Property.h"
-#include <vector>
+export import UObject;
+import FProperty;
 
-class UStruct : public UObject
+export class UStruct : public UObject
 {
 public:
 
@@ -32,11 +31,9 @@ public:
 };
 
 
-class UClass : public UStruct
+export class UClass : public UStruct
 {
 public:
 
 	friend class UObject;
 };
-
-// shoutout to LiveDataminer iykyk =)

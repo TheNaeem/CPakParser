@@ -3,6 +3,7 @@
 #include <memory>
 #include <intrin.h>
 
+#define HASH_DIRECTORY_INDEX 1
 #define EXTENSIVE_LOGGING 0
 
 #define memcpyfst(d, s, c) __movsb((unsigned char*)d, s, c)

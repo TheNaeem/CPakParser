@@ -1,18 +1,23 @@
-#pragma once
+export module FileEntry;
 
-#include "DiskFile.h"
+export import DiskFile;
+import FArchive;
+import <string>;
 
-struct FFileEntryInfo
+export struct FFileEntryInfo
 {
 	FFileEntryInfo()
 	{
-		Entry.TocIndex = NULL;
+		Entry.TocIndex = 0;
 	};
 
 	FFileEntryInfo(uint32_t InIndex) { Entry.TocIndex = InIndex; }
 	FFileEntryInfo(int32_t InIndex) { Entry.PakIndex = InIndex; }
 
-	friend FArchive& operator<<(FArchive& Ar, FFileEntryInfo& EntryInfo);
+	friend FArchive& operator<<(FArchive& Ar, FFileEntryInfo& Info)
+	{
+		return Ar << Info.Entry.PakIndex;
+	}
 
 	__forceinline bool IsValid()
 	{

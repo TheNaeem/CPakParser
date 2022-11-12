@@ -1,9 +1,12 @@
-#pragma once
+module;
 
 #include "Core/Defines.h"
-#include <string>
 
-class IDiskFile
+export module DiskFile;
+
+import <string>;
+
+export class IDiskFile
 {
 public:
 

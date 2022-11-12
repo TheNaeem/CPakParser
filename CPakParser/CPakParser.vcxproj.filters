@@ -25,7 +25,6 @@
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
     <ClCompile Include="Unreal\Serialization\Impl\ExportReader.cpp" />
-    <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.cpp" />
@@ -43,7 +42,6 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoDirectoryIndex.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoOffsetAndLength.cpp" />
     <ClCompile Include="Unreal\Serialization\Impl\BorrowedArchive.cpp" />
-    <ClCompile Include="Unreal\Files\FileEntry.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\PackageSummary.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
@@ -66,18 +64,26 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\BoolProperty.cpp" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.cpp" />
     <ClCompile Include="Unreal\Structs\Math\Box.cpp" />
+    <ClCompile Include="Unreal\Core\UObject.ixx" />
+    <ClCompile Include="Unreal\Core\UClass.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\FProperty.ixx" />
+    <ClCompile Include="Unreal\Serialization\FArchive.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\PropertyValue.ixx" />
+    <ClCompile Include="Unreal\Core\Globals\GlobalContext.ixx" />
+    <ClCompile Include="Unreal\Core\Globals\GameFileManager.ixx" />
+    <ClCompile Include="Unreal\Files\DiskFile.ixx" />
+    <ClCompile Include="Unreal\Files\FileEntry.ixx" />
+    <ClCompile Include="Unreal\Misc\Hashing\TMap.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unreal\Misc\Encryption\AES.h" />
     <ClInclude Include="Unreal\Misc\Hashing\CityHash.h" />
-    <ClInclude Include="Unreal\Core\Class.h" />
     <ClInclude Include="Unreal\Misc\Compression\GlobalCompression.h" />
     <ClInclude Include="Unreal\Serialization\Impl\ExportReader.h" />
     <ClInclude Include="Unreal\Serialization\Impl\FileReader.h" />
-    <ClInclude Include="Unreal\Serialization\Archives.h" />
     <ClInclude Include="Dataminer\Dataminer.h" />
-    <ClInclude Include="Unreal\Core\Globals\GameFileManager.h" />
-    <ClInclude Include="Unreal\Core\Globals\GlobalContext.h" />
     <ClInclude Include="Unreal\Files\IOStore\Toc\GlobalTocData.h" />
     <ClInclude Include="Unreal\Misc\Guid.h" />
     <ClInclude Include="Unreal\Files\IOStore\Misc\IoChunkId.h" />
@@ -97,7 +103,6 @@
     <ClInclude Include="Unreal\Files\Paks\PakReader.h" />
     <ClInclude Include="Unreal\Misc\Localization\Text.h" />
     <ClInclude Include="Unreal\Files\Packaging\Package.h" />
-    <ClInclude Include="Unreal\Core\UObject.h" />
     <ClInclude Include="Unreal\Files\Paks\PakFile.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenData.h" />
     <ClInclude Include="Unreal\Files\Packaging\Zen\ZenPackage.h" />
@@ -107,16 +112,11 @@
     <ClInclude Include="Unreal\Files\IOStore\Toc\IoStoreToc.h" />
     <ClInclude Include="Unreal\Core\Defines.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
-    <ClInclude Include="Unreal\Misc\Versioning\PackageFileVersion.h" />
-    <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
-    <ClInclude Include="Unreal\Misc\Versioning\EngineVersion.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Misc\Encryption\EncryptionKeyManager.h" />
-    <ClInclude Include="Unreal\Files\DiskFile.h" />
     <ClInclude Include="Unreal\Files\Paks\PakInfo.h" />
     <ClInclude Include="Unreal\Files\Paks\PakEntry.h" />
     <ClInclude Include="Unreal\Files\Packaging\PackageId.h" />
-    <ClInclude Include="Unreal\Files\FileEntry.h" />
     <ClInclude Include="Unreal\Core\Names\MappedName.h" />
     <ClInclude Include="Unreal\Core\Names\NameMap.h" />
     <ClInclude Include="Unreal\Files\Paks\PakEntryLocation.h" />
@@ -140,7 +140,6 @@
     <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyIterator.h" />
     <ClInclude Include="Unreal\Core\Reflection\PropertyType.h" />
-    <ClInclude Include="Unreal\Core\Reflection\PropertyValue.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\MulticastDelegateProperty.h" />
     <ClInclude Include="Unreal\Misc\Delegates\MulticastScriptDelegate.h" />
     <ClInclude Include="Unreal\Misc\Delegates\ScriptDelegate.h" />

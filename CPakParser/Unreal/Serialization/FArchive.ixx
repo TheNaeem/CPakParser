@@ -1,10 +1,13 @@
-#pragma once
+export module FArchive;
 
-#include "Core/UObject.h"
-#include "Core/Defines.h"
-#include "Misc/Versioning/PackageFileVersion.h"
+import "Core/Defines.h";
+import <string>;
+import <vector>;
 
-class FArchive 
+import PackageFileVersion;
+import UObject;
+
+export class FArchive
 {
 private:
 
@@ -143,7 +146,7 @@ public:
 		return Version;
 	}
 
-	__forceinline void SetUEVer(FPackageFileVersion InVersion) 
+	__forceinline void SetUEVer(FPackageFileVersion InVersion)
 	{
 		Version = InVersion;
 	}

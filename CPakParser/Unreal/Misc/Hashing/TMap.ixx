@@ -1,10 +1,12 @@
-#pragma once
+module;
 
-#include "parallel_hashmap/phmap.h"
+#include "parallel_hashmap/phmap.h";
 
-#include "Serialization/Archives.h"
+export module TMap;
 
-template <class K, class V>
+import FArchive;
+
+export template <class K, class V>
 using TMap = phmap::flat_hash_map<K, V>;
 
 template<class T>
