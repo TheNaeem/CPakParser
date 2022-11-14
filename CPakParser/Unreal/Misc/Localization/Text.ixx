@@ -1,11 +1,14 @@
-#pragma once
+module;
 
 #include "Core/Defines.h"
-#include <string>
+
+export module Text;
+
+export import <string>;
 
 class FArchive;
 
-enum class ELocResVersion : uint8_t
+export enum class ELocResVersion : uint8_t
 {
 	Legacy = 0,
 	Compact,
@@ -16,14 +19,14 @@ enum class ELocResVersion : uint8_t
 	Latest = LatestPlusOne - 1
 };
 
-enum class ETextGender : uint8_t
+export enum class ETextGender : uint8_t
 {
 	Masculine,
 	Feminine,
 	Neuter
 };
 
-struct FTextLocalizationResourceString
+export struct FTextLocalizationResourceString
 {
 	FTextLocalizationResourceString() = default;
 
@@ -37,7 +40,7 @@ struct FTextLocalizationResourceString
 	friend FArchive& operator<<(FArchive& Ar, FTextLocalizationResourceString& A);
 };
 
-class FTextKey
+export class FTextKey
 {
 public:
 
@@ -70,7 +73,7 @@ private:
 	uint32_t StrHash;
 };
 
-struct FTextId
+export struct FTextId
 {
 	FTextId() = default;
 
@@ -96,7 +99,7 @@ struct FTextId
 	FTextKey Key;
 };
 
-class ITextData
+export class ITextData
 {
 public:
 
@@ -104,7 +107,7 @@ public:
 	virtual void Serialize(class FArchive& Ar) = 0;
 };
 
-class FText
+export class FText
 {
 public:
 

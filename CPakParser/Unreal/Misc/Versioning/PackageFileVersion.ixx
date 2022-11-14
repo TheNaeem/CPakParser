@@ -1,8 +1,5 @@
 export module PackageFileVersion;
 
-import EngineVersion;
-import FArchiveBase;
-
 export enum class EUnrealEngineObjectUE5Version : __int32
 {
 	// Note that currently the oldest loadable package version is EUnrealEngineObjectUEVersion::VER_UE4_OLDEST_LOADABLE_PACKAGE
@@ -702,85 +699,24 @@ export struct FPackageFileVersion
 	{
 	}
 
-	void Reset()
-	{
-		FileVersionUE4 = 0;
-		FileVersionUE5 = 0;
-	}
+	void Reset();
 
-	__int32 ToValue() const
-	{
-		if (FileVersionUE5 >= (__int32)EUnrealEngineObjectUE5Version::INITIAL_VERSION)
-		{
-			return FileVersionUE5;
-		}
-		else
-		{
-			return FileVersionUE4;
-		}
-	}
+	static FPackageFileVersion CreateUE4Version(__int32 Version);
+	static FPackageFileVersion CreateUE4Version(EUnrealEngineObjectUE4Version Version);
 
-	static FPackageFileVersion CreateUE4Version(__int32 Version)
-	{
-		return FPackageFileVersion(Version, (EUnrealEngineObjectUE5Version)0);
-	}
+	__int32 ToValue() const;
 
-	static FPackageFileVersion CreateUE4Version(EUnrealEngineObjectUE4Version Version)
-	{
-		return FPackageFileVersion(Version, (EUnrealEngineObjectUE5Version)0);
-	}
+	bool operator !=(EUnrealEngineObjectUE4Version Version) const;
+	bool operator <(EUnrealEngineObjectUE4Version Version) const;
+	bool operator >=(EUnrealEngineObjectUE4Version Version) const;
+	bool operator !=(EUnrealEngineObjectUE5Version Version) const;
+	bool operator <(EUnrealEngineObjectUE5Version Version) const;
+	bool operator >=(EUnrealEngineObjectUE5Version Version) const;
+	bool IsCompatible(const FPackageFileVersion& Other) const;
+	bool operator==(const FPackageFileVersion& Other) const;
+	bool operator!=(const FPackageFileVersion& Other) const;
 
-	bool operator !=(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 != Version;
-	}
-
-	bool operator <(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 < Version;
-	}
-
-	bool operator >=(EUnrealEngineObjectUE4Version Version) const
-	{
-		return FileVersionUE4 >= Version;
-	}
-
-	bool operator !=(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 != (__int32)Version;
-	}
-
-	bool operator <(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 < (__int32)Version;
-	}
-
-	bool operator >=(EUnrealEngineObjectUE5Version Version) const
-	{
-		return FileVersionUE5 >= (__int32)Version;
-	}
-
-	bool operator==(const FPackageFileVersion& Other) const
-	{
-		return FileVersionUE4 == Other.FileVersionUE4 && FileVersionUE5 == Other.FileVersionUE5;
-	}
-
-	bool operator!=(const FPackageFileVersion& Other) const
-	{
-		return !(*this == Other);
-	}
-
-	bool IsCompatible(const FPackageFileVersion& Other) const
-	{
-		return FileVersionUE4 >= Other.FileVersionUE4 && FileVersionUE5 >= Other.FileVersionUE5;
-	}
-
-	friend FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version)
-	{
-		Ar.Serialize(&Version.FileVersionUE4, sizeof(__int32) * 2);
-
-		return Ar;
-	}
+	friend class FArchive& operator<<(FArchive& Ar, FPackageFileVersion& Version);
 
 	__forceinline bool IsValid()
 	{
@@ -791,15 +727,4 @@ export struct FPackageFileVersion
 	__int32	FileVersionUE5 = 0;
 };
 
-export void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, FEngineVersion& Version)
-{
-	if (ObjectVersion < VER_UE4_CORRECT_LICENSEE_FLAG
-		&& Version.GetMajor() == 4
-		&& Version.GetMinor() == 26
-		&& Version.GetPatch() == 0
-		&& Version.GetChangelist() >= 12740027
-		&& Version.IsLicenseeVersion())
-	{
-		Version.Set(4, 26, 0, Version.GetChangelist(), Version.GetBranch());
-	}
-}
+export void FixCorruptEngineVersion(const FPackageFileVersion& ObjectVersion, class FEngineVersion& Version);

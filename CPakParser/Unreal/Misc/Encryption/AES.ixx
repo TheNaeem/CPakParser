@@ -1,8 +1,8 @@
-#pragma once
+export module AES;
 
-#include <string>
+import <string>;
 
-struct FAESKey
+export struct FAESKey
 {
 	static constexpr int KeySize = 32;
 	static constexpr int AESBlockSize = 16;

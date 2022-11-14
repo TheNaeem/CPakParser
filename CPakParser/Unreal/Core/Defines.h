@@ -1,7 +1,7 @@
 #pragma once
 
-import <memory>;
-import <intrin.h>;
+#include <memory>;
+#include <intrin.h>;
 
 #define HASH_DIRECTORY_INDEX 1
 #define EXTENSIVE_LOGGING 0

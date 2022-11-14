@@ -1,8 +1,8 @@
-#pragma once
+export module GlobalCompression;
 
-#include <string>
+import <string>;
 
-enum ECompressionFlags
+export enum ECompressionFlags
 {
 	/** No compression																*/
 	COMPRESS_None = 0x00,
@@ -34,7 +34,7 @@ enum ECompressionFlags
 	COMPRESS_ForPurposeMask = 0xF00,
 };
 
-namespace FCompression
+export namespace FCompression
 {
 	bool VerifyCompressionFlagsValid(int32_t InCompressionFlags);
 	int64_t GetMaximumCompressedSize(const std::string& FormatName, int32_t UncompressedSize, ECompressionFlags Flags = COMPRESS_NoFlags, int32_t CompressionData = 0);

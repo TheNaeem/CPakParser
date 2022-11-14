@@ -1,8 +1,6 @@
-#include "Serialization/Impl/ExportReader.h"
-#include "Serialization/Properties/Unversioned.h"
-#include "Logging.h"
-
-import UClass;
+import UObjectCore;
+import FArchiveBase;
+import Logging;
 
 UStruct::~UStruct()
 {

@@ -1,6 +1,7 @@
-#include "GlobalCompression.h"
+#include <string>
 
-#include "Oodle.h"
+import GlobalCompression;
+import Oodle;
 
 bool FCompression::VerifyCompressionFlagsValid(int32_t InCompressionFlags)
 {

@@ -1,8 +1,11 @@
-#include "Oodle.h"
-
 #include <filesystem>
 #include <Windows.h>
-#include "Logging.h"
+
+import Oodle;
+import Logging;
+
+#define OODLELZ_BLOCK_LEN (1<<18) 
+#define OODLELZ_BLOCK_MAXIMUM_EXPANSION (2)
 
 void Oodle::LoadDLL(const char* DllPath)
 {

@@ -7,7 +7,7 @@
 #include "Logging.h"
 
 import Mappings;
-import UClass;
+import UObjectCore;
 
 #define USMAP_FILE_MAGIC 0x30C4
 

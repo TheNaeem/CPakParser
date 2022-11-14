@@ -2,7 +2,7 @@ module;
 
 #include "Core/Defines.h"
 
-export module FProperty;
+export module Properties;
 
 import <string>;
 import PropertyValue;

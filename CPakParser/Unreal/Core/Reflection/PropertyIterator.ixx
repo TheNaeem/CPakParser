@@ -1,14 +1,15 @@
-#pragma once
+export module PropertyIterator;
 
-#include "../Class.h"
+import UObjectCore;
+export import Properties;
 
-class FPropertyIterator
+export class FPropertyIterator
 {
 	static constexpr int Invalid = -1;
 
 public:
 
-	__forceinline FPropertyIterator(UStructPtr InStruct) 
+	__forceinline FPropertyIterator(UStructPtr InStruct)
 		: Struct(InStruct), Link(InStruct->GetPropertyLink())
 	{
 	}

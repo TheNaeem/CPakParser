@@ -1,7 +1,7 @@
-export module UClass;
+export module UClassCore;
 
 export import UObjectCore;
-import FProperty;
+export import Properties;
 
 export class UStruct : public UObject
 {
@@ -27,7 +27,7 @@ public:
 		return PropertyLink;
 	}
 
-	void SerializeScriptProperties(FArchive& Ar, UObjectPtr Object);
+	void SerializeScriptProperties(class FArchive& Ar, UObjectPtr Object);
 };
 
 

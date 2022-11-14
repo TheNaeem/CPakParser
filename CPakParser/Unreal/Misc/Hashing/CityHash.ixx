@@ -1,6 +1,6 @@
-#pragma once
+export module CityHash;
 
-#include <cstdint>
+import <cstdint>;
 
 // Copyright (c) 2011 Google, Inc.
 //

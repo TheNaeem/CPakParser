@@ -1,7 +1,8 @@
-#include "Text.h"
-
+#include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
-#include "Logging.h"
+
+import Text;
+import Logging;
 
 typedef std::vector<std::pair<std::string, struct FFormatArgumentValue>> FFormatNamedArguments;
 typedef std::vector<struct FFormatArgumentValue> FFormatOrderedArguments;

@@ -1,6 +1,10 @@
+module;
+
+#include "Defines.h"
+
 export module UObjectCore;
 
-export import "Defines.h";
+import Properties;
 import <string>;
 import <vector>;
 
@@ -33,11 +37,6 @@ public:
 
 	__forceinline ObjectType* operator->()
 	{
-		//if (!Val->IsLoaded())
-		//{
-		//	Val->Load(); // TODO:
-		//}
-
 		return Val.get();
 	}
 
@@ -212,5 +211,42 @@ public:
 
 	virtual void Load() { }
 
-	virtual void Serialize(TSharedPtr<class FArchive> Ar);
+	//virtual void Serialize(TSharedPtr<class FArchive> Ar);
+};
+
+// put structs and objects in the same file cause module forward declarations are finicky
+
+export class UStruct : public UObject
+{
+public:
+
+	friend class UObject;
+	friend class Mappings;
+
+	~UStruct();
+
+private:
+
+	UStructPtr Super;
+	FProperty* PropertyLink = nullptr;
+
+public:
+
+	void SetSuper(UStructPtr Val);
+	UStructPtr GetSuper();
+
+	__forceinline FProperty* GetPropertyLink()
+	{
+		return PropertyLink;
+	}
+
+	void SerializeScriptProperties(class FArchive& Ar, UObjectPtr Object);
+};
+
+
+export class UClass : public UStruct
+{
+public:
+
+	friend class UObject;
 };

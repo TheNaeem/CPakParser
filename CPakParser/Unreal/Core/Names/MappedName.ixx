@@ -1,8 +1,9 @@
-#pragma once
+export module MappedName;
 
-#include "Name.h"
+import FArchiveBase;
+import <cstdint>;
 
-class FMappedName
+export class FMappedName
 {
 	static constexpr uint32_t InvalidIndex = ~uint32_t(0);
 	static constexpr uint32_t IndexBits = 30u;
@@ -56,7 +57,12 @@ public:
 		return Index != Other.Index || Number != Other.Number;
 	}
 
-	friend class FArchive& operator<<(FArchive& Ar, FMappedName& MappedName);
+	friend FArchive& operator<<(FArchive& Ar, FMappedName& MappedName)
+	{
+		Ar << MappedName.Index << MappedName.Number;
+
+		return Ar;
+	}
 
 private:
 

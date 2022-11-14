@@ -1,6 +1,7 @@
 #include <sstream>
 #include <iomanip>
-#include "AES.h"
+
+import AES;
 
 #define AES256_ROUND_COUNT 14
 

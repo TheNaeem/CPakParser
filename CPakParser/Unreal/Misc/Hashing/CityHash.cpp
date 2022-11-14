@@ -1,4 +1,4 @@
-#include "CityHash.h"
+import CityHash;
 
 #include <memory>
 

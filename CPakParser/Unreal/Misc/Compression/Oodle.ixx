@@ -1,11 +1,8 @@
-#pragma once
+export module Oodle;
 
-#include <cstdint>
+import <cstdint>;
 
-#define OODLELZ_BLOCK_LEN (1<<18) 
-#define OODLELZ_BLOCK_MAXIMUM_EXPANSION (2)
-
-typedef intptr_t(*OodleDecompressFunc)(
+export typedef intptr_t(*OodleDecompressFunc)(
 	const void* compBuf,
 	intptr_t compBufSize,
 	void* rawBuf,
@@ -21,7 +18,7 @@ typedef intptr_t(*OodleDecompressFunc)(
 	intptr_t decoderMemorySize,
 	uint32_t threadPhase);
 
-namespace Oodle
+export namespace Oodle
 {
 	inline OodleDecompressFunc OodleLZ_Decompress;
 

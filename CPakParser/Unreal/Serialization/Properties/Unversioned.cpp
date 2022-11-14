@@ -1,8 +1,9 @@
-#include "Unversioned.h"
-
-#include "Core/Reflection/PropertyIterator.h"
+#include "Core/Defines.h"
 #include <bitset>
 #include <vector>
+
+import Unversioned;
+import PropertyIterator;
 
 #if EXTENSIVE_LOGGING
 #include "Logging.h"
