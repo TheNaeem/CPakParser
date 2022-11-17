@@ -21,7 +21,6 @@
     <ClCompile Include="Unreal\Core\UObject.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
-    <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Encryption\EncryptionKeyManager.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakInfo.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakEntry.cpp" />
@@ -72,7 +71,6 @@
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.ixx" />
     <ClCompile Include="Unreal\Misc\Localization\Text.ixx" />
     <ClCompile Include="Unreal\Files\SerializableFile.ixx" />
-    <ClCompile Include="Unreal\Misc\Localization\Localization.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
     <ClCompile Include="Unreal\Files\Loader.ixx" />
@@ -109,6 +107,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.ixx" />
+    <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />
@@ -127,5 +126,6 @@
     <ClInclude Include="Unreal\Core\Globals\GlobalContext.h" />
     <ClInclude Include="Unreal\Files\Paks\PakReader.h" />
     <ClInclude Include="Unreal\Core\Reflection\Mappings.h" />
+    <ClInclude Include="Unreal\Misc\Localization\Localization.h" />
   </ItemGroup>
 </Project>

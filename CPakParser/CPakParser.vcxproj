@@ -28,6 +28,7 @@
     <ClInclude Include="Unreal\Files\Paks\PakReader.h" />
     <ClInclude Include="Unreal\Misc\Encryption\EncryptionKeyManager.h" />
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
+    <ClInclude Include="Unreal\Misc\Localization\Localization.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Dataminer\Dataminer.h" />
@@ -109,7 +110,7 @@
     <ClCompile Include="Unreal\Misc\Hashing\CityHash.ixx" />
     <ClCompile Include="Unreal\Misc\Hashing\IoChunkHash.ixx" />
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.ixx" />
-    <ClCompile Include="Unreal\Misc\Localization\Localization.ixx" />
+    <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Misc\Localization\Text.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />

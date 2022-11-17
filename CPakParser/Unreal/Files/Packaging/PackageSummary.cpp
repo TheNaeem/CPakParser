@@ -3,7 +3,7 @@
 import CPakParser.Package.FileSummary;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Compression;
-import PackageFlags;
+import CPakParser.Package.Flags;
 import CPakParser.Logging;
 
 #define PACKAGE_FILE_TAG 0x9E2A83C1

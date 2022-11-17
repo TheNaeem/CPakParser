@@ -1,25 +1,15 @@
-#if !defined(gtl_meminfo_hpp_guard)
-#define gtl_meminfo_hpp_guard
-
-// ---------------------------------------------------------------------------
-// Copyright (c) 2017-2022, Gregory Popovitch - greg7mdp@gmail.com
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
-// ---------------------------------------------------------------------------
+#if !defined(spp_memory_h_guard)
+#define spp_memory_h_guard
 
 #include <cstdint>
 #include <cstring>
 #include <cstdlib>
 
 #if defined(_WIN32) || defined( __CYGWIN__)
-    #define GTL_WIN
+    #define SPP_WIN
 #endif
 
-#ifdef GTL_WIN
+#ifdef SPP_WIN
     #include <windows.h>
     #include <Psapi.h>
     #undef min
@@ -36,7 +26,7 @@
     #include <sys/user.h>
 #endif
 
-namespace gtl
+namespace spp
 {
     uint64_t GetSystemMemory();
     uint64_t GetTotalMemoryUsed();
@@ -45,7 +35,7 @@ namespace gtl
 
     uint64_t GetSystemMemory()
     {
-#ifdef GTL_WIN
+#ifdef SPP_WIN
         MEMORYSTATUSEX memInfo;
         memInfo.dwLength = sizeof(MEMORYSTATUSEX);
         GlobalMemoryStatusEx(&memInfo);
@@ -84,7 +74,7 @@ namespace gtl
 
     uint64_t GetTotalMemoryUsed()
     {
-#ifdef GTL_WIN
+#ifdef SPP_WIN
         MEMORYSTATUSEX memInfo;
         memInfo.dwLength = sizeof(MEMORYSTATUSEX);
         GlobalMemoryStatusEx(&memInfo);
@@ -126,7 +116,7 @@ namespace gtl
 
     uint64_t GetProcessMemoryUsed()
     {
-#ifdef GTL_WIN
+#ifdef SPP_WIN
         PROCESS_MEMORY_COUNTERS_EX pmc;
         GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&pmc), sizeof(pmc));
         return static_cast<uint64_t>(pmc.PrivateUsage);
@@ -175,7 +165,7 @@ namespace gtl
 
     uint64_t GetPhysicalMemory()
     {
-#ifdef GTL_WIN
+#ifdef SPP_WIN
         MEMORYSTATUSEX memInfo;
         memInfo.dwLength = sizeof(MEMORYSTATUSEX);
         GlobalMemoryStatusEx(&memInfo);
@@ -202,4 +192,4 @@ namespace gtl
 
 }
 
-#endif // gtl_meminfo_hpp_guard
+#endif // spp_memory_h_guard

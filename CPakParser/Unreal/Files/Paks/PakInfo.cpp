@@ -1,3 +1,5 @@
+#include <cstdint>
+
 import CPakParser.Paks.PakInfo;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Hashing.ShaHash;

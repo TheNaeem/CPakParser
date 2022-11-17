@@ -63,16 +63,16 @@ import <cstdint>;
 // of a+b is easily derived from the hashes of a and b.  This property
 // doesn't hold for any hash functions in this file.
 
-struct Uint128_64
+export struct Uint128_64
 {
 	__forceinline Uint128_64(uint64_t InLo, uint64_t InHi) : lo(InLo), hi(InHi) {}
 	uint64_t lo;
 	uint64_t hi;
 };
 
-uint64_t CityHash64(const char* buf, uint32_t len);
+export uint64_t CityHash64(const char* buf, uint32_t len);
 
-inline uint64_t CityHash128to64(const Uint128_64& x) {
+export inline uint64_t CityHash128to64(const Uint128_64& x) {
 	// Murmur-inspired hashing.
 	const uint64_t kMul = 0x9ddfea08eb382d69ULL;
 	uint64_t a = (x.lo ^ x.hi) * kMul;

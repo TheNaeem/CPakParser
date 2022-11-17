@@ -2,13 +2,13 @@
 
 // TODO: https://github.com/greg7mdp/gtl
 
-#include "gtl/phmap.hpp"
+#include "parallel_hashmap/phmap.h"
 
 import CPakParser.Serialization.FArchive;
 
-using gtl::flat_hash_map;
-using gtl::flat_hash_set;
-using gtl::parallel_flat_hash_map;
+using phmap::flat_hash_map;
+using phmap::flat_hash_set;
+using phmap::parallel_flat_hash_map;
 
 template <typename K, typename V>
 using TMap = flat_hash_map<K, V>; // TODO: make this a module
