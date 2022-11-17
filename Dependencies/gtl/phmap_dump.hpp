@@ -1,8 +1,8 @@
-#if !defined(phmap_dump_h_guard_)
-#define phmap_dump_h_guard_
+#if !defined(phmap_dump_hpp_guard_)
+#define phmap_dump_hpp_guard_
 
 // ---------------------------------------------------------------------------
-// Copyright (c) 2019, Gregory Popovitch - greg7mdp@gmail.com
+// Copyright (c) 2019-2022, Gregory Popovitch - greg7mdp@gmail.com
 //
 //       providing dump/load/mmap_load
 //
@@ -22,8 +22,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "phmap.h"
-namespace phmap
+#include "phmap.hpp"
+
+namespace gtl
 {
 
 namespace type_traits_internal {
@@ -34,15 +35,15 @@ namespace type_traits_internal {
     template<typename T> struct IsTriviallyCopyable : public std::is_trivially_copyable<T> {};
 #endif
 
-template <class T1, class T2>
-struct IsTriviallyCopyable<std::pair<T1, T2>> {
-    static constexpr bool value = IsTriviallyCopyable<T1>::value && IsTriviallyCopyable<T2>::value;
-};
+    template <class T1, class T2>
+    struct IsTriviallyCopyable<std::pair<T1, T2>> {
+        static constexpr bool value = IsTriviallyCopyable<T1>::value && IsTriviallyCopyable<T2>::value;
+    };
 }
 
 namespace priv {
 
-#if !defined(PHMAP_NON_DETERMINISTIC) && !defined(PHMAP_DISABLE_DUMP)
+#if !defined(GTL_NON_DETERMINISTIC) && !defined(GTL_DISABLE_DUMP)
 
 // ------------------------------------------------------------------------
 // dump/load for raw_hash_set
@@ -87,10 +88,10 @@ bool raw_hash_set<Policy, Hash, Eq, Alloc>::phmap_load(InputArchive& ar) {
 // ------------------------------------------------------------------------
 template <size_t N,
           template <class, class, class, class> class RefSet,
-          class Mtx_,
+          class Mtx_, class AuxCont, 
           class Policy, class Hash, class Eq, class Alloc>
 template<typename OutputArchive>
-bool parallel_hash_set<N, RefSet, Mtx_, Policy, Hash, Eq, Alloc>::phmap_dump(OutputArchive& ar) const {
+bool parallel_hash_set<N, RefSet, Mtx_, AuxCont, Policy, Hash, Eq, Alloc>::phmap_dump(OutputArchive& ar) const {
     static_assert(type_traits_internal::IsTriviallyCopyable<value_type>::value,
                   "value_type should be trivially copyable");
 
@@ -109,10 +110,10 @@ bool parallel_hash_set<N, RefSet, Mtx_, Policy, Hash, Eq, Alloc>::phmap_dump(Out
 
 template <size_t N,
           template <class, class, class, class> class RefSet,
-          class Mtx_,
+          class Mtx_, class AuxCont,
           class Policy, class Hash, class Eq, class Alloc>
 template<typename InputArchive>
-bool parallel_hash_set<N, RefSet, Mtx_, Policy, Hash, Eq, Alloc>::phmap_load(InputArchive& ar) {
+bool parallel_hash_set<N, RefSet, Mtx_, AuxCont, Policy, Hash, Eq, Alloc>::phmap_load(InputArchive& ar) {
     static_assert(type_traits_internal::IsTriviallyCopyable<value_type>::value,
                   "value_type should be trivially copyable");
 
@@ -134,7 +135,7 @@ bool parallel_hash_set<N, RefSet, Mtx_, Policy, Hash, Eq, Alloc>::phmap_load(Inp
     return true;
 }
 
-#endif // !defined(PHMAP_NON_DETERMINISTIC) && !defined(PHMAP_DISABLE_DUMP)
+#endif // !defined(GTL_NON_DETERMINISTIC) && !defined(GTL_DISABLE_DUMP)
 
 } // namespace priv
 
@@ -199,82 +200,82 @@ public:
     {
         return v->phmap_load(*this);
     }
-    
+
 private:
     std::ifstream ifs_;
 };
 
-} // namespace phmap
+} // namespace gtl
 
 
 #ifdef CEREAL_SIZE_TYPE
 
 template <class T>
-using PhmapTrivCopyable = typename phmap::type_traits_internal::IsTriviallyCopyable<T>;
+using PhmapTrivCopyable = typename gtl::type_traits_internal::IsTriviallyCopyable<T>;
     
 namespace cereal
 {
-    // Overload Cereal serialization code for phmap::flat_hash_map
+    // Overload Cereal serialization code for gtl::flat_hash_map
     // -----------------------------------------------------------
     template <class K, class V, class Hash, class Eq, class A>
     void save(typename std::enable_if<PhmapTrivCopyable<K>::value && PhmapTrivCopyable<V>::value, typename cereal::BinaryOutputArchive>::type &ar,
-              phmap::flat_hash_map<K, V, Hash, Eq, A> const &hmap)
+              gtl::flat_hash_map<K, V, Hash, Eq, A> const &hmap)
     {
         hmap.phmap_dump(ar);
     }
 
     template <class K, class V, class Hash, class Eq, class A>
     void load(typename std::enable_if<PhmapTrivCopyable<K>::value && PhmapTrivCopyable<V>::value, typename cereal::BinaryInputArchive>::type &ar, 
-              phmap::flat_hash_map<K, V, Hash, Eq, A>  &hmap)
+              gtl::flat_hash_map<K, V, Hash, Eq, A>  &hmap)
     {
         hmap.phmap_load(ar);
     }
 
 
-    // Overload Cereal serialization code for phmap::parallel_flat_hash_map
+    // Overload Cereal serialization code for gtl::parallel_flat_hash_map
     // --------------------------------------------------------------------
     template <class K, class V, class Hash, class Eq, class A, size_t N, class Mtx_>
     void save(typename std::enable_if<PhmapTrivCopyable<K>::value && PhmapTrivCopyable<V>::value, typename cereal::BinaryOutputArchive>::type &ar,
-              phmap::parallel_flat_hash_map<K, V, Hash, Eq, A, N, Mtx_> const &hmap)
+              gtl::parallel_flat_hash_map<K, V, Hash, Eq, A, N, Mtx_> const &hmap)
     {
         hmap.phmap_dump(ar);
     }
 
     template <class K, class V, class Hash, class Eq, class A, size_t N, class Mtx_>
     void load(typename std::enable_if<PhmapTrivCopyable<K>::value && PhmapTrivCopyable<V>::value, typename cereal::BinaryInputArchive>::type &ar, 
-              phmap::parallel_flat_hash_map<K, V, Hash, Eq, A, N, Mtx_>  &hmap)
+              gtl::parallel_flat_hash_map<K, V, Hash, Eq, A, N, Mtx_>  &hmap)
     {
         hmap.phmap_load(ar);
     }
 
-    // Overload Cereal serialization code for phmap::flat_hash_set
+    // Overload Cereal serialization code for gtl::flat_hash_set
     // -----------------------------------------------------------
     template <class K, class Hash, class Eq, class A>
     void save(typename std::enable_if<PhmapTrivCopyable<K>::value, typename cereal::BinaryOutputArchive>::type &ar,
-              phmap::flat_hash_set<K, Hash, Eq, A> const &hset)
+              gtl::flat_hash_set<K, Hash, Eq, A> const &hset)
     {
         hset.phmap_dump(ar);
     }
 
     template <class K, class Hash, class Eq, class A>
     void load(typename std::enable_if<PhmapTrivCopyable<K>::value, typename cereal::BinaryInputArchive>::type &ar, 
-              phmap::flat_hash_set<K, Hash, Eq, A>  &hset)
+              gtl::flat_hash_set<K, Hash, Eq, A>  &hset)
     {
         hset.phmap_load(ar);
     }
 
-    // Overload Cereal serialization code for phmap::parallel_flat_hash_set
+    // Overload Cereal serialization code for gtl::parallel_flat_hash_set
     // --------------------------------------------------------------------
     template <class K, class Hash, class Eq, class A, size_t N, class Mtx_>
     void save(typename std::enable_if<PhmapTrivCopyable<K>::value, typename cereal::BinaryOutputArchive>::type &ar,
-              phmap::parallel_flat_hash_set<K, Hash, Eq, A, N, Mtx_> const &hset)
+              gtl::parallel_flat_hash_set<K, Hash, Eq, A, N, Mtx_> const &hset)
     {
         hset.phmap_dump(ar);
     }
 
     template <class K, class Hash, class Eq, class A, size_t N, class Mtx_>
     void load(typename std::enable_if<PhmapTrivCopyable<K>::value, typename cereal::BinaryInputArchive>::type &ar, 
-              phmap::parallel_flat_hash_set<K, Hash, Eq, A, N, Mtx_>  &hset)
+              gtl::parallel_flat_hash_set<K, Hash, Eq, A, N, Mtx_>  &hset)
     {
         hset.phmap_load(ar);
     }
@@ -285,4 +286,4 @@ namespace cereal
 
 
 
-#endif // phmap_dump_h_guard_
+#endif // phmap_dump_hpp_guard_

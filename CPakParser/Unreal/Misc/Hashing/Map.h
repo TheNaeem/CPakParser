@@ -2,15 +2,19 @@
 
 // TODO: https://github.com/greg7mdp/gtl
 
-#include "parallel_hashmap/phmap.h"
+#include "gtl/phmap.hpp"
 
 import CPakParser.Serialization.FArchive;
 
+using gtl::flat_hash_map;
+using gtl::flat_hash_set;
+using gtl::parallel_flat_hash_map;
+
 template <typename K, typename V>
-using TMap = phmap::flat_hash_map<K, V>; // TODO: make this a module
+using TMap = flat_hash_map<K, V>; // TODO: make this a module
 
 template<class T>
-FArchive& operator<<(FArchive& Ar, phmap::flat_hash_set<T>& InSet)
+FArchive& operator<<(FArchive& Ar, flat_hash_set<T>& InSet)
 {
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;
@@ -33,7 +37,7 @@ FArchive& operator<<(FArchive& Ar, phmap::flat_hash_set<T>& InSet)
 template<class Key, class Value>
 FArchive& operator<<(FArchive& Ar, TMap<Key, Value>& InMap)
 {
-	auto Pairs = phmap::flat_hash_set<std::pair<Key, Value>>();
+	auto Pairs = flat_hash_set<std::pair<Key, Value>>();
 	
 	int32_t NewNumElements = 0;
 	Ar << NewNumElements;

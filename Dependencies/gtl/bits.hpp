@@ -1,8 +1,8 @@
-#if !defined(phmap_bits_h_guard_)
-#define phmap_bits_h_guard_
+#if !defined(gtl_bits_hpp_guard_)
+#define gtl_bits_hpp_guard_
 
 // ---------------------------------------------------------------------------
-// Copyright (c) 2019, Gregory Popovitch - greg7mdp@gmail.com
+// Copyright (c) 2019-2022, Gregory Popovitch - greg7mdp@gmail.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
 
 #include <string.h>
 #include <cstdint>
-#include "phmap_config.h"
+#include "gtl_config.hpp"
 
 #ifdef _MSC_VER
     #pragma warning(push)  
@@ -76,7 +76,7 @@ extern "C" {
     void __sanitizer_unaligned_store64(void *p, uint64_t v);
 }  // extern "C"
 
-namespace phmap {
+namespace gtl {
 namespace bits {
 
 inline uint16_t UnalignedLoad16(const void *p) {
@@ -104,19 +104,19 @@ inline void UnalignedStore64(void *p, uint64_t v) {
 }
 
 }  // namespace bits
-}  // namespace phmap
+}  // namespace gtl
 
-#define PHMAP_INTERNAL_UNALIGNED_LOAD16(_p) (phmap::bits::UnalignedLoad16(_p))
-#define PHMAP_INTERNAL_UNALIGNED_LOAD32(_p) (phmap::bits::UnalignedLoad32(_p))
-#define PHMAP_INTERNAL_UNALIGNED_LOAD64(_p) (phmap::bits::UnalignedLoad64(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD16(_p) (gtl::bits::UnalignedLoad16(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD32(_p) (gtl::bits::UnalignedLoad32(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD64(_p) (gtl::bits::UnalignedLoad64(_p))
 
-#define PHMAP_INTERNAL_UNALIGNED_STORE16(_p, _val) (phmap::bits::UnalignedStore16(_p, _val))
-#define PHMAP_INTERNAL_UNALIGNED_STORE32(_p, _val) (phmap::bits::UnalignedStore32(_p, _val))
-#define PHMAP_INTERNAL_UNALIGNED_STORE64(_p, _val) (phmap::bits::UnalignedStore64(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE16(_p, _val) (gtl::bits::UnalignedStore16(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE32(_p, _val) (gtl::bits::UnalignedStore32(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE64(_p, _val) (gtl::bits::UnalignedStore64(_p, _val))
 
 #else
 
-namespace phmap {
+namespace gtl {
 namespace bits {
 
 inline uint16_t UnalignedLoad16(const void *p) {
@@ -144,15 +144,15 @@ inline void UnalignedStore32(void *p, uint32_t v) { memcpy(p, &v, sizeof v); }
 inline void UnalignedStore64(void *p, uint64_t v) { memcpy(p, &v, sizeof v); }
 
 }  // namespace bits
-}  // namespace phmap
+}  // namespace gtl
 
-#define PHMAP_INTERNAL_UNALIGNED_LOAD16(_p) (phmap::bits::UnalignedLoad16(_p))
-#define PHMAP_INTERNAL_UNALIGNED_LOAD32(_p) (phmap::bits::UnalignedLoad32(_p))
-#define PHMAP_INTERNAL_UNALIGNED_LOAD64(_p) (phmap::bits::UnalignedLoad64(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD16(_p) (gtl::bits::UnalignedLoad16(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD32(_p) (gtl::bits::UnalignedLoad32(_p))
+#define GTL_INTERNAL_UNALIGNED_LOAD64(_p) (gtl::bits::UnalignedLoad64(_p))
 
-#define PHMAP_INTERNAL_UNALIGNED_STORE16(_p, _val) (phmap::bits::UnalignedStore16(_p, _val))
-#define PHMAP_INTERNAL_UNALIGNED_STORE32(_p, _val) (phmap::bits::UnalignedStore32(_p, _val))
-#define PHMAP_INTERNAL_UNALIGNED_STORE64(_p, _val) (phmap::bits::UnalignedStore64(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE16(_p, _val) (gtl::bits::UnalignedStore16(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE32(_p, _val) (gtl::bits::UnalignedStore32(_p, _val))
+#define GTL_INTERNAL_UNALIGNED_STORE64(_p, _val) (gtl::bits::UnalignedStore64(_p, _val))
 
 #endif
 
@@ -161,19 +161,19 @@ inline void UnalignedStore64(void *p, uint64_t v) { memcpy(p, &v, sizeof v); }
 // -----------------------------------------------------------------------------
 
 #if defined(__pnacl__)
-    #define PHMAP_BLOCK_TAIL_CALL_OPTIMIZATION() if (volatile int x = 0) { (void)x; }
+    #define GTL_BLOCK_TAIL_CALL_OPTIMIZATION() if (volatile int x = 0) { (void)x; }
 #elif defined(__clang__)
     // Clang will not tail call given inline volatile assembly.
-    #define PHMAP_BLOCK_TAIL_CALL_OPTIMIZATION() __asm__ __volatile__("")
+    #define GTL_BLOCK_TAIL_CALL_OPTIMIZATION() __asm__ __volatile__("")
 #elif defined(__GNUC__)
     // GCC will not tail call given inline volatile assembly.
-    #define PHMAP_BLOCK_TAIL_CALL_OPTIMIZATION() __asm__ __volatile__("")
+    #define GTL_BLOCK_TAIL_CALL_OPTIMIZATION() __asm__ __volatile__("")
 #elif defined(_MSC_VER)
     #include <intrin.h>
     // The __nop() intrinsic blocks the optimisation.
-    #define PHMAP_BLOCK_TAIL_CALL_OPTIMIZATION() __nop()
+    #define GTL_BLOCK_TAIL_CALL_OPTIMIZATION() __nop()
 #else
-    #define PHMAP_BLOCK_TAIL_CALL_OPTIMIZATION() if (volatile int x = 0) { (void)x; }
+    #define GTL_BLOCK_TAIL_CALL_OPTIMIZATION() if (volatile int x = 0) { (void)x; }
 #endif
 
 #if defined(__GNUC__)
@@ -181,15 +181,15 @@ inline void UnalignedStore64(void *p, uint64_t v) { memcpy(p, &v, sizeof v); }
     #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 
-#ifdef PHMAP_HAVE_INTRINSIC_INT128
-    __extension__ typedef unsigned __int128 phmap_uint128;
+#ifdef GTL_HAVE_INTRINSIC_INT128
+    __extension__ typedef unsigned __int128 gtl_uint128;
     inline uint64_t umul128(uint64_t a, uint64_t b, uint64_t* high) 
     {
-        auto result = static_cast<phmap_uint128>(a) * static_cast<phmap_uint128>(b);
+        auto result = static_cast<gtl_uint128>(a) * static_cast<gtl_uint128>(b);
         *high = static_cast<uint64_t>(result >> 64);
         return static_cast<uint64_t>(result);
     }
-    #define PHMAP_HAS_UMUL128 1
+    #define GTL_HAS_UMUL128 1
 #elif (defined(_MSC_VER))
     #if defined(_M_X64)
         #pragma intrinsic(_umul128)
@@ -197,7 +197,7 @@ inline void UnalignedStore64(void *p, uint64_t v) { memcpy(p, &v, sizeof v); }
         {
             return _umul128(a, b, high);
         }
-        #define PHMAP_HAS_UMUL128 1
+        #define GTL_HAS_UMUL128 1
     #endif
 #endif
 
@@ -208,70 +208,69 @@ inline void UnalignedStore64(void *p, uint64_t v) { memcpy(p, &v, sizeof v); }
 #if defined(__GNUC__)
     // Cache line alignment
     #if defined(__i386__) || defined(__x86_64__)
-        #define PHMAP_CACHELINE_SIZE 64
+        #define GTL_CACHELINE_SIZE 64
     #elif defined(__powerpc64__)
-        #define PHMAP_CACHELINE_SIZE 128
+        #define GTL_CACHELINE_SIZE 128
     #elif defined(__aarch64__)
         // We would need to read special register ctr_el0 to find out L1 dcache size.
         // This value is a good estimate based on a real aarch64 machine.
-        #define PHMAP_CACHELINE_SIZE 64
+        #define GTL_CACHELINE_SIZE 64
     #elif defined(__arm__)
         // Cache line sizes for ARM: These values are not strictly correct since
         // cache line sizes depend on implementations, not architectures.  There
         // are even implementations with cache line sizes configurable at boot
         // time.
         #if defined(__ARM_ARCH_5T__)
-            #define PHMAP_CACHELINE_SIZE 32
+            #define GTL_CACHELINE_SIZE 32
         #elif defined(__ARM_ARCH_7A__)
-            #define PHMAP_CACHELINE_SIZE 64
+            #define GTL_CACHELINE_SIZE 64
         #endif
     #endif
 
-    #ifndef PHMAP_CACHELINE_SIZE
+    #ifndef GTL_CACHELINE_SIZE
         // A reasonable default guess.  Note that overestimates tend to waste more
         // space, while underestimates tend to waste more time.
-        #define PHMAP_CACHELINE_SIZE 64
+        #define GTL_CACHELINE_SIZE 64
     #endif
 
-    #define PHMAP_CACHELINE_ALIGNED __attribute__((aligned(PHMAP_CACHELINE_SIZE)))
+    #define GTL_CACHELINE_ALIGNED __attribute__((aligned(GTL_CACHELINE_SIZE)))
 #elif defined(_MSC_VER)
-    #define PHMAP_CACHELINE_SIZE 64
-    #define PHMAP_CACHELINE_ALIGNED __declspec(align(PHMAP_CACHELINE_SIZE))
+    #define GTL_CACHELINE_SIZE 64
+    #define GTL_CACHELINE_ALIGNED __declspec(align(GTL_CACHELINE_SIZE))
 #else
-    #define PHMAP_CACHELINE_SIZE 64
-    #define PHMAP_CACHELINE_ALIGNED
+    #define GTL_CACHELINE_SIZE 64
+    #define GTL_CACHELINE_ALIGNED
 #endif
 
 
-#if PHMAP_HAVE_BUILTIN(__builtin_expect) || \
+#if GTL_HAVE_BUILTIN(__builtin_expect) || \
     (defined(__GNUC__) && !defined(__clang__))
-    #define PHMAP_PREDICT_FALSE(x) (__builtin_expect(x, 0))
-    #define PHMAP_PREDICT_TRUE(x) (__builtin_expect(!!(x), 1))
+    #define GTL_PREDICT_FALSE(x) (__builtin_expect(x, 0))
+    #define GTL_PREDICT_TRUE(x) (__builtin_expect(!!(x), 1))
 #else
-    #define PHMAP_PREDICT_FALSE(x) (x)
-    #define PHMAP_PREDICT_TRUE(x) (x)
+    #define GTL_PREDICT_FALSE(x) (x)
+    #define GTL_PREDICT_TRUE(x) (x)
 #endif
 
 // -----------------------------------------------------------------------------
-// File: bits.h
+// File: bits.hpp
 // -----------------------------------------------------------------------------
 
 #if defined(_MSC_VER)
     // We can achieve something similar to attribute((always_inline)) with MSVC by
     // using the __forceinline keyword, however this is not perfect. MSVC is
     // much less aggressive about inlining, and even with the __forceinline keyword.
-    #define PHMAP_BASE_INTERNAL_FORCEINLINE __forceinline
+    #define GTL_FORCEINLINE __forceinline
 #else
     // Use default attribute inline.
-    #define PHMAP_BASE_INTERNAL_FORCEINLINE inline PHMAP_ATTRIBUTE_ALWAYS_INLINE
+    #define GTL_FORCEINLINE inline GTL_ATTRIBUTE_ALWAYS_INLINE
 #endif
 
 
-namespace phmap {
-namespace base_internal {
+namespace gtl {
 
-PHMAP_BASE_INTERNAL_FORCEINLINE int CountLeadingZeros64Slow(uint64_t n) {
-    int zeroes = 60;
+GTL_FORCEINLINE uint32_t CountLeadingZeros64Slow(uint64_t n) {
+    uint32_t zeroes = 60;
     if (n >> 32) zeroes -= 32, n >>= 32;
     if (n >> 16) zeroes -= 16, n >>= 16;
     if (n >> 8) zeroes -= 8, n >>= 8;
@@ -279,12 +278,12 @@ PHMAP_BASE_INTERNAL_FORCEINLINE int CountLeadingZeros64Slow(uint64_t n) {
     return "\4\3\2\2\1\1\1\1\0\0\0\0\0\0\0"[n] + zeroes;
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE int CountLeadingZeros64(uint64_t n) {
+GTL_FORCEINLINE uint32_t CountLeadingZeros64(uint64_t n) {
 #if defined(_MSC_VER) && defined(_M_X64)
     // MSVC does not have __buitin_clzll. Use _BitScanReverse64.
     unsigned long result = 0;  // NOLINT(runtime/int)
     if (_BitScanReverse64(&result, n)) {
-        return (int)(63 - result);
+        return (uint32_t)(63 - result);
     }
     return 64;
 #elif defined(_MSC_VER) && !defined(__clang__)
@@ -315,7 +314,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE int CountLeadingZeros64(uint64_t n) {
 #endif
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountLeadingZeros32Slow(uint64_t n) {
+GTL_FORCEINLINE uint32_t CountLeadingZeros32Slow(uint64_t n) {
     uint32_t zeroes = 28;
     if (n >> 16) zeroes -= 16, n >>= 16;
     if (n >> 8) zeroes -= 8, n >>= 8;
@@ -323,7 +322,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountLeadingZeros32Slow(uint64_t n) {
     return "\4\3\2\2\1\1\1\1\0\0\0\0\0\0\0"[n] + zeroes;
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountLeadingZeros32(uint32_t n) {
+GTL_FORCEINLINE uint32_t CountLeadingZeros32(uint32_t n) {
 #if defined(_MSC_VER) && !defined(__clang__)
     unsigned long result = 0;  // NOLINT(runtime/int)
     if (_BitScanReverse(&result, n)) {
@@ -348,7 +347,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountLeadingZeros32(uint32_t n) {
 #endif
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero64Slow(uint64_t n) {
+GTL_FORCEINLINE uint32_t CountTrailingZerosNonZero64Slow(uint64_t n) {
     uint32_t c = 63;
     n &= ~n + 1;
     if (n & 0x00000000FFFFFFFF) c -= 32;
@@ -360,7 +359,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero64Slow(uint64_
     return c;
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero64(uint64_t n) {
+GTL_FORCEINLINE uint32_t CountTrailingZerosNonZero64(uint64_t n) {
 #if defined(_MSC_VER) && !defined(__clang__) && defined(_M_X64)
     unsigned long result = 0;  // NOLINT(runtime/int)
     _BitScanForward64(&result, n);
@@ -382,7 +381,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero64(uint64_t n)
 #endif
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero32Slow(uint32_t n) {
+GTL_FORCEINLINE uint32_t CountTrailingZerosNonZero32Slow(uint32_t n) {
     uint32_t c = 31;
     n &= ~n + 1;
     if (n & 0x0000FFFF) c -= 16;
@@ -393,7 +392,7 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero32Slow(uint32_
     return c;
 }
 
-PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero32(uint32_t n) {
+GTL_FORCEINLINE uint32_t CountTrailingZerosNonZero32(uint32_t n) {
 #if defined(_MSC_VER) && !defined(__clang__)
     unsigned long result = 0;  // NOLINT(runtime/int)
     _BitScanForward(&result, n);
@@ -407,16 +406,15 @@ PHMAP_BASE_INTERNAL_FORCEINLINE uint32_t CountTrailingZerosNonZero32(uint32_t n)
 #endif
 }
 
-#undef PHMAP_BASE_INTERNAL_FORCEINLINE
+#undef GTL_FORCEINLINE
 
-}  // namespace base_internal
-}  // namespace phmap
+}  // namespace gtl
 
 // -----------------------------------------------------------------------------
 // File: endian.h
 // -----------------------------------------------------------------------------
 
-namespace phmap {
+namespace gtl {
 
 // Use compiler byte-swapping intrinsics if they are available.  32-bit
 // and 64-bit versions are available in Clang and GCC as of GCC 4.3.0.
@@ -502,7 +500,7 @@ namespace phmap {
 
 #endif  // intrinics available
 
-#ifdef PHMAP_IS_LITTLE_ENDIAN
+#ifdef GTL_IS_LITTLE_ENDIAN
 
     // Definitions for ntohl etc. that don't require us to include
     // netinet/in.h. We wrap gbswap_32 and gbswap_16 in functions rather
@@ -514,7 +512,7 @@ namespace phmap {
     inline uint32_t ghtonl(uint32_t x) { return gbswap_32(x); }
     inline uint64_t ghtonll(uint64_t x) { return gbswap_64(x); }
 
-#elif defined PHMAP_IS_BIG_ENDIAN
+#elif defined GTL_IS_BIG_ENDIAN
 
     // These definitions are simpler on big-endian machines
     // These are functions instead of macros to avoid self-assignment warnings
@@ -525,8 +523,8 @@ namespace phmap {
 
 #else
     #error \
-        "Unsupported byte order: Either PHMAP_IS_BIG_ENDIAN or " \
-           "PHMAP_IS_LITTLE_ENDIAN must be defined"
+        "Unsupported byte order: Either GTL_IS_BIG_ENDIAN or " \
+           "GTL_IS_LITTLE_ENDIAN must be defined"
 #endif  // byte order
 
 inline uint16_t gntohs(uint16_t x) { return ghtons(x); }
@@ -539,7 +537,7 @@ inline uint64_t gntohll(uint64_t x) { return ghtonll(x); }
 // Load/Store methods are alignment safe
 namespace little_endian {
 // Conversion functions.
-#ifdef PHMAP_IS_LITTLE_ENDIAN
+#ifdef GTL_IS_LITTLE_ENDIAN
 
     inline uint16_t FromHost16(uint16_t x) { return x; }
     inline uint16_t ToHost16(uint16_t x) { return x; }
@@ -552,7 +550,7 @@ namespace little_endian {
 
     inline constexpr bool IsLittleEndian() { return true; }
 
-#elif defined PHMAP_IS_BIG_ENDIAN
+#elif defined GTL_IS_BIG_ENDIAN
 
     inline uint16_t FromHost16(uint16_t x) { return gbswap_16(x); }
     inline uint16_t ToHost16(uint16_t x) { return gbswap_16(x); }
@@ -568,29 +566,28 @@ namespace little_endian {
 #endif /* ENDIAN */
 
 // Functions to do unaligned loads and stores in little-endian order.
-// ------------------------------------------------------------------
 inline uint16_t Load16(const void *p) {
-  return ToHost16(PHMAP_INTERNAL_UNALIGNED_LOAD16(p));
+  return ToHost16(GTL_INTERNAL_UNALIGNED_LOAD16(p));
 }
 
 inline void Store16(void *p, uint16_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE16(p, FromHost16(v));
+  GTL_INTERNAL_UNALIGNED_STORE16(p, FromHost16(v));
 }
 
 inline uint32_t Load32(const void *p) {
-  return ToHost32(PHMAP_INTERNAL_UNALIGNED_LOAD32(p));
+  return ToHost32(GTL_INTERNAL_UNALIGNED_LOAD32(p));
 }
 
 inline void Store32(void *p, uint32_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE32(p, FromHost32(v));
+  GTL_INTERNAL_UNALIGNED_STORE32(p, FromHost32(v));
 }
 
 inline uint64_t Load64(const void *p) {
-  return ToHost64(PHMAP_INTERNAL_UNALIGNED_LOAD64(p));
+  return ToHost64(GTL_INTERNAL_UNALIGNED_LOAD64(p));
 }
 
 inline void Store64(void *p, uint64_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE64(p, FromHost64(v));
+  GTL_INTERNAL_UNALIGNED_STORE64(p, FromHost64(v));
 }
 
 }  // namespace little_endian
@@ -600,7 +597,7 @@ inline void Store64(void *p, uint64_t v) {
 //
 // Load/Store methods are alignment safe
 namespace big_endian {
-#ifdef PHMAP_IS_LITTLE_ENDIAN
+#ifdef GTL_IS_LITTLE_ENDIAN
 
     inline uint16_t FromHost16(uint16_t x) { return gbswap_16(x); }
     inline uint16_t ToHost16(uint16_t x) { return gbswap_16(x); }
@@ -613,7 +610,7 @@ namespace big_endian {
 
     inline constexpr bool IsLittleEndian() { return true; }
 
-#elif defined PHMAP_IS_BIG_ENDIAN
+#elif defined GTL_IS_BIG_ENDIAN
 
     inline uint16_t FromHost16(uint16_t x) { return x; }
     inline uint16_t ToHost16(uint16_t x) { return x; }
@@ -630,35 +627,35 @@ namespace big_endian {
 
 // Functions to do unaligned loads and stores in big-endian order.
 inline uint16_t Load16(const void *p) {
-  return ToHost16(PHMAP_INTERNAL_UNALIGNED_LOAD16(p));
+  return ToHost16(GTL_INTERNAL_UNALIGNED_LOAD16(p));
 }
 
 inline void Store16(void *p, uint16_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE16(p, FromHost16(v));
+  GTL_INTERNAL_UNALIGNED_STORE16(p, FromHost16(v));
 }
 
 inline uint32_t Load32(const void *p) {
-  return ToHost32(PHMAP_INTERNAL_UNALIGNED_LOAD32(p));
+  return ToHost32(GTL_INTERNAL_UNALIGNED_LOAD32(p));
 }
 
 inline void Store32(void *p, uint32_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE32(p, FromHost32(v));
+  GTL_INTERNAL_UNALIGNED_STORE32(p, FromHost32(v));
 }
 
 inline uint64_t Load64(const void *p) {
-  return ToHost64(PHMAP_INTERNAL_UNALIGNED_LOAD64(p));
+  return ToHost64(GTL_INTERNAL_UNALIGNED_LOAD64(p));
 }
 
 inline void Store64(void *p, uint64_t v) {
-  PHMAP_INTERNAL_UNALIGNED_STORE64(p, FromHost64(v));
+  GTL_INTERNAL_UNALIGNED_STORE64(p, FromHost64(v));
 }
 
 }  // namespace big_endian
 
-}  // namespace phmap
+}  // namespace gtl
 
 #ifdef _MSC_VER
      #pragma warning(pop)  
 #endif
 
-#endif // phmap_bits_h_guard_
+#endif // gtl_bits_hpp_guard_

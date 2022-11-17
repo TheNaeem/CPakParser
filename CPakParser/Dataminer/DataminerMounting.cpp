@@ -98,7 +98,7 @@ void Dataminer::MountAllPakFiles()
 
 	auto MountedPaks = GetMountedFiles();
 
-	phmap::flat_hash_set<std::filesystem::path> MountedPakNames;
+	flat_hash_set<std::filesystem::path> MountedPakNames;
 
 	for (auto Pak : MountedPaks)
 	{

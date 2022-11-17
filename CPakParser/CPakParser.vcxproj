@@ -60,7 +60,6 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\PropertyIterator.ixx" />
-    <ClCompile Include="Unreal\Core\Reflection\PropertyType.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\PropertyValue.ixx" />
     <ClCompile Include="Unreal\Core\UObject.ixx" />
     <ClCompile Include="Unreal\Files\DiskFile.ixx" />

@@ -9,6 +9,8 @@ export import CPakParser.Localization.Text;
 import CPakParser.Files.SerializableFile;
 import CPakParser.Misc.FGuid;
 
+import <vector>;
+
 constexpr FGuid LOCRES_MAGIC = FGuid(0x7574140E, 0xFC034A67, 0x9D90154A, 0x1B7F37C3);
 constexpr FGuid LOCMETA_MAGIC = FGuid(0xA14CEE4F, 0x83554868, 0xBD464C6C, 0x7C50DA70);
 

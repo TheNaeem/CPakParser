@@ -5,9 +5,9 @@
 #include <string>;
 #include <vector>;
 
-import FileEntry;
-import FArchiveBase;
-import GameFilePath;
+import CPakParser.Files.FileEntry;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Files.GameFilePath;
 
 #define HASH_DIRECTORY_INDEX 1
 
@@ -15,13 +15,13 @@ import GameFilePath;
 
 typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
 typedef TMap<uint32_t, FFileEntryInfo> FPakDirectory;
-typedef phmap::parallel_flat_hash_map<uint32_t, FPakDirectory> FDirectoryIndex;
+typedef parallel_flat_hash_map<uint32_t, FPakDirectory> FDirectoryIndex;
 
 #else
 
 typedef std::vector<std::pair<std::string, FFileEntryInfo>> FGameFileCollection;
 typedef TMap<std::string, FFileEntryInfo> FPakDirectory;
-typedef phmap::parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
+typedef parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 #endif
 

@@ -611,5 +611,5 @@ FArchive& operator<<(FArchive& Ar, FTextLocalizationResourceString& A)
 
 size_t hash_value(const FTextId& i)
 {
-	return phmap::HashState().combine(0, hash_value(i.Key), hash_value(i.Namespace));
+	return gtl::HashState().combine(0, hash_value(i.Key), hash_value(i.Namespace));
 }

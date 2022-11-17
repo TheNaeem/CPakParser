@@ -97,7 +97,6 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoDirectoryIndex.ixx" />
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoOffsetAndLength.ixx" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.ixx" />
-    <ClCompile Include="Unreal\Core\Reflection\PropertyType.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\BoolProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.ixx" />
