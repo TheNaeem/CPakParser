@@ -1,7 +1,7 @@
-export module NameMap;
+export module CPakParser.Names.NameMap;
 
-export import MappedName;
-import Name;
+export import CPakParser.Names.MappedName;
+import CPakParser.Core.FName;
 
 export import <string>;
 import <vector>;

@@ -1,6 +1,7 @@
-import UObjectCore;
-import FArchiveBase;
-import Logging;
+import CPakParser.Core.UObject;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Logging;
+import CPakParser.Serialization.Unversioned;
 
 UStruct::~UStruct()
 {

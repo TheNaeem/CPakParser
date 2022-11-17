@@ -1,8 +1,8 @@
 #include <filesystem>
 #include <Windows.h>
 
-import Oodle;
-import Logging;
+import CPakParser.Compression.Oodle;
+import CPakParser.Logging;
 
 #define OODLELZ_BLOCK_LEN (1<<18) 
 #define OODLELZ_BLOCK_MAXIMUM_EXPANSION (2)

@@ -1,9 +1,13 @@
-#include "PackageSummary.h"
+#include "Core/Defines.h"
 
-#include "Serialization/Archives.h"
-#include "Logging.h"
-#include "PackageFlags.h"
-#include "Misc/Compression/GlobalCompression.h"
+import CPakParser.Package.FileSummary;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Compression;
+import PackageFlags;
+import CPakParser.Logging;
+
+#define PACKAGE_FILE_TAG 0x9E2A83C1
+#define PACKAGE_FILE_TAG_SWAPPED 0xC1832A9E
 
 FArchive& operator<<(FArchive& Ar, FPackageFileSummary& Summary)
 {

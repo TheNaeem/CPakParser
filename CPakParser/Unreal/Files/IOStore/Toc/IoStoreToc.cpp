@@ -1,21 +1,23 @@
 #include "IoStoreToc.h"
-
-#include "IoTocResource.h"
-#include "Files/Packaging/PackageIndex.h"
-#include "Serialization/Impl/ExportReader.h"
-#include "Files/Packaging/Zen/ZenPackage.h"
-#include "Files/Packaging/PackageFlags.h"
 #include "Core/Globals/GlobalContext.h"
-#include "Files/FileEntry.h"
 #include "../Misc/IoStoreReader.h"
-#include "Logging.h"
 
-class FIoExportArchive : public FExportReader
+import CPakParser.IOStore.TocResource;
+import CPakParser.Package.Index;
+import CPakParser.Logging;
+import CPakParser.Files.FileEntry;
+import CPakParser.Package.Flags;
+import CPakParser.Zen.Package;
+import CPakParser.Zen.Data;
+import CPakParser.Serialization.MemoryReader;
+import CPakParser.Core.FName;
+
+class FIoExportArchive : public FMemoryReader
 {
 public:
 
 	FIoExportArchive(uint8_t* InBytes, size_t Size, FZenPackageData& InPackageData, bool bFreeBuffer = false)
-		: FExportReader(InBytes, Size, bFreeBuffer), PackageData(InPackageData)
+		: FMemoryReader(InBytes, Size, bFreeBuffer), PackageData(InPackageData)
 	{
 	}
 

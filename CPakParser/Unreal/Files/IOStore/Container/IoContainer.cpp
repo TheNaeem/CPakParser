@@ -1,7 +1,8 @@
 #include "IoContainer.h"
 
-#include "Serialization/Impl/FileReader.h"
 #include <filesystem>
+
+import CPakParser.Serialization.FileReader;
 
 bool FFileIoStoreContainerFilePartition::OpenContainer(const char* ContainerFilePath)
 {

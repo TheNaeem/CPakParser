@@ -1,15 +1,17 @@
 #include "IoStoreReader.h"
 
-#include "IoDirectoryIndex.h"
 #include "Core/Globals/GlobalContext.h"
 #include "Misc/Multithreading/Lock.h"
-#include "Misc/Compression/GlobalCompression.h"
-#include "Serialization/Impl/FileReader.h"
-#include "Serialization/Impl/MemoryReader.h"
-#include "../Toc/IoTocResource.h"
 #include "../Toc/IoStoreToc.h"
-#include "Logging.h"
 #include <sstream>
+
+import CPakParser.Files.FileEntry;
+import CPakParser.IOStore.DirectoryIndex;
+import CPakParser.Serialization.FileReader;
+import CPakParser.Serialization.MemoryReader;
+import CPakParser.Compression;
+import CPakParser.IOStore.TocResource;
+import CPakParser.Logging;
 
 bool FIoStoreReader::IsEncrypted() const
 {

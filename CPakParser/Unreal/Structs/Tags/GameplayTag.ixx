@@ -1,7 +1,7 @@
-export module GameplayTag;
+export module CPakParser.Structs.GameplayTag;
 
-export import Name;
-import FArchiveBase;
+export import CPakParser.Core.FName;
+import CPakParser.Serialization.FArchive;
 
 export class FGameplayTag
 {

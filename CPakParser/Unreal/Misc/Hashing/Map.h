@@ -1,11 +1,13 @@
 #pragma once
 
+// TODO: https://github.com/greg7mdp/gtl
+
 #include "parallel_hashmap/phmap.h"
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
-template <class K, class V>
-using TMap = phmap::flat_hash_map<K, V>;
+template <typename K, typename V>
+using TMap = phmap::flat_hash_map<K, V>; // TODO: make this a module
 
 template<class T>
 FArchive& operator<<(FArchive& Ar, phmap::flat_hash_set<T>& InSet)

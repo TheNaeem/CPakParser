@@ -1,4 +1,4 @@
-export module PropertyValue;
+export module CPakParser.Reflection.PropertyValue;
 
 import <optional>;
 

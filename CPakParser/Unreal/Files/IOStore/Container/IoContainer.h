@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "Misc/Encryption/AES.h"
 #include "IoContainerHeader.h"
+
+import CPakParser.Encryption.AES;
 
 struct FFileIoStoreContainerFilePartition
 {

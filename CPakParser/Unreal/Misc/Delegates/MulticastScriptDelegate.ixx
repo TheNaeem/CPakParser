@@ -1,7 +1,7 @@
-export module MulticastScriptDelegate;
+export module CPakParser.Delegates.MulticastScriptDelegate;
 
-import ScriptDelegate;
-import FArchiveBase;
+export import CPakParser.Delegates.ScriptDelegate;
+import CPakParser.Serialization.FArchive;
 import <vector>;
 
 export class FMulticastScriptDelegate

@@ -1,8 +1,8 @@
-export module ScriptDelegate;
+export module CPakParser.Delegates.ScriptDelegate;
 
-import UObjectCore;
-import Name;
-import FArchiveBase;
+import CPakParser.Core.UObject;
+import CPakParser.Core.FName;
+import CPakParser.Serialization.FArchive;
 
 export class FScriptDelegate
 {

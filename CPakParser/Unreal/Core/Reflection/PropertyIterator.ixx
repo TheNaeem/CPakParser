@@ -1,7 +1,7 @@
-export module PropertyIterator;
+export module CPakParser.Reflection.PropertyIterator;
 
-import UObjectCore;
-export import Properties;
+import CPakParser.Core.UObject;
+export import CPakParser.Reflection.FProperty;
 
 export class FPropertyIterator
 {
@@ -59,5 +59,5 @@ private:
 
 	UStructPtr Struct;
 	FProperty* Link = nullptr;
-	uint32_t ArrayIndex = 0;
+	__int32 ArrayIndex = 0;
 };

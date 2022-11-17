@@ -1,6 +1,6 @@
-export module MappedName;
+export module CPakParser.Names.MappedName;
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 import <cstdint>;
 
 export class FMappedName

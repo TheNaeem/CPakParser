@@ -1,7 +1,7 @@
 #include "Misc/Multithreading/Lock.h"
 
-import BorrowedArchive;
-import FileReader;
+import CPakParser.Serialization.BorrowedArchive;
+import CPakParser.Serialization.FileReader;
 
 FBorrowedArchive::FBorrowedArchive(FArchive* InArchive, FPakReaderCollection* InOwner)
 	: Archive(InArchive), Owner(InOwner)

@@ -1,6 +1,6 @@
-export module Vector;
+export module CPakParser.Math.FVector;
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
 export struct FVector
 {

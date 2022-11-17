@@ -2,7 +2,7 @@ module;
 
 #include "Core/Defines.h"
 
-export module Text;
+export module CPakParser.Localization.Text;
 
 export import <string>;
 

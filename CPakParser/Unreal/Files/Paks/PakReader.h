@@ -1,11 +1,13 @@
 #pragma once
 
-#include "PakEntry.h"
 #include "Core/Defines.h"
-#include "Serialization/Archives.h"
 #include "Misc/Encryption/EncryptionKeyManager.h"
 
-class FPakNoEncryption
+import CPakParser.Paks.PakEntry;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Paks.PakFile;
+
+export class FPakNoEncryption
 {
 public:
 	enum
@@ -23,7 +25,7 @@ public:
 	}
 };
 
-class FPakSimpleEncryption
+export class FPakSimpleEncryption
 {
 public:
 
@@ -53,13 +55,13 @@ class FPakReader : public FArchive
 	FEncryptionKeyManager& KeyManager;
 	int64_t OffsetToFile;
 	int64_t ReadPos;
-	TSharedPtr<class FPakFile> Pak;
+	TSharedPtr<FPakFile> Pak;
 	FPakEntry Entry;
 	bool bCompressed;
 
 public:
 
-	FPakReader(TSharedPtr<class FPakFile> PakFile, FPakEntry InEntry, FEncryptionKeyManager& EncryptionKeyManager);
+	FPakReader(TSharedPtr<FPakFile> PakFile, FPakEntry InEntry, FEncryptionKeyManager& EncryptionKeyManager);
 
 	virtual void Seek(int64_t InPos) override;
 	virtual int64_t Tell() override;

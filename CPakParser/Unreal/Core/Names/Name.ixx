@@ -1,8 +1,8 @@
-export module Name;
+export module CPakParser.Core.FName;
 
 export import <string>;
 import <vector>;
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
 export class FName
 {

@@ -2,7 +2,7 @@ module;
 
 #include "Core/Defines.h"
 
-export module DiskFile;
+export module CPakParser.Files.DiskFile;
 
 import <string>;
 

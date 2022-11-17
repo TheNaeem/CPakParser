@@ -1,8 +1,7 @@
-#include "Class.h"
+import CPakParser.Core.UObject;
+import CPakParser.Serialization.FArchive;
 
-#include "Serialization/Impl/ExportReader.h"
-
-void UObject::Serialize(FSharedAr Ar)
+void UObject::Serialize(FArchive& Ar)
 {
 	/*if (Class->HasAnyFlags(RF_NeedLoad)) // TODO:
 	{
@@ -16,6 +15,6 @@ void UObject::Serialize(FSharedAr Ar)
 
 	if (Class)
 	{
-		Class->SerializeScriptProperties(*Ar, This());
+		Class->SerializeScriptProperties(Ar, This());
 	}
 }

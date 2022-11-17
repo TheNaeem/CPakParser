@@ -1,10 +1,11 @@
 #pragma once
 
-#include "IoChunkId.h"
-#include "IoOffsetAndLength.h"
 #include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
 #include "../Container/IoContainer.h"
+
+import CPakParser.IOStore.OffsetAndLength;
+import CPakParser.IOStore.ChunkId;
 
 class FIoStoreToc;
 

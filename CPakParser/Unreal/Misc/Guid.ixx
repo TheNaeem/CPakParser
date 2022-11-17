@@ -1,8 +1,8 @@
-export module Guid;
+export module CPakParser.Misc.FGuid;
 
 import <string>;
 import <sstream>;
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
 static uint32_t ConvertHexStringToInt(std::string hexString)
 {

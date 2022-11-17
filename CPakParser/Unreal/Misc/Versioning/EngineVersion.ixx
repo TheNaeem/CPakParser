@@ -1,7 +1,7 @@
-export module EngineVersion;
+export module CPakParser.Versions.EngineVersion;
 
 import <string>;
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
 export class FEngineVersionBase
 {

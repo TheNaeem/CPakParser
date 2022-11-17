@@ -1,10 +1,9 @@
 #include "GlobalTocData.h"
 
-#include "Serialization/Impl/MemoryReader.h"
-#include "Files/IOStore/Misc/IoChunkId.h"
 #include "Files/IOStore/Misc/IoStoreReader.h"
 #include "Files/IOStore/Toc/IoStoreToc.h"
-#include "Files/IOStore/Misc/ScriptObjectEntry.h"
+
+import CPakParser.Serialization.MemoryReader;
 
 void FGlobalTocData::Serialize(TSharedPtr<FIoStoreReader> Reader)
 {

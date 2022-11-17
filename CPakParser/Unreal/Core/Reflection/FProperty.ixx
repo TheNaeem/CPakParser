@@ -2,10 +2,10 @@ module;
 
 #include "Core/Defines.h"
 
-export module Properties;
+export module CPakParser.Reflection.FProperty;
 
 import <string>;
-import PropertyValue;
+export import CPakParser.Reflection.PropertyValue;
 
 /*
 * I made the decision to use raw pointers with properties.

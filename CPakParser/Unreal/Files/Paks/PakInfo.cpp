@@ -1,8 +1,7 @@
-#include "PakInfo.h"
-
-#include "Serialization/Archives.h"
-#include "Misc/Hashing/ShaHash.h"
-#include "Logging.h"
+import CPakParser.Paks.PakInfo;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Hashing.ShaHash;
+import CPakParser.Logging;
 
 int64_t FPakInfo::GetSerializedSize(int32_t InVersion) const
 {

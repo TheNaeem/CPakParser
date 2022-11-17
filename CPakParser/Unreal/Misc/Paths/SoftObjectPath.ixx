@@ -1,7 +1,7 @@
-export module SoftObjectPath;
+export module CPakParser.Paths.SoftObjectPath;
 
-import TopLevelAssetPath;
-import FArchiveBase;
+import CPakParser.Paths.TopLevelAssetPath;
+import CPakParser.Serialization.FArchive;
 
 export class FSoftObjectPath
 {

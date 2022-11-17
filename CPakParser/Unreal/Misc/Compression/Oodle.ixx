@@ -1,4 +1,4 @@
-export module Oodle;
+export module CPakParser.Compression.Oodle;
 
 import <cstdint>;
 

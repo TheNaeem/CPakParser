@@ -1,6 +1,6 @@
-export module DateTime;
+export module CPakParser.Structs.DateTime;
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 
 class FDateTime
 {

@@ -1,9 +1,9 @@
-export module GameplayTagContainer;
+export module CPakParser.Structs.GameplayTagContainer;
 
-export import GameplayTag;
+export import CPakParser.Structs.GameplayTag;
 import <vector>;
-import FArchiveBase;
-import Logging;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Logging;
 
 export class FGameplayTagContainer
 {

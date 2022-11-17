@@ -2,8 +2,8 @@
 #include <bitset>
 #include <vector>
 
-import Unversioned;
-import PropertyIterator;
+import CPakParser.Serialization.Unversioned;
+import CPakParser.Reflection.PropertyIterator;
 
 #if EXTENSIVE_LOGGING
 #include "Logging.h"

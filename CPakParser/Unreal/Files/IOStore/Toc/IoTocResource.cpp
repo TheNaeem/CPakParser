@@ -1,12 +1,12 @@
-#include "IoTocResource.h"
-
 #include "Core/Defines.h"
-#include "Serialization/Impl/MemoryReader.h"
-#include "Serialization/Impl/FileReader.h"
-#include "Misc/Hashing/ShaHash.h"
-#include "../Misc/IoOffsetAndLength.h"
-#include "../Misc/IoChunkId.h"
-#include "Logging.h"
+
+import CPakParser.IOStore.TocResource;
+import CPakParser.Serialization.FileReader;
+import CPakParser.Serialization.MemoryReader;
+import CPakParser.IOStore.ChunkId;
+import CPakParser.IOStore.OffsetAndLength;
+import CPakParser.Hashing.ShaHash;
+import CPakParser.Logging;
 
 enum class EIoStoreTocVersion : uint8_t
 {

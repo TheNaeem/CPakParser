@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Misc/Hashing/Map.h"
-#include "Files/Packaging/PackageId.h"
-#include "Core/Names/MappedName.h"
-#include "IoContainerId.h"
+
+import CPakParser.Package.Id;
+import CPakParser.Hashing.ShaHash;
+import CPakParser.Names.MappedName;
+import CPakParser.IOStore.ContainerId;
 
 template<typename T>
 class TFilePackageStoreEntryCArrayView
@@ -66,7 +68,7 @@ struct FIoContainerHeader
 	};
 
 	TMap<FPackageId, FFilePackageStoreEntry> PackageStore;
-	class FIoContainerId ContainerId;
+	FIoContainerId ContainerId;
 	std::vector<FPackageId> PackageIds;
 	std::vector<FPackageId> OptionalSegmentPackageIds;
 	std::vector<uint8_t> OptionalSegmentStoreEntries;

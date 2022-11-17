@@ -1,12 +1,12 @@
-export module CustomVersion;
+export module CPakParser.Versioning.CustomVersion;
 
 import <vector>;
-import FArchiveBase;
-import Guid;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Misc.FGuid;
 
 export typedef std::vector<struct FCustomVersion> FCustomVersionArray;
 
-enum class ECustomVersionSerializationFormat
+export enum class ECustomVersionSerializationFormat
 {
 	Unknown,
 	Guids,
@@ -17,7 +17,7 @@ enum class ECustomVersionSerializationFormat
 	Latest = CustomVersion_Automatic_Plus_One - 1
 };
 
-struct FCustomVersion
+export struct FCustomVersion
 {
 	FCustomVersion() = default;
 
@@ -50,7 +50,7 @@ struct FCustomVersion
 	}
 };
 
-class FCustomVersionContainer
+export class FCustomVersionContainer
 {
 public:
 

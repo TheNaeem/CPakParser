@@ -1,4 +1,4 @@
-export module AES;
+export module CPakParser.Encryption.AES;
 
 import <string>;
 

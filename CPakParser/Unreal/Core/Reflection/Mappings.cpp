@@ -1,13 +1,12 @@
+#include "Mappings.h"
 
-
-#include "Serialization/Impl/FileReader.h"
-#include "Serialization/Impl/MemoryReader.h"
-#include "Misc/Compression/Oodle.h"
 #include "Core/Reflection/Properties/PropertyTypes.h"
-#include "Logging.h"
 
-import Mappings;
-import UObjectCore;
+import CPakParser.Core.UObject;
+import CPakParser.Compression.Oodle;
+import CPakParser.Serialization.MemoryReader;
+import CPakParser.Serialization.FileReader;
+import CPakParser.Logging;
 
 #define USMAP_FILE_MAGIC 0x30C4
 

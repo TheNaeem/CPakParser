@@ -1,7 +1,7 @@
 #include <sstream>
 #include <iomanip>
 
-import AES;
+import CPakParser.Encryption.AES;
 
 #define AES256_ROUND_COUNT 14
 

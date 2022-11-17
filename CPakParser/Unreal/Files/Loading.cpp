@@ -1,6 +1,6 @@
-#include "Loader.h"
-
-#include "Packaging/Package.h"
+import CPakParser.Files.Loader;
+import CPakParser.Package;
+import CPakParser.Serialization.FArchive;
 
 FLoader::FLoader(UPackage& InPackage) 
 	: Package(InPackage), bHasSerializedPackageFileSummary(false), Reader(nullptr)

@@ -1,4 +1,4 @@
-export module GlobalCompression;
+export module CPakParser.Compression;
 
 import <string>;
 

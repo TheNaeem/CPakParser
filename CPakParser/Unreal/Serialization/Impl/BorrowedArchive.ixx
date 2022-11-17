@@ -1,10 +1,9 @@
-export module BorrowedArchive;
+export module CPakParser.Serialization.BorrowedArchive;
 
-import DiskFile;
 import <vector>;
 import "Misc/Multithreading/Lock.h";
-
-export import FArchiveBase;
+import CPakParser.Files.DiskFile;
+export import CPakParser.Serialization.FArchive;
 
 export class FBorrowedArchive final // TODO: how to implement this across Tocs and Paks
 {

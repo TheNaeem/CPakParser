@@ -1,7 +1,7 @@
-export module TopLevelAssetPath;
+export module CPakParser.Paths.TopLevelAssetPath;
 
-export import Name;
-import FArchiveBase;
+export import CPakParser.Core.FName;
+import CPakParser.Serialization.FArchive;
 
 export class FTopLevelAssetPath
 {

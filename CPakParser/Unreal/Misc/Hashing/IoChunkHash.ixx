@@ -1,6 +1,6 @@
-export module IoChunkHash;
+export module CPakParser.Hashing.IoChunkHash;
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 import <cstdint>;
 
 export class FIoChunkHash

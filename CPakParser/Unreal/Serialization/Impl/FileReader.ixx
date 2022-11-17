@@ -1,6 +1,6 @@
-export module FileReader;
+export module CPakParser.Serialization.FileReader;
 
-export import FArchiveBase;
+export import CPakParser.Serialization.FArchive;
 import <fstream>;
 
 export class FFileReader : public FArchive

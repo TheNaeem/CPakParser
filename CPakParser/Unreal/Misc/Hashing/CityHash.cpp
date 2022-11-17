@@ -1,4 +1,4 @@
-import CityHash;
+import CPakParser.Hashing.CityHash;
 
 #include <memory>
 

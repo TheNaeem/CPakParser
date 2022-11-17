@@ -1,9 +1,9 @@
-#include "PakEntry.h"
+import CPakParser.Paks.PakEntry;
 
-#include "PakInfo.h"
-#include "Logging.h"
-#include "Serialization/Archives.h"
-#include "Misc/Compression/GlobalCompression.h"
+import CPakParser.Paks.PakInfo;
+import CPakParser.Logging;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Compression;
 
 FArchive& operator<<(FArchive& Ar, FPakCompressedBlock& Block)
 {

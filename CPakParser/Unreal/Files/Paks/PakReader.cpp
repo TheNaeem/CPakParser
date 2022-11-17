@@ -1,8 +1,9 @@
 #include "PakReader.h"
 
-#include "PakFile.h"
-#include "Misc/Compression/GlobalCompression.h"
+#include "Core/Defines.h"
 #include <future>
+
+import CPakParser.Compression;
 
 // TODO: 
 /*

@@ -2,11 +2,11 @@ module;
 
 #include "Core/Defines.h"
 
-export module PakEntryLocation;
+export module CPakParser.Paks.PakEntryLocation;
 
-export import FileEntry;
+export import CPakParser.Files.FileEntry;
 
-struct FPakEntryLocation : public FFileEntryInfo
+export struct FPakEntryLocation : public FFileEntryInfo
 {
 	static const int32_t Invalid = MIN_int32;
 	static const int32_t MaxIndex = MAX_int32 - 1;

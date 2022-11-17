@@ -2,9 +2,9 @@ module;
 
 #include "Core/Defines.h"
 
-export module MemoryReader;
+export module CPakParser.Serialization.MemoryReader;
 
-export import FArchiveBase;
+export import CPakParser.Serialization.FArchive;
 
 export class FMemoryReader : public FArchive
 {

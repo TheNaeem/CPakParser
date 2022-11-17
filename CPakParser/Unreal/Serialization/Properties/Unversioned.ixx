@@ -1,7 +1,7 @@
-export module Unversioned;
+export module CPakParser.Serialization.Unversioned;
 
-import FArchiveBase;
-import UObjectCore;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Core.UObject;
 
 export struct FUnversionedSerializer
 {

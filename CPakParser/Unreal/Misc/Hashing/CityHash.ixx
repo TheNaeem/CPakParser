@@ -1,4 +1,4 @@
-export module CityHash;
+export module CPakParser.Hashing.CityHash;
 
 import <cstdint>;
 

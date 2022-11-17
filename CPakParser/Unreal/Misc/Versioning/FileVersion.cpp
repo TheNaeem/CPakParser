@@ -1,6 +1,6 @@
-import PackageFileVersion;
-import FArchiveBase;
-import EngineVersion;
+import CPakParser.Versions.PackageFileVersion;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Versions.EngineVersion;
 
 FPackageFileVersion FPackageFileVersion::CreateUE4Version(__int32 Version)
 {
@@ -58,7 +58,7 @@ void FPackageFileVersion::Reset()
 	FileVersionUE5 = 0;
 }
 
-int32_t FPackageFileVersion::ToValue() const
+__int32 FPackageFileVersion::ToValue() const
 {
 	if (FileVersionUE5 >= (__int32)EUnrealEngineObjectUE5Version::INITIAL_VERSION)
 	{

@@ -1,4 +1,4 @@
-export module PackageFileVersion;
+export module CPakParser.Versions.PackageFileVersion;
 
 export enum class EUnrealEngineObjectUE5Version : __int32
 {

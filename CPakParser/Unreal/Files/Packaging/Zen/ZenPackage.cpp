@@ -1,11 +1,9 @@
-#include "ZenPackage.h"
+#include "Core/Defines.h"
+#include <string>
 
-#include "Core/Class.h"
-#include "Core/Globals/GlobalContext.h"
-#include "Serialization/Impl/ExportReader.h"
-#include "Files/IOStore/Misc/ScriptObjectEntry.h"
-#include "../LazyPackageObject.h"
-#include "Logging.h"
+import CPakParser.Zen.Package;
+import CPakParser.Logging;
+import CPakParser.Serialization.FArchive;
 
 template <typename T = UObject>
 TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
@@ -24,7 +22,7 @@ TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectInd
 
 		return Ret;
 	}
-	
+
 	auto Ret = std::make_shared<T>();
 	Ret->SetName(Name);
 
@@ -119,7 +117,7 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 	UObjectPtr& Object = Exports[LocalExportIndex].Object;
 	auto& TemplateObject = Exports[LocalExportIndex].TemplateObject;
 	auto& ObjectName = Header.NameMap.GetName(Export.ObjectName);
-	
+
 	TemplateObject = IndexToObject(Header, Exports, Export.TemplateIndex);
 
 	if (!TemplateObject)
@@ -141,7 +139,7 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 
 	if (!Object->Outer)
 		Object->Outer = Export.OuterIndex.IsNull() ? This() : IndexToObject(Header, Exports, Export.OuterIndex);
-	 
+
 	if (UStructPtr Struct = Object.As<UStruct>())
 	{
 		if (!Struct->GetSuper())
@@ -168,7 +166,7 @@ void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExp
 	}
 	else*/
 
-	Object->Serialize(PackageData.Reader);
+	Object->Serialize(*PackageData.Reader);
 
 	Log("Serialized export %s", Object->Name.c_str());
 }

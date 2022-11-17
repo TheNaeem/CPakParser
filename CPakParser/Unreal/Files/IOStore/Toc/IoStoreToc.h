@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Files/DiskFile.h"
-#include "Misc/Encryption/AES.h"
 #include "Misc/Hashing/Map.h"
-#include "../Misc/IoOffsetAndLength.h"
+
+import CPakParser.IOStore.OffsetAndLength;
+import CPakParser.Encryption.AES;
+import CPakParser.Files.FileEntry;
+import CPakParser.IOStore.ChunkId;
 
 class FIoStoreToc : public IDiskFile
 {
@@ -19,7 +21,7 @@ public:
 	std::string GetDiskPath() override;
 	void SetKey(FAESKey& InKey);
 	void SetReader(TSharedPtr<class FIoStoreReader> InReader);
-	int32_t GetTocEntryIndex(struct FIoChunkId& ChunkId);
+	int32_t GetTocEntryIndex(FIoChunkId& ChunkId);
 
 	FIoOffsetAndLength GetOffsetAndLength(FIoChunkId& ChunkId);
 	FSharedAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;

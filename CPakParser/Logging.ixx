@@ -1,4 +1,4 @@
-export module Logging;
+export module CPakParser.Logging;
 
 import <cstdio>;
 

@@ -1,11 +1,15 @@
-#include "PakFile.h"
-
 #include "PakReader.h"
 #include "Core/Globals/GlobalContext.h"
-#include "Serialization/Impl/MemoryReader.h"
-#include "Serialization/Impl/FileReader.h"
-#include "Misc/Hashing/ShaHash.h"
-#include "Logging.h"
+
+import CPakParser.Paks.PakFile;
+import CPakParser.Paks.PakEntryLocation;
+import CPakParser.Paks.PakInfo;
+import CPakParser.Hashing.ShaHash;
+import CPakParser.Serialization.FileReader;
+import CPakParser.Serialization.MemoryReader;
+import CPakParser.Logging;
+
+typedef TMap<uint64_t, FPakEntryLocation> FPathHashIndex;
 
 //TODO: right now im just directly porting engine code, but once I have everything laid out, I should refactor it to be more practical for my usage of it
 
@@ -316,7 +320,8 @@ bool FPakFile::LoadIndexInternal(FArchive& Reader)
 
 		if (!TryDecryptIndex(PathHashIndexData)) return false;
 
-		PathHashIndexReader << PathHashIndex;
+		FPathHashIndex Skip;
+		PathHashIndexReader << Skip; // dont need it
 		bHasPathHashIndex = true;
 	}
 

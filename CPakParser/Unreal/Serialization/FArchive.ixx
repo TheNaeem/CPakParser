@@ -2,13 +2,13 @@ module;
 
 #include "Core/Defines.h"
 
-export module FArchiveBase;
+export module CPakParser.Serialization.FArchive;
 
 import <string>;
 import <vector>;
 
-import PackageFileVersion;
-import UObjectCore;
+import CPakParser.Versions.PackageFileVersion;
+import CPakParser.Core.UObject;
 
 export class FArchive
 {

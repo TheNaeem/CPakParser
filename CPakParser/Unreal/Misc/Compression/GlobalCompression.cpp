@@ -1,7 +1,7 @@
 #include <string>
 
-import GlobalCompression;
-import Oodle;
+import CPakParser.Compression;
+import CPakParser.Compression.Oodle;
 
 bool FCompression::VerifyCompressionFlagsValid(int32_t InCompressionFlags)
 {

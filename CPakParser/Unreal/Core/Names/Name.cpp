@@ -1,9 +1,8 @@
 #include <span>
 #include <vector>
 
-import Name;
-import FArchiveBase;
-import FArchiveBase;
+import CPakParser.Core.FName;
+import CPakParser.Serialization.FArchive;
 
 struct FSerializedNameHeader
 {

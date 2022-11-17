@@ -1,7 +1,7 @@
-export module FileEntry;
+export module CPakParser.Files.FileEntry;
 
-export import DiskFile;
-import FArchiveBase;
+export import CPakParser.Files.DiskFile;
+import CPakParser.Serialization.FArchive;
 import <string>;
 
 export struct FFileEntryInfo

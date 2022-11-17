@@ -2,9 +2,9 @@ module;
 
 #include "Defines.h"
 
-export module UObjectCore;
+export module CPakParser.Core.UObject;
 
-import Properties;
+import CPakParser.Reflection.FProperty;
 import <string>;
 import <vector>;
 
@@ -211,7 +211,7 @@ public:
 
 	virtual void Load() { }
 
-	//virtual void Serialize(TSharedPtr<class FArchive> Ar);
+	virtual void Serialize(class FArchive& Ar);
 };
 
 // put structs and objects in the same file cause module forward declarations are finicky

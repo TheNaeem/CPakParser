@@ -1,6 +1,6 @@
-export module ShaHash;
+export module CPakParser.Hashing.ShaHash;
 
-import FArchiveBase;
+import CPakParser.Serialization.FArchive;
 import <cstring>;
 
 export class FSHAHash

@@ -1,6 +1,6 @@
-export module SerializableFile;
+export module CPakParser.Files.SerializableFile;
 
-export import FArchiveBase;
+export import CPakParser.Serialization.FArchive;
 
 export struct ISerializableFile
 {

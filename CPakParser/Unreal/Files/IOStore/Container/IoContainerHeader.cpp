@@ -1,7 +1,8 @@
 #include "IoContainerHeader.h"
 
-#include "Serialization/Archives.h"
-#include "Logging.h"
+import CPakParser.Serialization.FArchive;
+import CPakParser.Logging;
+import CPakParser.Core.FName;
 
 enum class EIoContainerHeaderVersion : uint32_t
 {
