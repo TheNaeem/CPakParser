@@ -2,7 +2,7 @@ export module CPakParser.Structs.DateTime;
 
 import CPakParser.Serialization.FArchive;
 
-class FDateTime
+export class FDateTime
 {
 public:
 

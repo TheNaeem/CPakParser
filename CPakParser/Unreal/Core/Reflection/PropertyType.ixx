@@ -1,12 +1,42 @@
-export module PropertyType;
+export module CPakParser.Reflection.PropertyType;
 
-import CPakParser.Reflection.PropertyValue;
 import <string>;
-import CPakParser.Localization.Text;
-import CPakParser.Core.FName;
-import CPakParser.Core.UObject;
 
 #define RUNTIME_TYPE(type, propType) if constexpr (std::is_same<T, type>()) return propType
+
+export enum class EPropertyType : uint8_t
+{
+	ByteProperty,
+	BoolProperty,
+	IntProperty,
+	FloatProperty,
+	ObjectProperty,
+	NameProperty,
+	DelegateProperty,
+	DoubleProperty,
+	ArrayProperty,
+	StructProperty,
+	StrProperty,
+	TextProperty,
+	InterfaceProperty,
+	MulticastDelegateProperty,
+	WeakObjectProperty,
+	LazyObjectProperty,
+	AssetObjectProperty,
+	SoftObjectProperty,
+	UInt64Property,
+	UInt32Property,
+	UInt16Property,
+	Int64Property,
+	Int16Property,
+	Int8Property,
+	MapProperty,
+	SetProperty,
+	EnumProperty,
+	FieldPathProperty,
+
+	Unknown = 0xFF
+};
 
 export template <typename T>
 constexpr EPropertyType GetPropertyType()
@@ -15,12 +45,12 @@ constexpr EPropertyType GetPropertyType()
 	RUNTIME_TYPE(bool, EPropertyType::BoolProperty);
 	RUNTIME_TYPE(int32_t, EPropertyType::IntProperty);
 	RUNTIME_TYPE(float, EPropertyType::FloatProperty);
-	RUNTIME_TYPE(UObjectPtr, EPropertyType::ObjectProperty);
-	RUNTIME_TYPE(FName, EPropertyType::NameProperty);
+	RUNTIME_TYPE(class UObjectPtr, EPropertyType::ObjectProperty);
+	//RUNTIME_TYPE(class FName, EPropertyType::NameProperty);
 	//RUNTIME_TYPE(FScriptDelegate, EPropertyType::DelegateProperty);
 	RUNTIME_TYPE(double, EPropertyType::DoubleProperty);
 	RUNTIME_TYPE(std::string, EPropertyType::StrProperty);
-	RUNTIME_TYPE(FText, EPropertyType::TextProperty);
+	//RUNTIME_TYPE(class FText, EPropertyType::TextProperty);
 	//RUNTIME_TYPE(FMulticastScriptDelegate, EPropertyType::MulticastDelegateProperty);
 	RUNTIME_TYPE(uint64_t, EPropertyType::UInt64Property);
 	RUNTIME_TYPE(uint32_t, EPropertyType::UInt32Property);

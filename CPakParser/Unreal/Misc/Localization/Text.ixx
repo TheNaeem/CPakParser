@@ -5,8 +5,7 @@ module;
 export module CPakParser.Localization.Text;
 
 export import <string>;
-
-class FArchive;
+import CPakParser.Serialization.FArchive;
 
 export enum class ELocResVersion : uint8_t
 {
@@ -113,7 +112,7 @@ public:
 
 	FText() = default;
 
-	__forceinline std::string GetCultureInvariantString()
+	__forceinline std::string& GetCultureInvariantString()
 	{
 		return CultureInvariantString;
 	}
@@ -128,7 +127,7 @@ public:
 		return Data->GetString();
 	}
 
-	friend class FArchive& operator<<(class FArchive& Ar, FText& Value);
+	friend FArchive& operator<<(FArchive& Ar, FText& Value);
 
 private:
 

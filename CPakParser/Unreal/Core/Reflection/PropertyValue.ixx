@@ -1,40 +1,7 @@
 export module CPakParser.Reflection.PropertyValue;
 
-import <optional>;
-
-export enum class EPropertyType : uint8_t
-{
-	ByteProperty,
-	BoolProperty,
-	IntProperty,
-	FloatProperty,
-	ObjectProperty,
-	NameProperty,
-	DelegateProperty,
-	DoubleProperty,
-	ArrayProperty,
-	StructProperty,
-	StrProperty,
-	TextProperty,
-	InterfaceProperty,
-	MulticastDelegateProperty,
-	WeakObjectProperty,
-	LazyObjectProperty,
-	AssetObjectProperty,
-	SoftObjectProperty,
-	UInt64Property,
-	UInt32Property,
-	UInt16Property,
-	Int64Property,
-	Int16Property,
-	Int8Property,
-	MapProperty,
-	SetProperty,
-	EnumProperty,
-	FieldPathProperty,
-
-	Unknown = 0xFF
-};
+export import <optional>;
+export import CPakParser.Reflection.PropertyType;
 
 export class IPropValue
 {

@@ -1,7 +1,9 @@
 export module CPakParser.Math.FBox;
 
-import CPakParser.Math.FVector;
+export import CPakParser.Math.FVector;
 import CPakParser.Serialization.FArchive;
+
+import <cstdint>;
 
 struct FBox
 {

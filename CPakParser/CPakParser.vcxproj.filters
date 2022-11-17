@@ -35,15 +35,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Dataminer\DataminerInitialization.cpp" />
     <ClCompile Include="Dataminer\DataminerLoading.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\EnumProperty.cpp" />
-    <ClCompile Include="Unreal\Core\Reflection\Properties\BoolProperty.cpp" />
     <ClCompile Include="Unreal\Core\UObject.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\FProperty.ixx" />
     <ClCompile Include="Unreal\Serialization\FArchive.ixx" />
@@ -106,6 +98,18 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoOffsetAndLength.ixx" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\PropertyType.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\BoolProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\DelegateProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\EnumProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\MapProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\NameProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\NumericProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\ObjectProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\SetProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.ixx" />
+    <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />
@@ -117,19 +121,6 @@
     <ClInclude Include="Unreal\Core\Defines.h" />
     <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\PropertyTypes.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\EnumProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\StructProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\ArrayProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\SetProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\MapProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\ObjectProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\BoolProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\MulticastDelegateProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\DelegateProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\SoftObjectProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\TextProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\NumericProperty.h" />
-    <ClInclude Include="Unreal\Core\Reflection\Properties\NameProperty.h" />
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
     <ClInclude Include="Unreal\Core\Globals\GameFileManager.h" />

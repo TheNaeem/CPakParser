@@ -2,14 +2,13 @@
 
 #include "Core/Defines.h"
 #include "Core/Globals/GameFileManager.h"
-#include "Misc/Guid.h"
-#include "Misc/Encryption/AES.h"
-#include "Misc/Hashing/Map.h"
-#include "Misc/Versioning/PackageFileVersion.h"
-#include "Files/SerializableFile.h"
 #include <future>
 
-import UObjectCore;
+import CPakParser.Core.UObject;
+import CPakParser.Files.GameFilePath;
+import CPakParser.Files.SerializableFile;
+import CPakParser.Misc.FGuid;
+import CPakParser.Encryption.AES;
 
 class Dataminer
 {

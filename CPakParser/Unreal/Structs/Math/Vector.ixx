@@ -37,7 +37,7 @@ export struct FVector
 	}
 };
 
-struct FVector2D
+export struct FVector2D
 {
 	FVector2D() = default;
 

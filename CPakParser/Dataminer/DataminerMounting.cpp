@@ -3,12 +3,12 @@
 #include "Core/Globals/GlobalContext.h"
 #include "Files/IOStore/Toc/IoStoreToc.h"
 #include "Files/IOStore/Misc/IoStoreReader.h"
-#include "Files/Paks/PakFile.h"
 #include "Misc/Multithreading/Lock.h"
 #include <filesystem>
-#include "Logging.h"
 
-import FArchiveBase;
+import CPakParser.Logging;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Paks.PakFile;
 
 void Dataminer::OnPakMounted(TSharedPtr<FPakFile> Pak)
 {

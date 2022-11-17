@@ -26,6 +26,11 @@ public:
 	{
 		return Val;
 	}
+
+	__forceinline std::string& GetString()
+	{
+		return Val;
+	}
 };
 
 export std::vector<std::string> LoadNameBatch(FArchive& Ar);

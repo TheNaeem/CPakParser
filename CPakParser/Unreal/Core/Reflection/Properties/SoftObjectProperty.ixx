@@ -1,10 +1,14 @@
-#pragma once
+module;
 
-#include "../Property.h"
-#include "../PropertyValue.h"
-#include "Misc/Paths/SoftObjectPath.h"
+#include "Core/Defines.h"
 
-class FSoftObjectProperty : public FProperty
+export module CPakParser.Reflection.SoftObjectProperty;
+
+import CPakParser.Reflection.FProperty;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Paths.SoftObjectPath;
+
+export class FSoftObjectProperty : public FProperty
 {
 public:
 
@@ -32,5 +36,11 @@ public:
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(FArchive& Archive) override;
+	TUniquePtr<IPropValue> Serialize(FArchive& Archive) override
+	{
+		auto Ret = std::make_unique<Value>();
+		Archive << Ret->Path;
+
+		return std::move(Ret);
+	}
 };

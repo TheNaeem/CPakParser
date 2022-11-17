@@ -1,8 +1,8 @@
 #include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
 
-import Text;
-import Logging;
+import CPakParser.Localization.Text;
+import CPakParser.Logging;
 
 typedef std::vector<std::pair<std::string, struct FFormatArgumentValue>> FFormatNamedArguments;
 typedef std::vector<struct FFormatArgumentValue> FFormatOrderedArguments;

@@ -1,8 +1,10 @@
 #include "Dataminer.h"
 
 #include "Core/Globals/GlobalContext.h"
-#include "Files/Loader.h"
 #include "Core/Reflection/Mappings.h"
+
+import CPakParser.Files.Loader;
+import CPakParser.Serialization.FArchive;
 
 bool Dataminer::LoadTypeMappings(std::string UsmapFilePath)
 {
@@ -22,7 +24,7 @@ void Dataminer::SerializeFileInternal(FGameFilePath& FilePath, TSharedPtr<ISeria
 	if (!Reader)
 		return;
 
-	OutFile->Serialize(Reader);
+	OutFile->Serialize(*Reader);
 }
 
 void Dataminer::Test(FGameFilePath Path)

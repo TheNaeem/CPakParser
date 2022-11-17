@@ -1,7 +1,11 @@
-#pragma once
+module;
 
-#include "../PropertyValue.h"
-#include "Serialization/Archives.h"
+#include "Core/Defines.h"
+
+export module CPakParser.Reflection.NumericProperty;
+
+import CPakParser.Reflection.FProperty;
+import CPakParser.Serialization.FArchive;
 
 #define QUICK_NUM_CAST(type) \
 	{ \
@@ -10,7 +14,7 @@
 	break; \
 	} \
 
-template <typename NumType, EPropertyType NumPropType>
+export template <typename NumType, EPropertyType NumPropType>
 class TNumericProperty : public FProperty
 {
 public:
@@ -76,17 +80,17 @@ public:
 	}
 };
 
-typedef TNumericProperty<float, EPropertyType::FloatProperty> FFloatProperty;
-typedef TNumericProperty<double, EPropertyType::DoubleProperty> FDoubleProperty;
-typedef TNumericProperty<int8_t, EPropertyType::Int8Property> FInt8Property;
-typedef TNumericProperty<int16_t, EPropertyType::Int16Property> FInt16Property;
-typedef TNumericProperty<int32_t, EPropertyType::IntProperty> FIntProperty;
-typedef TNumericProperty<int64_t, EPropertyType::Int64Property> FInt64Property;
-typedef TNumericProperty<uint16_t, EPropertyType::UInt16Property> FUInt16Property;
-typedef TNumericProperty<uint32_t, EPropertyType::UInt32Property> FUInt32Property;
-typedef TNumericProperty<uint64_t, EPropertyType::UInt64Property> FUInt64Property;
+export typedef TNumericProperty<float, EPropertyType::FloatProperty> FFloatProperty;
+export typedef TNumericProperty<double, EPropertyType::DoubleProperty> FDoubleProperty;
+export typedef TNumericProperty<int8_t, EPropertyType::Int8Property> FInt8Property;
+export typedef TNumericProperty<int16_t, EPropertyType::Int16Property> FInt16Property;
+export typedef TNumericProperty<int32_t, EPropertyType::IntProperty> FIntProperty;
+export typedef TNumericProperty<int64_t, EPropertyType::Int64Property> FInt64Property;
+export typedef TNumericProperty<uint16_t, EPropertyType::UInt16Property> FUInt16Property;
+export typedef TNumericProperty<uint32_t, EPropertyType::UInt32Property> FUInt32Property;
+export typedef TNumericProperty<uint64_t, EPropertyType::UInt64Property> FUInt64Property;
 
-class FByteProperty : public TNumericProperty<uint8_t, EPropertyType::ByteProperty>
+export class FByteProperty : public TNumericProperty<uint8_t, EPropertyType::ByteProperty>
 {
 public:
 

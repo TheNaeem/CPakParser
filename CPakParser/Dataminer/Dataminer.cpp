@@ -1,10 +1,11 @@
 #include "Dataminer.h"
 
 #include "Core/Globals/GlobalContext.h"
-#include "Misc/Compression/Oodle.h"
-#include "Logging.h"
 
+import CPakParser.Compression.Oodle;
+import CPakParser.Logging;
 // getters and setters
+
 
 void Dataminer::Options::WithLogging(bool bEnableLogging)
 {

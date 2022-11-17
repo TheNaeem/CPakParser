@@ -5,7 +5,6 @@
 #include <Windows.h>
 
 #include "Exceptions.h"
-#include "Logging.h"
 
 #include "Dataminer/Dataminer.h"
 

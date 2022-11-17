@@ -2,9 +2,10 @@
 
 #include "Core/Globals/GlobalContext.h"
 #include "Misc/Multithreading/Lock.h"
-#include "Logging.h"
 #include <filesystem>
 #include <future>
+
+import CPakParser.Logging;
 
 Dataminer::Dataminer(const char* PaksFolderDir) :
 	PaksDirectory(PaksFolderDir),

@@ -1,15 +1,15 @@
-#include "StructProperty.h"
-
-#include "Misc/Guid.h"
+#include "Core/Defines.h"
 #include "Misc/Hashing/Map.h"
-#include "Misc/Paths/SoftObjectPath.h"
-
-#include "Structs/Math/Box.h"
-#include "Structs/Tags/GameplayTagContainer.h"
-#include "Structs/Misc/DateTime.h"
-
-#include "Serialization/Archives.h"
 #include <functional>
+
+import CPakParser.Reflection.PropertyValue;
+import CPakParser.Reflection.StructProperty;
+import CPakParser.Misc.FGuid;
+import CPakParser.Paths.SoftObjectPath;
+import CPakParser.Math.FBox;
+import CPakParser.Structs.DateTime;
+import CPakParser.Structs.GameplayTagContainer;
+import CPakParser.Serialization.FArchive;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -19,7 +19,7 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 
 	return std::move(Ret);
 }
- 
+
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
 {
 	{ "Guid", SerializeNativeStruct<FGuid> },

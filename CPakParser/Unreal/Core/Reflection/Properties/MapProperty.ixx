@@ -1,8 +1,13 @@
-#pragma once
+module;
 
-#include "../Property.h"
+#include "Core/Defines.h"
 
-class FMapProperty : public FProperty
+export module CPakParser.Reflection.MapProperty;
+
+import CPakParser.Reflection.FProperty;
+import CPakParser.Serialization.FArchive;
+
+export class FMapProperty : public FProperty
 {
 public:
 

@@ -1,11 +1,13 @@
-#pragma once
+module;
 
-#include "../Property.h"
-#include "../PropertyValue.h"
+#include "Core/Defines.h"
 
-#include "Core/Class.h"
+export module CPakParser.Reflection.StructProperty;
 
-class FStructProperty : public FProperty
+import CPakParser.Reflection.FProperty;
+import CPakParser.Core.UObject;
+
+export class FStructProperty : public FProperty
 {
 public:
 
@@ -46,7 +48,7 @@ public:
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override;
+	TUniquePtr<IPropValue> Serialize(class FArchive& Ar) override;
 
 private:
 

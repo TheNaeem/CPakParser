@@ -1,15 +1,14 @@
 #pragma once
 
-#include "EnumProperty.h"
-#include "StructProperty.h"
-#include "ArrayProperty.h"
-#include "SetProperty.h"
-#include "MapProperty.h"
-#include "ObjectProperty.h"
-#include "BoolProperty.h"
-#include "MulticastDelegateProperty.h"
-#include "DelegateProperty.h"
-#include "SoftObjectProperty.h"
-#include "TextProperty.h"
-#include "NumericProperty.h"
-#include "NameProperty.h"
+import CPakParser.Reflection.ArrayProperty;
+import CPakParser.Reflection.BoolProperty;
+import CPakParser.Reflection.DelegateProperty;
+import CPakParser.Reflection.EnumProperty;
+import CPakParser.Reflection.TextProperty;
+import CPakParser.Reflection.MapProperty;
+import CPakParser.Reflection.NameProperty;
+import CPakParser.Reflection.NumericProperty;
+import CPakParser.Reflection.ObjectProperty;
+import CPakParser.Reflection.SetProperty;
+import CPakParser.Reflection.SoftObjectProperty;
+import CPakParser.Reflection.StructProperty;

@@ -1,9 +1,14 @@
-#pragma once
+module;
 
-#include "../PropertyValue.h"
-#include "Core/Names/Name.h"
+#include "Core/Defines.h"
 
-class FNameProperty : public FProperty
+export module CPakParser.Reflection.NameProperty;
+
+import CPakParser.Reflection.FProperty;
+import CPakParser.Serialization.FArchive;
+import CPakParser.Core.FName;
+
+export class FNameProperty : public FProperty
 {
 public:
 
@@ -26,10 +31,16 @@ public:
 			}
 			else if (Type == EPropertyType::StrProperty)
 			{
-				((std::string*)OutBuffer)->assign(Name.Val);
+				((std::string*)OutBuffer)->assign(Name.GetString());
 			}
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override;
+	TUniquePtr<IPropValue> Serialize(FArchive& Ar) override
+	{
+		auto Ret = std::make_unique<Value>();
+		Ar << Ret->Name;
+
+		return std::move(Ret);
+	}
 };
