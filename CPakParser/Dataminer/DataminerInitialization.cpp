@@ -3,7 +3,6 @@
 #include "Core/Globals/GlobalContext.h"
 #include "Misc/Multithreading/Lock.h"
 #include <filesystem>
-#include <future>
 
 import CPakParser.Logging;
 

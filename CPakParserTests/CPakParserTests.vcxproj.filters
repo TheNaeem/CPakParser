@@ -14,4 +14,7 @@
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
 </Project>

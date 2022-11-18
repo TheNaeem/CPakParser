@@ -7,7 +7,7 @@ import CPakParser.Paks.PakEntry;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Paks.PakFile;
 
-export class FPakNoEncryption
+class FPakNoEncryption
 {
 public:
 	enum
@@ -25,7 +25,7 @@ public:
 	}
 };
 
-export class FPakSimpleEncryption
+class FPakSimpleEncryption
 {
 public:
 

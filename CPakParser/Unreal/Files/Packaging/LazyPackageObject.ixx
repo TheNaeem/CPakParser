@@ -1,4 +1,4 @@
-export module LazyPackageObject;
+export module CPakParser.Packaging.LazyPackage;
 
 import CPakParser.Core.UObject;
 import CPakParser.Package.Id;

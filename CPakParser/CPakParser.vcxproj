@@ -114,11 +114,9 @@
     <ClCompile Include="Unreal\Misc\Localization\Text.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />
-    <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.ixx" />
     <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.ixx" />
     <ClCompile Include="Unreal\Misc\Versioning\FileVersion.cpp" />
-    <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.ixx" />
     <ClCompile Include="Unreal\Serialization\FArchive.ixx" />
     <ClCompile Include="Unreal\Serialization\Impl\BorrowedArchive.cpp" />
@@ -237,7 +235,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>
@@ -255,7 +253,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>

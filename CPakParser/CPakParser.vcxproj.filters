@@ -20,7 +20,6 @@
     <ClCompile Include="Unreal\Misc\Localization\Text.cpp" />
     <ClCompile Include="Unreal\Core\UObject.cpp" />
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
-    <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Encryption\EncryptionKeyManager.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakInfo.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakEntry.cpp" />
@@ -117,7 +116,6 @@
     <ClInclude Include="Unreal\Files\IOStore\Misc\IoStoreReader.h" />
     <ClInclude Include="Unreal\Files\IOStore\Toc\IoStoreToc.h" />
     <ClInclude Include="Unreal\Core\Defines.h" />
-    <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
     <ClInclude Include="Unreal\Core\Reflection\Properties\PropertyTypes.h" />
     <ClInclude Include="Unreal\Misc\Hashing\Map.h" />
     <ClInclude Include="Unreal\Misc\Multithreading\Lock.h" />
@@ -127,5 +125,6 @@
     <ClInclude Include="Unreal\Files\Paks\PakReader.h" />
     <ClInclude Include="Unreal\Core\Reflection\Mappings.h" />
     <ClInclude Include="Unreal\Misc\Localization\Localization.h" />
+    <ClInclude Include="Unreal\Misc\Versioning\CustomVersion.h" />
   </ItemGroup>
 </Project>

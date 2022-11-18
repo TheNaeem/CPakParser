@@ -1,6 +1,6 @@
 export module CPakParser.Files.GameFilePath;
 
-import <string>;
+export import <string>;
 
 export struct FGameFilePath
 {

@@ -5,7 +5,7 @@ import CPakParser.Serialization.FArchive;
 
 import <cstdint>;
 
-struct FBox
+export struct FBox
 {
 	FBox() = default;
 

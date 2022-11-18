@@ -7,7 +7,7 @@ import CPakParser.IOStore.ScriptObjectEntry;
 import CPakParser.Names.NameMap;
 import CPakParser.Package.ObjectIndex;
 
-export struct FGlobalTocData // inspired by the CUE4Parse IoGlobalData class. huge shoutout to them
+struct FGlobalTocData // inspired by the CUE4Parse IoGlobalData class. huge shoutout to them
 {
 	FNameMap NameMap;
 	TMap<FPackageObjectIndex, FScriptObjectEntry> ScriptObjectByGlobalIdMap;

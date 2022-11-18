@@ -30,6 +30,15 @@ export class FIoChunkId
 public:
 	FIoChunkId() = default;
 
+	static inline FIoChunkId CreateEmptyId()
+	{
+		FIoChunkId ChunkId;
+		uint8_t Data[12] = { 0 };
+		ChunkId.Set(Data, sizeof Data);
+
+		return ChunkId;
+	}
+
 	FIoChunkId(uint64_t ChunkId, uint16_t ChunkIndex, EIoChunkType IoChunkType)
 	{
 		*reinterpret_cast<uint64_t*>(&Id[0]) = ChunkId;
@@ -37,7 +46,11 @@ public:
 		*reinterpret_cast<uint8_t*>(&Id[11]) = static_cast<uint8_t>(IoChunkType);
 	}
 
-	static const FIoChunkId InvalidChunkId;
+	static __forceinline FIoChunkId& InvalidChunkId()
+	{
+		static FIoChunkId Id;
+		return Id;
+	}
 
 	bool operator ==(const FIoChunkId& Rhs) const
 	{
@@ -56,7 +69,7 @@ public:
 
 	bool IsValid() const
 	{
-		return *this != InvalidChunkId;
+		return *this != InvalidChunkId();
 	}
 
 	inline const uint8_t* GetData() const { return Id; }

@@ -7,7 +7,7 @@ export module CPakParser.Reflection.BoolProperty;
 export import CPakParser.Reflection.FProperty;
 import CPakParser.Serialization.FArchive;
 
-class FBoolProperty : public FProperty
+export class FBoolProperty : public FProperty
 {
 public:
 

@@ -6,8 +6,6 @@ export struct FIoOffsetAndLength
 {
 public:
 
-	FIoOffsetAndLength();
-
 	uint64_t GetOffset() const
 	{
 		return OffsetAndLength[4]

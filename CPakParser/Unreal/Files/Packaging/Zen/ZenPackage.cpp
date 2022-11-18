@@ -1,9 +1,12 @@
 #include "Core/Defines.h"
+#include "Core/Globals/GlobalContext.h"
 #include <string>
 
 import CPakParser.Zen.Package;
 import CPakParser.Logging;
 import CPakParser.Serialization.FArchive;
+import CPakParser.Package.ObjectIndex;
+import CPakParser.Packaging.LazyPackage;
 
 template <typename T = UObject>
 TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
@@ -51,7 +54,7 @@ UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector
 	{
 		if (Index.IsScriptImport())
 		{
-			auto Ret = CreateScriptObject(Context, Index);
+			auto Ret = CreateScriptObject<T>(Context, Index);
 
 			if (!Context->ObjectArray.contains(Ret->GetName()))
 				Context->ObjectArray.insert_or_assign(Ret->GetName(), Ret); // TODO: refactor this to use weak ptr

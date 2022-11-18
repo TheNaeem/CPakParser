@@ -8,17 +8,15 @@ import CPakParser.Serialization.FArchive;
 import CPakParser.Files.FileEntry;
 import CPakParser.Package.FileSummary;
 
-class UPackage;
-
 export class FLoader // TODO: make this completely different and obselete
 {
 private:
 
 	FSharedAr Reader;
-	UPackage& Package;
+	class UPackage& Package;
 	bool bHasSerializedPackageFileSummary;
 
-	FLoader(UPackage& InPackage);
+	FLoader(class UPackage& InPackage);
 
 	void SerializePackageSummary();
 
@@ -27,7 +25,7 @@ public:
 	~FLoader();
 
 	__forceinline bool IsValid();
-	static TSharedPtr<FLoader> FromPackage(UPackage& Package);
+	static TSharedPtr<FLoader> FromPackage(class UPackage& Package);
 	static FSharedAr CreateFileReader(FFileEntryInfo Entry, bool bMemoryPreload = true);
 	void LoadAllObjects();
 

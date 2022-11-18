@@ -4,6 +4,7 @@
 
 import CPakParser.Serialization.Unversioned;
 import CPakParser.Reflection.PropertyIterator;
+import CPakParser.Serialization.FArchive;
 
 #if EXTENSIVE_LOGGING
 #include "Logging.h"

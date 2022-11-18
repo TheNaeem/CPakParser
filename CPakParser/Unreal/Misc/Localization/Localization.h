@@ -7,7 +7,7 @@ import CPakParser.Localization.Text;
 import CPakParser.Files.SerializableFile;
 import <vector>;
 
-export struct FLocalization : public ISerializableFile
+struct FLocalization : public ISerializableFile
 {
 	TMap<FTextId, std::string> Entries;
 
