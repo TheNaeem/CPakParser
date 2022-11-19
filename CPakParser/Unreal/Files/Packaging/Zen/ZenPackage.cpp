@@ -7,6 +7,8 @@ import CPakParser.Logging;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Package.ObjectIndex;
 import CPakParser.Packaging.LazyPackage;
+import CPakParser.Serialization.IoExportArchive;
+import CPakParser.Package.Flags;
 
 template <typename T = UObject>
 TObjectPtr<T> CreateScriptObject(TSharedPtr<GContext> Context, FPackageObjectIndex& Index)
@@ -86,12 +88,27 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 	}
 
 	auto& Header = PackageData.Header;
+	auto CurrentExportOffset = 0;
 
 	for (size_t i = 0; i < Header.ExportBundleHeaders.size(); i++)
 	{
 		// TODO: Ar.SetUEVer(Package->LinkerRoot->GetLinkerPackageVersion());
 
 		auto& ExportBundle = Header.ExportBundleHeaders[i];
+
+		auto Ar = FIoExportArchive(Header.AllExportDataPtr, Header.AllExportDataPtr + ExportBundle.SerialOffset + CurrentExportOffset, PackageData);
+		Ar.SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
+
+		auto& PackageVer = PackageData.Header.VersioningInfo.PackageVersion;
+
+		if (PackageVer.IsValid())
+		{
+			Ar.SetUEVer(PackageVer);
+		}
+		else
+		{
+			Ar.SetUEVer(Context->GPackageFileUEVersion);
+		}
 
 		for (size_t ExportBundleIndex = 0; ExportBundleIndex < ExportBundle.EntryCount; ExportBundleIndex++)
 		{
@@ -107,9 +124,13 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 			if (BundleEntry.CommandType != FExportBundleEntry::ExportCommandType_Serialize)
 				continue;
 
-			SerializeExport(PackageData, BundleEntry.LocalExportIndex);
+			Ar.ExportBufferBegin(ExportMapEntry.CookedSerialOffset, ExportMapEntry.CookedSerialSize);
 
-			PackageData.Reader->Seek(ExportMapEntry.CookedSerialSize);
+			SerializeExport(Ar, PackageData, BundleEntry.LocalExportIndex);
+
+			Ar.ExportBufferEnd();
+
+			CurrentExportOffset += ExportMapEntry.CookedSerialSize;
 		}
 	}
 }
@@ -152,7 +173,7 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 	Object->ObjectFlags = UObject::Flags(Export.ObjectFlags | RF_NeedLoad | RF_NeedPostLoad | RF_NeedPostLoadSubobjects | RF_WasLoaded);
 }
 
-void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
+void UZenPackage::SerializeExport(FArchive& Ar, FZenPackageData& PackageData, int32_t LocalExportIndex)
 {
 	auto& Export = PackageData.Header.ExportMap[LocalExportIndex];
 	auto& ExportObject = PackageData.Exports[LocalExportIndex];
@@ -169,7 +190,7 @@ void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExp
 	}
 	else*/
 
-	Object->Serialize(*PackageData.Reader);
+	Object->Serialize(Ar);
 
 	Log("Serialized export %s", Object->Name.c_str());
 }

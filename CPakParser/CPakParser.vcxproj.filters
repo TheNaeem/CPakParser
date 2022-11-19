@@ -107,6 +107,7 @@
     <ClCompile Include="Unreal\Core\Reflection\Properties\TextProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\StructProperty.ixx" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
+    <ClCompile Include="Unreal\Serialization\Impl\IoExportArchive.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

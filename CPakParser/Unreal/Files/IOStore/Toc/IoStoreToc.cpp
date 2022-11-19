@@ -9,82 +9,8 @@ import CPakParser.Files.FileEntry;
 import CPakParser.Package.Flags;
 import CPakParser.Zen.Package;
 import CPakParser.Zen.Data;
-import CPakParser.Serialization.MemoryReader;
 import CPakParser.Core.FName;
-
-class FIoExportArchive : public FMemoryReader
-{
-public:
-
-	FIoExportArchive(uint8_t* InBytes, size_t Size, FZenPackageData& InPackageData, bool bFreeBuffer = false)
-		: FMemoryReader(InBytes, Size, bFreeBuffer), PackageData(InPackageData)
-	{
-	}
-
-	inline virtual FArchive& operator<<(FName& Name) override
-	{
-		FArchive& Ar = *this;
-
-		uint32_t NameIndex;
-		Ar << NameIndex;
-		uint32_t Number = 0;
-		Ar << Number;
-
-		auto MappedName = FMappedName::Create(NameIndex, Number, FMappedName::EType::Package);
-
-		auto NameStr = PackageData.Header.NameMap.GetName(MappedName);
-
-		if (NameStr.empty())
-		{
-			LogWarn("Name serialized with FIoExportArchive is empty or invalid");
-		}
-
-		Name = NameStr;
-
-		return *this;
-	}
-
-	virtual FArchive& operator<<(UObjectPtr& Object) override
-	{
-		auto& Ar = *this;
-
-		FPackageIndex Index;
-		Ar << Index;
-
-		if (Index.IsNull())
-		{
-			Object = nullptr;
-			return *this;
-		}
-
-		if (Index.IsExport())
-		{
-			auto ExportIndex = Index.ToExport();
-			if (ExportIndex < PackageData.Exports.size())
-			{
-				Object = PackageData.Exports[ExportIndex].Object;
-			}
-			else LogError("Export index read is not a valid index.");
-
-			return *this;
-		}
-
-		auto& ImportMap = PackageData.Header.ImportMap;
-
-		if (Index.IsImport() && Index.ToImport() < ImportMap.size())
-		{
-			Object = PackageData.Package->IndexToObject(
-				PackageData.Header,
-				PackageData.Exports,
-				PackageData.Header.ImportMap[Index.ToImport()]);
-		}
-		else LogError("Bad object import index.");
-
-		return *this;
-	}
-
-	FZenPackageData& PackageData;
-};
+import CPakParser.Serialization.MemoryReader;
 
 FIoStoreToc::FIoStoreToc(std::string& TocFilePath)
 	: FIoStoreToc(std::make_shared<FIoStoreTocResource>(TocFilePath, EIoStoreTocReadOptions::ReadAll))
@@ -209,7 +135,7 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
 	}
 
-	Header.AllExportDataPtr = PackageHeaderDataPtr + Summary.HeaderSize; // archive being used here should ALWAYS be a memory reader
+	Header.AllExportDataPtr = PackageHeaderDataPtr + Summary.HeaderSize; // archive being used here should ALWAYS be a memory reader // TODO: this scuffed crap
 
 	return Header;
 }
@@ -219,25 +145,11 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 	FZenPackageData PackageData;
 
 	PackageData.Header = ReadZenPackageHeader(Ar, Reader->GetContainer());
-	auto ExportDataSize = Ar->TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar->Data()));
+	PackageData.ExportDataSize = Ar->TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar->Data()));
 
 	auto Package = PackageData.Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
 
-	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
-	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
-
 	Log("Loading package %s", PackageData.Header.PackageName.c_str());
-
-	auto& PackageVer = PackageData.Header.VersioningInfo.PackageVersion;
-
-	if (PackageVer.IsValid())
-	{
-		PackageData.Reader->SetUEVer(PackageVer);
-	}
-	else
-	{
-		PackageData.Reader->SetUEVer(Context->GPackageFileUEVersion);
-	}
 
 	Package->ProcessExports(PackageData);
 }

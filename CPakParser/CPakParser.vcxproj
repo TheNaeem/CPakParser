@@ -136,6 +136,7 @@
     <ClCompile Include="Unreal\Files\Packaging\Zen\ZenPackage.cpp" />
     <ClCompile Include="Unreal\Serialization\Impl\BorrowedArchive.ixx" />
     <ClCompile Include="Unreal\Serialization\Impl\FileReader.ixx" />
+    <ClCompile Include="Unreal\Serialization\Impl\IoExportArchive.ixx" />
     <ClCompile Include="Unreal\Serialization\Impl\MemoryReader.ixx" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.ixx" />
