@@ -86,6 +86,7 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 	}
 
 	auto& Header = PackageData.Header;
+	auto ExportOffset = 0;
 
 	for (size_t i = 0; i < Header.ExportBundleHeaders.size(); i++)
 	{
@@ -107,9 +108,10 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 			if (BundleEntry.CommandType != FExportBundleEntry::ExportCommandType_Serialize)
 				continue;
 
+			PackageData.Reader->Seek(ExportOffset);
 			SerializeExport(PackageData, BundleEntry.LocalExportIndex);
 
-			PackageData.Reader->Seek(ExportMapEntry.CookedSerialSize);
+			ExportOffset += ExportMapEntry.CookedSerialSize;
 		}
 	}
 }

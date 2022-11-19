@@ -7,7 +7,7 @@ import CPakParser.Reflection.PropertyIterator;
 import CPakParser.Serialization.FArchive;
 
 #if EXTENSIVE_LOGGING
-#include "Logging.h"
+import CPakParser.Logging;
 #endif
 
 struct FUnversionedHeader
@@ -201,6 +201,11 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 #if EXTENSIVE_LOGGING
 		Log("Serializing property %s %d", Prop->Name.c_str(), (int)Prop->Type);
 #endif
+
+		if (Prop->Name == "DisplayAssetPath")
+		{
+			printf("");
+		}
 
 		auto Value = Prop->Serialize(Ar);
 
