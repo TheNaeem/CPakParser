@@ -202,11 +202,6 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 		Log("Serializing property %s %d", Prop->Name.c_str(), (int)Prop->Type);
 #endif
 
-		if (Prop->Name == "DisplayAssetPath")
-		{
-			printf("");
-		}
-
 		auto Value = Prop->Serialize(Ar);
 
 		if (!Value)
