@@ -58,12 +58,12 @@ public:
 		return static_cast<void*>(Bytes);
 	}
 
-	__forceinline void Seek(int64_t InPos) 
+	__forceinline void Seek(int64_t InPos) final
 	{
 		Offset = InPos;
 	}
 
-	__forceinline int64_t Tell() 
+	__forceinline int64_t Tell() final
 	{
 		return Offset;
 	}
@@ -74,7 +74,7 @@ public:
 			delete Bytes;
 	}
 
-protected:
+private:
 
 	uint8_t* Bytes;
 	int64_t	Offset = 0;

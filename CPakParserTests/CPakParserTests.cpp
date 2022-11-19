@@ -8,6 +8,7 @@
 
 #include "Dataminer/Dataminer.h"
 
+
 int main()
 {
 	SetUnhandledExceptionFilter(Exceptions::UnhandledHandler);

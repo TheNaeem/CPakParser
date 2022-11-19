@@ -7,7 +7,7 @@ import CPakParser.Reflection.PropertyIterator;
 import CPakParser.Serialization.FArchive;
 
 #if EXTENSIVE_LOGGING
-import CPakParser.Logging;
+#include "Logging.h"
 #endif
 
 struct FUnversionedHeader

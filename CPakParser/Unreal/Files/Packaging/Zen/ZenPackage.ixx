@@ -19,9 +19,9 @@ export struct FExportObject
 export struct FZenPackageData
 {
 	TSharedPtr<class UZenPackage> Package;
+	FSharedAr Reader;
 	FZenPackageHeaderData Header;
 	std::vector<FExportObject> Exports;
-	int64_t ExportDataSize = 0;
 
 	__forceinline bool HasFlags(uint32_t Flags)
 	{
@@ -41,7 +41,7 @@ public:
 
 	void ProcessExports(FZenPackageData& PackageData);
 	void CreateExport(class FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex);
-	void SerializeExport(FArchive& Ar, FZenPackageData& PackageData, int32_t LocalExportIndex);
+	void SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex);
 
 	template <typename T = UObject>
 	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index);
