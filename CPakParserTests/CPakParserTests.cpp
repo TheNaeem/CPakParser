@@ -11,9 +11,9 @@
 
 int main()
 {
-	SetUnhandledExceptionFilter(Exceptions::UnhandledHandler);
+	//SetUnhandledExceptionFilter(Exceptions::UnhandledHandler);
 
-	Dataminer::Options::WithLogging(true);
+	Dataminer::Options::WithLogging(false);
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
@@ -25,7 +25,7 @@ int main()
 
 	auto Start = std::chrono::steady_clock::now();
 	
-	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/CID_664_Athena_Commando_M_Gummi.uasset");
+	Core.Test("FortniteGame/Content/Athena/Items/Cosmetics/Characters/Character_Billy.uasset");
 
 	auto End = std::chrono::steady_clock::now();
 	printf("[+] Exported Gummi in %.02f ms\n", (End - Start).count() / 1000000.);

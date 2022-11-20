@@ -52,7 +52,11 @@ struct FUnversionedHeader
 
 			Header.Fragments.push_back(Fragment);
 
-			(Fragment.bHasAnyZeroes ? ZeroMaskNum : UnmaskedNum) += Fragment.ValueNum;
+			if (Fragment.bHasAnyZeroes)
+				ZeroMaskNum += Fragment.ValueNum;
+			else UnmaskedNum += Fragment.ValueNum;
+
+			//(Fragment.bHasAnyZeroes ? ZeroMaskNum : UnmaskedNum) += Fragment.ValueNum;
 
 			if (Fragment.bIsLast)
 				break;
@@ -64,15 +68,19 @@ struct FUnversionedHeader
 
 			ZeroMask.resize(ZeroMaskNum, 0);
 
-			auto Data = (uint8_t*)ZeroMask[0]._Getptr(); // TODO: change this once phmap is fixed so we can use std::latest
+			auto Data = (uint32_t*)ZeroMask[0]._Getptr(); // TODO: change this once phmap is fixed so we can use std::latest
 
 			if (ZeroMaskNum <= 8)
 			{
-				Ar.Serialize(Data, sizeof(uint8_t));
+				uint8_t Int;
+				Ar << Int;
+				*Data = Int;
 			}
 			else if (ZeroMaskNum <= 16)
 			{
-				Ar.Serialize(Data, sizeof(uint16_t));
+				uint16_t Int;
+				Ar << Int;
+				*Data = Int;
 			}
 			else
 			{
@@ -82,7 +90,7 @@ struct FUnversionedHeader
 				}
 			}
 
-			Header.bHasNonZeroValues = UnmaskedNum > 0 || std::find(ZeroMask.begin(), ZeroMask.end(), false) == ZeroMask.end();
+			Header.bHasNonZeroValues = UnmaskedNum > 0 || std::find(ZeroMask.begin(), ZeroMask.end(), false) != ZeroMask.end();
 		}
 		else
 		{
@@ -98,7 +106,7 @@ struct FUnversionedHeader
 
 	__forceinline bool HasValues() const
 	{
-		return bHasNonZeroValues | (ZeroMask.size() > 0);
+		return bHasNonZeroValues | ZeroMask.size();
 	}
 
 	__forceinline bool HasNonZeroValues() const
@@ -186,7 +194,7 @@ void FUnversionedSerializer::SerializeUnversionedProperties(UStructPtr Struct, F
 	FUnversionedHeader Header;
 	Ar << Header;
 
-	if (!Header.HasValues())
+	if (!Header.HasNonZeroValues() or !Header.HasValues())
 	{
 		return;
 	}

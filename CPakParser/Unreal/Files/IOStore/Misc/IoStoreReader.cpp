@@ -165,7 +165,7 @@ FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_
 			return;
 		}
 
-		Partition.ContainerFileIndex = PartitionIndex++;
+		Partition.ContainerFileIndex = PartitionIndex;
 	}
 
 	if (bPerfectHashingEnabled && !TocRsrc->ChunkPerfectHashSeeds.empty())
