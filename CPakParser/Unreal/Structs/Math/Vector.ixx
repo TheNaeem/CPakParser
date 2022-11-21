@@ -2,6 +2,8 @@ export module CPakParser.Math.FVector;
 
 import CPakParser.Serialization.FArchive;
 
+// TODO: add useful member functions
+
 export struct FVector
 {
 	FVector() = default;
@@ -67,6 +69,52 @@ export struct FVector2D
 			V = FVector2D(X, Y);
 		}
 
+		return Ar;
+	}
+};
+
+export struct FVector4
+{
+	FVector4(double InX = 0.0f, double InY = 0.0f, double InZ = 0.0f, double InW = 1.0f)
+		: X(InX)
+		, Y(InY)
+		, Z(InZ)
+		, W(InW)
+	{
+	}
+
+	union
+	{
+		struct
+		{
+			/** The vector's X-component. */
+			double X;
+
+			/** The vector's Y-component. */
+			double Y;
+
+			/** The vector's Z-component. */
+			double Z;
+
+			/** The vector's W-component. */
+			double W;
+		};
+
+		double XYZW[4];
+	};
+
+	friend inline FArchive& operator<<(FArchive& Ar, FVector4& V)
+	{
+		if (Ar.UEVer() >= EUnrealEngineObjectUE5Version::LARGE_WORLD_COORDINATES)
+		{
+			Ar << V.X << V.Y << V.Z << V.W;
+		}
+		else
+		{
+			float X, Y, Z, W;
+			Ar << X << Y << Z << W;
+			V = FVector4(X, Y, Z, W);
+		}
 		return Ar;
 	}
 };

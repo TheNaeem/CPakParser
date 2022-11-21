@@ -8,6 +8,7 @@ import CPakParser.Misc.FGuid;
 import CPakParser.Paths.SoftObjectPath;
 import CPakParser.Math.FBox;
 import CPakParser.Structs.DateTime;
+import CPakParser.Math.Color;
 import CPakParser.Structs.GameplayTagContainer;
 import CPakParser.Serialization.FArchive;
 
@@ -22,13 +23,16 @@ static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
 
 static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> NativeStructs =
 {
+	{ "Box", SerializeNativeStruct<FBox> },
+	{ "Box2D", SerializeNativeStruct<FBox2D> },
+	{ "Color", SerializeNativeStruct<FColor> },
+	{ "DateTime", SerializeNativeStruct<FDateTime> },
+	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "Guid", SerializeNativeStruct<FGuid> },
+	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
 	{ "Vector", SerializeNativeStruct<FVector> },
 	{ "Vector2D", SerializeNativeStruct<FVector2D> },
-	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
-	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
-	{ "DateTime", SerializeNativeStruct<FDateTime> },
-	{ "Box", SerializeNativeStruct<FBox> }
+	{ "Vector4", SerializeNativeStruct<FVector4> }
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)

@@ -140,6 +140,7 @@
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Box.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Color.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Vector.ixx" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.ixx" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTag.ixx" />

@@ -9,7 +9,7 @@ import CPakParser.Files.FileEntry;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Files.GameFilePath;
 
-#define HASH_DIRECTORY_INDEX 1
+#define HASH_DIRECTORY_INDEX 0
 
 #if HASH_DIRECTORY_INDEX
 
@@ -31,22 +31,14 @@ public:
 
 	void Reserve(size_t Count);
 
-	/// <summary>
-	/// </summary>
-	/// <param name="Directory">Null terminated directory name with extension.</param>
-	/// <param name="FileName">Null terminated file name with extension.</param>
-	/// <returns></returns>
+	
 	FFileEntryInfo FindFile(std::string& Directory, std::string& FileName);
 	FFileEntryInfo FindFile(FGameFilePath& Path);
-
-	/// <summary>
-	/// Returns a list of file entries by directory.
-	/// </summary>
-	/// <param name="Directory">Null terminated directory string.</param>
-	/// <returns></returns>
-	FPakDirectory GetDirectory(std::string Directory);
+	FPakDirectory GetDirectory(std::string& Directory);
 	FGameFileCollection GetFilesByExtension(std::string Ext);
 	FDirectoryIndex GetFiles();
+	bool DirectoryExists(std::string& Dir);
+	std::optional<FPakDirectory> TryGetDirectory(std::string& Dir);
 
 	void SerializePakIndexes(FArchive& Ar, std::string& MountPoint, TSharedPtr<IDiskFile> AssociatedPak);
 

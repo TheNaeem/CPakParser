@@ -54,8 +54,11 @@ public:
 	std::vector<TSharedPtr<IDiskFile>> GetMountedFiles();
 	TMap<FGuid, std::string> GetUnmountedPaks();
 	void Test(FGameFilePath Path);
+	void Test(FFileEntryInfo& Entry);
 	FDirectoryIndex Files();
 	TMap<std::string, UObjectPtr> GetObjectArray();
+	FPakDirectory GetDirectory(std::string InDirectory);
+	std::optional<FPakDirectory> TryGetDirectory(std::string InDirectory);
 	void SetVersionUE5(int Version);
 	void SetVersionUE4(int Version);
 

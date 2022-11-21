@@ -29,13 +29,38 @@ FFileEntryInfo FGameFileManager::FindFile(FGameFilePath& Path)
 	return FindFile(Path.Directory, Path.FileName);
 }
 
-FPakDirectory FGameFileManager::GetDirectory(std::string Directory)
+FPakDirectory FGameFileManager::GetDirectory(std::string& Directory)
 {
 #if HASH_DIRECTORY_INDEX
 	return FileLibrary[QUICK_STR_HASH(Directory)];
 #else
 	return FileLibrary[Directory];
 #endif
+}
+
+bool FGameFileManager::DirectoryExists(std::string& Dir)
+{
+#if HASH_DIRECTORY_INDEX
+	return FileLibrary.contains(QUICK_STR_HASH(Dir));
+#else
+	return FileLibrary.contains(Dir);
+#endif
+}
+
+std::optional<FPakDirectory> FGameFileManager::TryGetDirectory(std::string& Dir)
+{
+#if HASH_DIRECTORY_INDEX
+	auto Directory = QUICK_STR_HASH(Dir);
+#else
+	auto& Directory = Dir;
+#endif
+
+	if (FileLibrary.contains(Directory))
+	{
+		return FileLibrary[Directory];
+	}
+
+	return std::nullopt;
 }
 
 FGameFileCollection FGameFileManager::GetFilesByExtension(std::string Ext)

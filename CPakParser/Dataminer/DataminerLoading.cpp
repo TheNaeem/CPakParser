@@ -38,3 +38,13 @@ void Dataminer::Test(FGameFilePath Path)
 
 	Entry.GetAssociatedFile()->DoWork(Reader, Context); // TODO: wrap UPackage around this
 }
+
+void Dataminer::Test(FFileEntryInfo& Entry)
+{
+	if (!Entry.IsValid())
+		return;
+
+	auto Reader = FLoader::CreateFileReader(Entry);
+
+	Entry.GetAssociatedFile()->DoWork(Reader, Context); // TODO: wrap UPackage around this
+}
