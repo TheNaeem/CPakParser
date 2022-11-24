@@ -50,9 +50,9 @@ public:
 		return Val.get();
 	}
 
-	__forceinline ObjectType* operator*()
+	__forceinline ObjectType& operator*()
 	{
-		return Get();
+		return *Get();
 	}
 
 	template <typename T>

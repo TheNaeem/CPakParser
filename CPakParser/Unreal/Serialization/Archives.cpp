@@ -2,6 +2,8 @@
 #include <string>
 
 import CPakParser.Serialization.FArchive;
+import CPakParser.Versioning.CustomVersion;
+import CPakParser.Misc.FGuid;
 
 FArchive& operator<<(FArchive& Ar, std::string& InString)
 {
@@ -99,4 +101,19 @@ FArchive& operator<<(FArchive& Ar, bool& InBool)
 	InBool = UBool;
 
 	return Ar;
+}
+
+const FCustomVersionContainer& FArchive::GetCustomVersions()
+{
+	if (!CustomVersions)
+		CustomVersions = std::make_unique<FCustomVersionContainer>();
+
+	return *CustomVersions;
+}
+
+int32_t FArchive::CustomVer(FGuid& Key) 
+{
+	auto* CustomVersion = GetCustomVersions().TryGetVersion(Key);
+
+	return CustomVersion ? CustomVersion->Version : -1;
 }

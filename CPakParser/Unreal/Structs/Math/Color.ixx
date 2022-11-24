@@ -7,6 +7,11 @@ export struct FColor
 {
 	FColor() = default;
 
+	__forceinline explicit FColor(uint32_t InColor)
+	{
+		DWColor() = InColor;
+	}
+
 	constexpr __forceinline FColor(uint8_t InR, uint8_t InG, uint8_t InB, uint8_t InA = 255)
 		: B(InB), G(InG), R(InR), A(InA)
 	{}

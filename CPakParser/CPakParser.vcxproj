@@ -139,6 +139,7 @@
     <ClCompile Include="Unreal\Serialization\Impl\MemoryReader.ixx" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.ixx" />
+    <ClCompile Include="Unreal\Structs\Materials\MaterialExpression.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Box.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Color.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Vector.ixx" />

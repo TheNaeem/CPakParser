@@ -11,6 +11,9 @@ import CPakParser.Structs.DateTime;
 import CPakParser.Math.Color;
 import CPakParser.Structs.GameplayTagContainer;
 import CPakParser.Serialization.FArchive;
+import CPakParser.Materials.Expression;
+import CPakParser.Math.FrameNumber;
+import CPakParser.AI.Navigation;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -26,9 +29,13 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "Box", SerializeNativeStruct<FBox> },
 	{ "Box2D", SerializeNativeStruct<FBox2D> },
 	{ "Color", SerializeNativeStruct<FColor> },
+	{ "ColorMaterialInput", SerializeNativeStruct<FColorMaterialInput> },
 	{ "DateTime", SerializeNativeStruct<FDateTime> },
+	{ "ExpressionInput", SerializeNativeStruct<FExpressionInput> },
+	{ "FrameNumber", SerializeNativeStruct<FFrameNumber> },
 	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "Guid", SerializeNativeStruct<FGuid> },
+	{ "NavAgentSelector", SerializeNativeStruct<FNavAgentSelector> },
 	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
 	{ "Vector", SerializeNativeStruct<FVector> },
 	{ "Vector2D", SerializeNativeStruct<FVector2D> },

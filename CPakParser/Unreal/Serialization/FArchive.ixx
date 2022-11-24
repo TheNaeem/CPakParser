@@ -16,6 +16,7 @@ private:
 
 	bool bUseUnversionedProperties = false;
 	FPackageFileVersion Version;
+	TUniquePtr<class FCustomVersionContainer> CustomVersions = nullptr;
 
 public:
 
@@ -153,6 +154,10 @@ public:
 	{
 		Version = InVersion;
 	}
+
+	const class FCustomVersionContainer& GetCustomVersions();
+
+	int32_t CustomVer(struct FGuid& Key);
 };
 
 export typedef TUniquePtr<FArchive> FUniqueAr;

@@ -39,12 +39,8 @@ export struct FCustomVersion
 
 	friend FArchive& operator<<(FArchive& Ar, FCustomVersion& Version)
 	{
-		/*
 		Ar << Version.Key;
 		Ar << Version.Version;
-		*/
-
-		Ar.Serialize(&Version.Key, sizeof(Version.Key) + sizeof(Version.Version));
 
 		return Ar;
 	}
@@ -64,6 +60,24 @@ public:
 		}
 		break;
 		}
+	}
+
+	FCustomVersionArray& GetVersions()
+	{
+		return Versions;
+	}
+
+	const FCustomVersion* TryGetVersion(FGuid& Guid) const
+	{
+		for (int i = 0; i < Versions.size(); i++)
+		{
+			auto& V = Versions[i];
+
+			if (V == Guid)
+				return &V;
+		}
+
+		return nullptr;
 	}
 
 private:

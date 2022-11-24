@@ -22,6 +22,16 @@ public:
 	{
 	}
 
+	bool operator==(FName const& Other) const
+	{
+		return Val == Other.Val;
+	}
+
+	bool operator!=(const FName& Other) const
+	{
+		return !(*this == Other);
+	}
+
 	__forceinline std::string ToString() const
 	{
 		return Val;
