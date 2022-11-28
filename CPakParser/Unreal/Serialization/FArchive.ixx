@@ -16,9 +16,11 @@ private:
 
 	bool bUseUnversionedProperties = false;
 	FPackageFileVersion Version;
-	TUniquePtr<class FCustomVersionContainer> CustomVersions = nullptr;
+	class FCustomVersionContainer* CustomVersions = nullptr; // gotta use a raw ptr cause of forward decl :/
 
 public:
+
+	virtual ~FArchive();
 
 	virtual void Serialize(void* V, int64_t Length) { }
 
@@ -157,7 +159,7 @@ public:
 
 	const class FCustomVersionContainer& GetCustomVersions();
 
-	int32_t CustomVer(struct FGuid& Key);
+	int32_t CustomVer(const struct FGuid& Key);
 };
 
 export typedef TUniquePtr<FArchive> FUniqueAr;

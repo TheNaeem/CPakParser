@@ -5,6 +5,12 @@ import CPakParser.Serialization.FArchive;
 import CPakParser.Versioning.CustomVersion;
 import CPakParser.Misc.FGuid;
 
+FArchive::~FArchive()
+{
+	if (CustomVersions)
+		delete CustomVersions;
+}
+
 FArchive& operator<<(FArchive& Ar, std::string& InString)
 {
 	int32_t SaveNum = 0;
@@ -106,12 +112,12 @@ FArchive& operator<<(FArchive& Ar, bool& InBool)
 const FCustomVersionContainer& FArchive::GetCustomVersions()
 {
 	if (!CustomVersions)
-		CustomVersions = std::make_unique<FCustomVersionContainer>();
+		CustomVersions = new FCustomVersionContainer;
 
 	return *CustomVersions;
 }
 
-int32_t FArchive::CustomVer(FGuid& Key) 
+int32_t FArchive::CustomVer(const FGuid& Key) 
 {
 	auto* CustomVersion = GetCustomVersions().TryGetVersion(Key);
 

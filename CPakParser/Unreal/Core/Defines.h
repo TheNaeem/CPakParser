@@ -28,6 +28,9 @@
 #define MIN_dbl			(2.2250738585072014e-308)	
 #define MAX_dbl			(1.7976931348623158e+308)	
 
+#define UE_DOUBLE_SMALL_NUMBER			(1.e-8)
+#define UE_SMALL_NUMBER			(1.e-8f)
+
 #define NAME_None 0
 
 #define ENUM_CLASS_FLAGS(Enum) \
@@ -39,6 +42,9 @@
 	inline constexpr Enum  operator^ (Enum  Lhs, Enum Rhs) { return (Enum)((__underlying_type(Enum))Lhs ^ (__underlying_type(Enum))Rhs); } \
 	inline constexpr bool  operator! (Enum  E)             { return !(__underlying_type(Enum))E; } \
 	inline constexpr Enum  operator~ (Enum  E)             { return (Enum)~(__underlying_type(Enum))E; }
+
+// this lets enums be serialized via the farchive operator<<
+#define SERIALIZABLE_ENUM(Enum) __forceinline FArchive& operator<<(FArchive& Ar, Enum& E) { Ar.Serialize(&E, sizeof(E)); return Ar; }
 
 typedef uint32_t FNameEntryId;
 

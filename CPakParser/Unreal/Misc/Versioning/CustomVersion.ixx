@@ -67,7 +67,7 @@ public:
 		return Versions;
 	}
 
-	const FCustomVersion* TryGetVersion(FGuid& Guid) const
+	const FCustomVersion* TryGetVersion(const FGuid& Guid) const
 	{
 		for (int i = 0; i < Versions.size(); i++)
 		{

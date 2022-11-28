@@ -109,6 +109,16 @@
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Structs\Math\Color.ixx" />
     <ClCompile Include="Unreal\Structs\Materials\MaterialExpression.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\FrameNumber.ixx" />
+    <ClCompile Include="Unreal\Structs\AI\Navigation.ixx" />
+    <ClCompile Include="Unreal\Core\Names\SmartName.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\AnimPhysObjectVersion.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\ObjectVersions.cpp" />
+    <ClCompile Include="Unreal\Structs\Curves\RichCurve.ixx" />
+    <ClCompile Include="Unreal\Structs\Curves\RealCurve.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\UE5MainStreamObjectVersion.ixx" />
+    <ClCompile Include="Unreal\Misc\MathUtil.ixx" />
+    <ClCompile Include="Unreal\Structs\Curves\SimpleCurve.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

@@ -2,6 +2,7 @@
 #include "Misc/Hashing/Map.h"
 #include <functional>
 
+import CPakParser.Logging;
 import CPakParser.Reflection.PropertyValue;
 import CPakParser.Reflection.StructProperty;
 import CPakParser.Misc.FGuid;
@@ -14,6 +15,9 @@ import CPakParser.Serialization.FArchive;
 import CPakParser.Materials.Expression;
 import CPakParser.Math.FrameNumber;
 import CPakParser.AI.Navigation;
+import CPakParser.Names.SmartName;
+import CPakParser.Curves.RichCurve;
+import CPakParser.Curves.SimpleCurve;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -35,7 +39,11 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "FrameNumber", SerializeNativeStruct<FFrameNumber> },
 	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "Guid", SerializeNativeStruct<FGuid> },
+	{ "LinearColor", SerializeNativeStruct<FLinearColor> },
 	{ "NavAgentSelector", SerializeNativeStruct<FNavAgentSelector> },
+	{ "RichCurveKey", SerializeNativeStruct<FRichCurveKey> },
+	{ "SimpleCurveKey", SerializeNativeStruct<FSimpleCurveKey> },
+	{ "SmartName", SerializeNativeStruct<FSmartName> },
 	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
 	{ "Vector", SerializeNativeStruct<FVector> },
 	{ "Vector2D", SerializeNativeStruct<FVector2D> },
@@ -45,6 +53,11 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
 {
 	auto StructName = Struct->GetName();
+
+#if EXTENSIVE_LOGGING
+	Log("Serializing struct property of type %s", StructName.c_str());
+#endif
+
 	if (NativeStructs.contains(StructName))
 	{
 		return std::move(NativeStructs[StructName](Ar));

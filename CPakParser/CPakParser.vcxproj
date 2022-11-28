@@ -45,6 +45,7 @@
     <ClCompile Include="Unreal\Core\Names\Name.cpp" />
     <ClCompile Include="Unreal\Core\Names\Name.ixx" />
     <ClCompile Include="Unreal\Core\Names\NameMap.ixx" />
+    <ClCompile Include="Unreal\Core\Names\SmartName.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\FProperty.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Mappings.cpp" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\ArrayProperty.ixx" />
@@ -112,9 +113,13 @@
     <ClCompile Include="Unreal\Misc\Hashing\ShaHash.ixx" />
     <ClCompile Include="Unreal\Misc\Localization\Localization.cpp" />
     <ClCompile Include="Unreal\Misc\Localization\Text.ixx" />
+    <ClCompile Include="Unreal\Misc\MathUtil.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersion.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\AnimPhysObjectVersion.ixx" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\ObjectVersions.cpp" />
+    <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\UE5MainStreamObjectVersion.ixx" />
     <ClCompile Include="Unreal\Misc\Versioning\EngineVersion.ixx" />
     <ClCompile Include="Unreal\Misc\Versioning\FileVersion.cpp" />
     <ClCompile Include="Unreal\Misc\Versioning\PackageFileVersion.ixx" />
@@ -139,9 +144,14 @@
     <ClCompile Include="Unreal\Serialization\Impl\MemoryReader.ixx" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.cpp" />
     <ClCompile Include="Unreal\Serialization\Properties\Unversioned.ixx" />
+    <ClCompile Include="Unreal\Structs\AI\Navigation.ixx" />
+    <ClCompile Include="Unreal\Structs\Curves\RealCurve.ixx" />
+    <ClCompile Include="Unreal\Structs\Curves\RichCurve.ixx" />
+    <ClCompile Include="Unreal\Structs\Curves\SimpleCurve.ixx" />
     <ClCompile Include="Unreal\Structs\Materials\MaterialExpression.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Box.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Color.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\FrameNumber.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Vector.ixx" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.ixx" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTag.ixx" />

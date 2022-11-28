@@ -6,6 +6,7 @@ export module CPakParser.Names.SmartName;
 
 export import CPakParser.Core.FName;
 import CPakParser.Serialization.FArchive;
+import CPakParser.Versioning.Custom.AnimPhysObjectVersion;
 
 export struct FSmartName
 {
@@ -35,5 +36,22 @@ export struct FSmartName
 	bool IsValid() const
 	{
 		return UID != MAX_uint16;
+	}
+
+	friend FArchive& operator<<(FArchive& Ar, FSmartName& SmartName)
+	{
+		Ar << SmartName.DisplayName;
+
+		if (Ar.CustomVer(FAnimPhysObjectVersion::GUID) < FAnimPhysObjectVersion::RemoveUIDFromSmartNameSerialize)
+		{
+			Ar.SeekCur<uint16_t>();
+		}
+
+		if (Ar.CustomVer(FAnimPhysObjectVersion::GUID) < FAnimPhysObjectVersion::SmartNameRefactorForDeterministicCooking)
+		{
+			Ar.SeekCur<FGuid>();
+		}
+
+		return Ar;
 	}
 };
