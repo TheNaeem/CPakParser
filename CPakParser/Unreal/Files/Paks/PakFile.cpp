@@ -148,9 +148,9 @@ int32_t GetPakchunkIndexFromPakFile(std::string InFilename)
 	return atoi(&ChunkIdentifier.c_str()[NumIdx]);
 }
 
-FSharedAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
+std::vector<uint8_t> FPakFile::ReadEntry(FFileEntryInfo& EntryInfo)
 {
-	auto PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
+	auto& PakEntryLoc = *static_cast<FPakEntryLocation*>(&EntryInfo);
 	auto Entry = CreateEntry(PakEntryLoc);
 
 	FUniqueAr PakReader = nullptr;
@@ -162,10 +162,11 @@ FSharedAr FPakFile::CreateEntryArchive(FFileEntryInfo EntryInfo)
 	else PakReader = std::make_unique<FPakReader<>>(shared_from_this(), Entry, Context->EncryptionKeyManager);
 
 	auto Size = PakReader->TotalSize();
-	auto Buffer = malloc(Size);
-	PakReader->Serialize(Buffer, Size);
 
-	return std::make_unique<FMemoryReader>(static_cast<uint8_t*>(Buffer), Size, true);
+	std::vector<uint8_t> Buffer(Size);
+	PakReader->Serialize(Buffer.data(), Size);
+
+	return Buffer;
 }
 
 bool TryDecryptData(uint8_t* InData, uint32_t InDataSize, FGuid InEncryptionKeyGuid, FEncryptionKeyManager& KeyManager)

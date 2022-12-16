@@ -23,9 +23,9 @@ public:
 	void SetReader(TSharedPtr<class FIoStoreReader> InReader);
 	int32_t GetTocEntryIndex(FIoChunkId& ChunkId);
 
-	FIoOffsetAndLength GetOffsetAndLength(FIoChunkId& ChunkId);
-	FSharedAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
-	void DoWork(FSharedAr Ar, TSharedPtr<class GContext> Context) override;
+	FIoOffsetAndLength GetOffsetAndLength(FIoChunkId& ChunkId); 
+	std::vector<uint8_t> ReadEntry(struct FFileEntryInfo& Entry) override;
+	UPackagePtr CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context) override;
 
 private:
 

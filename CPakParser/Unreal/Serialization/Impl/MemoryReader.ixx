@@ -81,3 +81,17 @@ private:
 	size_t LimitSize;
 	bool bFree;
 };
+
+// A memory reader for vectors that keeps the vector alive in memory
+export class FBufferReader : public FMemoryReader
+{
+public:
+	
+	FBufferReader(std::vector<uint8_t> Arr) : FMemoryReader(Arr), Buffer(std::move(Arr))
+	{
+	}
+
+private:
+
+	std::vector<uint8_t> Buffer;
+};

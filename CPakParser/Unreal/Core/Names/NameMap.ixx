@@ -15,7 +15,7 @@ public:
 		return NameEntries.size();
 	}
 
-	const std::string GetName(FMappedName& MappedName) const
+	const std::string& GetName(FMappedName& MappedName) const
 	{
 		auto Idx = MappedName.GetIndex();
 

@@ -77,7 +77,6 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\ScriptObjectEntry.ixx" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.ixx" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\TocCompressedBlock.ixx" />
-    <ClCompile Include="Unreal\Files\Loader.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\LazyPackageObject.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\Package.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\PackageFlags.ixx" />
@@ -132,7 +131,6 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoStoreReader.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoStoreToc.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.cpp" />
-    <ClCompile Include="Unreal\Files\Loading.cpp" />
     <ClCompile Include="Unreal\Misc\Compression\Oodle.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakFile.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakReader.cpp" />
@@ -247,7 +245,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>
@@ -265,7 +263,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)CPakParser;%(AdditionalIncludeDirectories)$(SolutionDir)CPakParser\Unreal;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>

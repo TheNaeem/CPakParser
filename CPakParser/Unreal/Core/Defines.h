@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>;
-#include <intrin.h>;
+#include <memory>
+#include <intrin.h>
 
 #define EXTENSIVE_LOGGING 1
 

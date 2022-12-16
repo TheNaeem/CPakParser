@@ -53,7 +53,7 @@ public:
 
 		if (Index.IsNull())
 		{
-			Object = nullptr;
+			Object = UObjectPtr(nullptr);
 			return *this;
 		}
 
@@ -141,50 +141,59 @@ FIoOffsetAndLength FIoStoreToc::GetOffsetAndLength(FIoChunkId& ChunkId)
 	return Toc->ChunkOffsetLengths[Index];
 }
 
-FSharedAr FIoStoreToc::CreateEntryArchive(FFileEntryInfo EntryInfo)
+std::vector<uint8_t> FIoStoreToc::ReadEntry(FFileEntryInfo& Entry)
 {
-	if (EntryInfo.GetTocIndex() >= Toc->ChunkOffsetLengths.size())
-		return nullptr;
+	std::vector<uint8_t> RetBuf;
 
-	auto& OaL = Toc->ChunkOffsetLengths[EntryInfo.GetTocIndex()];
+	if (Entry.GetTocIndex() >= Toc->ChunkOffsetLengths.size())
+	{
+		LogError("Invalid entry toc index.");
+		return RetBuf;
+	}
 
-	return std::make_shared<FMemoryReader>(Reader->Read(OaL).release(), OaL.GetLength(), true);
+	auto& OaL = Toc->ChunkOffsetLengths[Entry.GetTocIndex()];
+
+	RetBuf.resize(OaL.GetLength());
+
+	Reader->Read(OaL.GetOffset(), OaL.GetLength(), RetBuf.data());
+
+	return RetBuf;
 }
 
-static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreContainerFile& Container)
+static FZenPackageHeaderData ReadZenPackageHeader(FArchive& Ar, FFileIoStoreContainerFile& Container)
 {
-	auto PackageHeaderDataPtr = static_cast<uint8_t*>(Ar->Data()); // TODO: fix this crap
+	auto PackageHeaderDataPtr = static_cast<uint8_t*>(Ar.Data()); // TODO: fix this crap
 
 	if (!PackageHeaderDataPtr)
 	{
 		LogWarn("Package header data is null, which either means something went wrong or the archive passed in is not a memory archive. Expect issues.");
 	}
 
-	auto PackageDataOffset = Ar->Tell();
+	auto PackageDataOffset = Ar.Tell();
 
 	FZenPackageHeaderData Header;
 	FZenPackageSummary& Summary = Header.PackageSummary;
 
-	Ar->Serialize(&Header.PackageSummary, sizeof(FZenPackageSummary));
+	Ar.Serialize(&Header.PackageSummary, sizeof(FZenPackageSummary));
 
 	if (Summary.bHasVersioningInfo)
 	{
-		Ar->Serialize(&Header.VersioningInfo.ZenVersion, sizeof(EZenPackageVersion));
-		*Ar << Header.VersioningInfo.PackageVersion;
-		*Ar << Header.VersioningInfo.LicenseeVersion;
+		Ar.Serialize(&Header.VersioningInfo.ZenVersion, sizeof(EZenPackageVersion));
+		Ar << Header.VersioningInfo.PackageVersion;
+		Ar << Header.VersioningInfo.LicenseeVersion;
 
-		Header.VersioningInfo.CustomVersions.Serialize(*Ar);
+		Header.VersioningInfo.CustomVersions.Serialize(Ar);
 	}
 
-	Header.NameMap.Serialize(*Ar, FMappedName::EType::Package);
+	Header.NameMap.Serialize(Ar, FMappedName::EType::Package);
 	Header.PackageName = Header.NameMap.GetName(Summary.Name);
 
-	Ar->Seek(PackageDataOffset + Summary.ImportMapOffset);
-	Ar->BulkSerializeArray(Header.ImportMap,
+	Ar.Seek(PackageDataOffset + Summary.ImportMapOffset);
+	Ar.BulkSerializeArray(Header.ImportMap,
 		(Summary.ExportMapOffset - Summary.ImportMapOffset) / sizeof(FPackageObjectIndex));
 
-	Ar->Seek(PackageDataOffset + Summary.ExportMapOffset);
-	Ar->BulkSerializeArray(Header.ExportMap,
+	Ar.Seek(PackageDataOffset + Summary.ExportMapOffset);
+	Ar.BulkSerializeArray(Header.ExportMap,
 		(Summary.ExportBundleEntriesOffset - Summary.ExportMapOffset) / sizeof(FExportMapEntry));
 
 	// TODO: do we really need the arcs data?
@@ -202,11 +211,11 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 		Header.ImportedPackageIds.resize(ImportedPackagesCount);
 		memcpy(Header.ImportedPackageIds.data(), StoreEntry.ImportedPackages.Data(), sizeof(FPackageId) * ImportedPackagesCount);
 
-		Ar->Seek(PackageDataOffset + Summary.GraphDataOffset);
-		Ar->BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry.ExportBundleCount);
+		Ar.Seek(PackageDataOffset + Summary.GraphDataOffset);
+		Ar.BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry.ExportBundleCount);
 
-		Ar->Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
-		Ar->BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
+		Ar.Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
+		Ar.BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
 	}
 
 	Header.AllExportDataPtr = PackageHeaderDataPtr + Summary.HeaderSize; // archive being used here should ALWAYS be a memory reader
@@ -214,14 +223,14 @@ static FZenPackageHeaderData ReadZenPackageHeader(FSharedAr Ar, FFileIoStoreCont
 	return Header;
 }
 
-void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pass in loader. TODO: micro optimizations
+UPackagePtr FIoStoreToc::CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context) // TODO: micro optimizations
 {
 	FZenPackageData PackageData;
-
 	PackageData.Header = ReadZenPackageHeader(Ar, Reader->GetContainer());
-	auto ExportDataSize = Ar->TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar->Data()));
 
-	auto Package = PackageData.Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
+	auto ExportDataSize = Ar.TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar.Data()));
+
+	TObjectPtr<UZenPackage> Package = PackageData.Package = std::make_shared<UZenPackage>(PackageData.Header, Context);
 
 	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
 	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
@@ -240,4 +249,6 @@ void FIoStoreToc::DoWork(FSharedAr Ar, TSharedPtr<GContext> Context) // TODO: pa
 	}
 
 	Package->ProcessExports(PackageData);
+
+	return Package;
 }

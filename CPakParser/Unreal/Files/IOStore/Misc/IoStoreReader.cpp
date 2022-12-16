@@ -188,7 +188,7 @@ FIoStoreReader::FIoStoreReader(TSharedPtr<FIoStoreToc> InToc, std::atomic_int32_
 	}
 }
 
-TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId) 
+TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId)
 {
 	auto OaL = Toc.lock()->GetOffsetAndLength(ChunkId);
 
@@ -198,13 +198,11 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoChunkId ChunkId)
 	return Read(OaL);
 }
 
-TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) // TODO: make this async; look into StartAsyncRead
+void FIoStoreReader::Read(uint64_t Offset, uint64_t Len, uint8_t* OutBuffer) // TODO: make this async; look into StartAsyncRead
 {
 	auto TocPtr = Toc.lock();
 	auto TocResource = TocPtr->GetResource();
 
-	auto Offset = OffsetAndLength.GetOffset();
-	auto Len = OffsetAndLength.GetLength();
 	auto CompressionBlockSize = TocResource->Header.CompressionBlockSize;
 
 	auto FirstBlockIndex = Offset / CompressionBlockSize;
@@ -212,7 +210,7 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 	auto BlockCount = LastBlockIndex - FirstBlockIndex + 1;
 
 	if (!BlockCount)
-		return nullptr;
+		return;
 
 	auto& FirstBlock = TocResource->CompressionBlocks[FirstBlockIndex];
 	auto& LastBlock = TocResource->CompressionBlocks[LastBlockIndex];
@@ -224,7 +222,6 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 
 	auto CompressedSize = ReadEndOffset - ReadStartOffset;
 
-	auto DecompressionBuf = std::make_unique<uint8_t[]>(Len);
 	auto CompressedBuf = std::make_unique<uint8_t[]>(CompressedSize);
 
 	Read(PartitionIndex, ReadStartOffset, CompressedSize, CompressedBuf.get());
@@ -237,7 +234,7 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 	for (auto i = FirstBlockIndex; i <= LastBlockIndex; ++i)
 	{
 		auto CompressedData = CompressedBuf.get() + CompressedOffset;
-		auto DecompressedData = DecompressionBuf.get() + CompressedOffset;
+		auto DecompressedData = OutBuffer + CompressedOffset;
 
 		auto& CompressionBlock = TocResource->CompressionBlocks[i];
 
@@ -274,11 +271,9 @@ TUniquePtr<uint8_t[]> FIoStoreReader::Read(FIoOffsetAndLength& OffsetAndLength) 
 		RemainingSize -= UncompressedSize;
 		OffsetInBlock = 0;
 	}
-
-	return DecompressionBuf;
 }
 
-void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer)
+void FIoStoreReader::Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer) // TODO: inline this
 {
 	SCOPE_LOCK(Lock);
 

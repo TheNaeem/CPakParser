@@ -79,10 +79,10 @@ public:
 		return Readers.BorrowReader();
 	}
 
-	void DoWork(FSharedAr Ar, TSharedPtr<class GContext> Context) override
+	UPackagePtr CreatePackage(class FArchive& Ar, TSharedPtr<class GContext> Context) override
 	{
-
+		return nullptr; // TODO:
 	}
 
-	FSharedAr CreateEntryArchive(FFileEntryInfo EntryInfo) override;
+	std::vector<uint8_t> ReadEntry(struct FFileEntryInfo& Entry) override;
 };

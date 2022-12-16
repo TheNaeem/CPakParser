@@ -4,7 +4,6 @@ module;
 
 export module CPakParser.Zen.Package;
 
-export import CPakParser.Core.UObject;
 export import CPakParser.Package;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Zen.Data;
@@ -18,7 +17,7 @@ export struct FExportObject
 
 export struct FZenPackageData
 {
-	TSharedPtr<class UZenPackage> Package;
+	TObjectPtr<class UZenPackage> Package;
 	FSharedAr Reader;
 	FZenPackageHeaderData Header;
 	std::vector<FExportObject> Exports;
@@ -33,7 +32,7 @@ export class UZenPackage : public UPackage
 {
 public:
 
-	UZenPackage(FZenPackageHeaderData& InHeader, TSharedPtr<GContext> InContext)
+	UZenPackage(FZenPackageHeaderData& InHeader, TSharedPtr<GContext>& InContext)
 	{
 		Name = InHeader.PackageName;
 		Context = InContext;
@@ -41,7 +40,7 @@ public:
 
 	void ProcessExports(FZenPackageData& PackageData);
 	void CreateExport(class FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex);
-	void SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex);
+	UObjectPtr& SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex);
 
 	template <typename T = UObject>
 	UObjectPtr IndexToObject(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, FPackageObjectIndex Index);

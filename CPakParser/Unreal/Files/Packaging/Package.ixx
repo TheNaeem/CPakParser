@@ -5,51 +5,36 @@ module;
 export module CPakParser.Package;
 
 export import CPakParser.Core.UObject;
-import CPakParser.Files.GameFilePath;
 
-export class UPackage : public UObject // TODO: change how package works
+export typedef TObjectPtr<class UPackage> UPackagePtr;
+
+export class UPackage : public UObject 
 {
-	FGameFilePath Path;
-	TSharedPtr<class FLoader> Linker;
-
 protected:
 
-	UPackage()
-	{
-	}
-
-	TSharedPtr<class GContext> Context;
+	TWeakPtr<class GContext> Context;
+	std::vector<UObjectPtr> Exports;
 
 public:
 
-	friend class FLoader;
-
-	UPackage(FGameFilePath PackagePath) : Path(PackagePath)
+	__forceinline std::vector<UObjectPtr>& GetExports()
 	{
+		return Exports;
 	}
 
-	__forceinline std::string GetName()
+	__forceinline UObjectPtr GetFirstExport()
 	{
-		return Name;
+		return Exports.size() ? Exports[0] : nullptr;
 	}
 
-	__forceinline FGameFilePath GetPath()
+	__forceinline UObjectPtr GetExportByName(std::string InName)
 	{
-		return Path;
-	}
+		for (auto&& Export : Exports)
+		{ 
+			if (Export->GetName() == InName)
+				return Export;
+		}
 
-	__forceinline bool IsValid()
-	{
-		return Path.IsValid();
-	}
-
-	__forceinline bool HasLoader()
-	{
-		return !!Linker;
-	}
-
-	__forceinline TSharedPtr<FLoader> GetLoader()
-	{
-		return Linker;
+		return nullptr;
 	}
 };

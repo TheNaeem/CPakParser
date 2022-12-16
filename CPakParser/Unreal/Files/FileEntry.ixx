@@ -1,8 +1,15 @@
+module;
+
+#include "Core/Defines.h"
+
 export module CPakParser.Files.FileEntry;
 
 export import CPakParser.Files.DiskFile;
 import CPakParser.Serialization.FArchive;
+import CPakParser.Serialization.MemoryReader;
+
 import <string>;
+import <vector>;
 
 export struct FFileEntryInfo
 {
@@ -47,6 +54,21 @@ export struct FFileEntryInfo
 	__forceinline int32_t GetPakIndex()
 	{
 		return Entry.PakIndex;
+	}
+
+	__forceinline std::vector<uint8_t> LoadBuffer()
+	{
+		return GetAssociatedFile()->ReadEntry(*this);
+	}
+
+	__forceinline TSharedPtr<FArchive> CreateReader()
+	{
+		auto Buf = LoadBuffer();
+
+		if (Buf.empty())
+			return nullptr;
+
+		return std::make_shared<FBufferReader>(Buf);
 	}
 
 protected:

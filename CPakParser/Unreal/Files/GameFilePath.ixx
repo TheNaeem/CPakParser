@@ -4,6 +4,8 @@ export import <string>;
 
 export struct FGameFilePath
 {
+public:
+
 	friend class FGameFileManager;
 
 	FGameFilePath();
@@ -13,8 +15,6 @@ export struct FGameFilePath
 	FGameFilePath(std::string InFileDirectory, std::string InFileName);
 
 	bool IsValid();
-
-private:
 
 	/*
 	* FPackagePath has to have null terminated directory and filename strings in order to grab

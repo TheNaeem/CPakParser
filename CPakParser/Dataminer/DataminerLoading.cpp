@@ -3,8 +3,9 @@
 #include "Core/Globals/GlobalContext.h"
 #include "Core/Reflection/Mappings.h"
 
-import CPakParser.Files.Loader;
 import CPakParser.Serialization.FArchive;
+import CPakParser.Files.SerializableFile;
+import CPakParser.Logging;
 
 bool Dataminer::LoadTypeMappings(std::string UsmapFilePath)
 {
@@ -19,7 +20,7 @@ std::future<bool> Dataminer::LoadTypeMappingsAsync(std::string UsmapFilePath)
 void Dataminer::SerializeFileInternal(FGameFilePath& FilePath, TSharedPtr<ISerializableFile> OutFile)
 {
 	auto Entry = Context->FilesManager.FindFile(FilePath);
-	auto Reader = FLoader::CreateFileReader(Entry);
+	auto Reader = Entry.CreateReader();
 
 	if (!Reader)
 		return;
@@ -27,24 +28,31 @@ void Dataminer::SerializeFileInternal(FGameFilePath& FilePath, TSharedPtr<ISeria
 	OutFile->Serialize(*Reader);
 }
 
-void Dataminer::Test(FGameFilePath Path)
+UPackagePtr Dataminer::LoadPackage(FGameFilePath Path)
 {
 	auto Entry = Context->FilesManager.FindFile(Path);
 
 	if (!Entry.IsValid())
-		return;
+		return nullptr;
 
-	auto Reader = FLoader::CreateFileReader(Entry);
+	auto Reader = Entry.CreateReader();
 
-	Entry.GetAssociatedFile()->DoWork(Reader, Context); // TODO: wrap UPackage around this
+	if (!Reader)
+	{
+		LogError("Could not create reader for %s", Path.FileName.c_str());
+		return nullptr;
+	}
+
+	return Entry.GetAssociatedFile()->CreatePackage(*Reader, Context);
 }
 
-void Dataminer::Test(FFileEntryInfo& Entry)
+UObjectPtr Dataminer::LoadObject(FGameFilePath Path)
 {
-	if (!Entry.IsValid())
-		return;
+	auto Package = LoadPackage(Path);
 
-	auto Reader = FLoader::CreateFileReader(Entry);
+	if (!Package)
+		return nullptr;
 
-	Entry.GetAssociatedFile()->DoWork(Reader, Context); // TODO: wrap UPackage around this
+	// TODO ASAP: get export name from FGameFilePath if there is one provided
+	return Package->GetExportByName(Package->GetName());
 }

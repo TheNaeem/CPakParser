@@ -20,9 +20,22 @@ public:
 	void ReadContainerHeader();
 
 	TUniquePtr<uint8_t[]> Read(FIoChunkId ChunkId);
-	TUniquePtr<uint8_t[]> Read(FIoOffsetAndLength& OffsetAndLength);
+	void Read(uint64_t Offset, uint64_t Length, uint8_t* OutBuffer);
 	void Read(int32_t InPartitionIndex, int64_t Offset, int64_t Len, uint8_t* OutBuffer);
 	bool IsEncrypted() const;
+	
+	inline TUniquePtr<uint8_t[]> Read(uint64_t Offset, uint64_t Length)
+	{
+		auto Ret = std::make_unique<uint8_t[]>(Length);
+		Read(Offset, Length, Ret.get());
+
+		return Ret;
+	}
+
+	inline TUniquePtr<uint8_t[]> Read(FIoOffsetAndLength& OffsetAndLength)
+	{
+		return Read(OffsetAndLength.GetOffset(), OffsetAndLength.GetLength());
+	}
 
 	__forceinline void SetEncryptionKey(const FAESKey& Key) 
 	{ 

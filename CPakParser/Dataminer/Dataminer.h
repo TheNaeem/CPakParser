@@ -4,11 +4,11 @@
 #include "Core/Globals/GameFileManager.h"
 #include <future>
 
-import CPakParser.Core.UObject;
+import CPakParser.Package;
 import CPakParser.Files.GameFilePath;
 import CPakParser.Files.SerializableFile;
 import CPakParser.Misc.FGuid;
-import CPakParser.Encryption.AES;
+import CPakParser.Encryption.AES; 
 
 class Dataminer
 {
@@ -46,21 +46,25 @@ public:
 
 	Dataminer(const char* PaksFolderDir);
 
+	/* INITIALIZATION */
+
 	bool Initialize();
 	bool SubmitKey(const char* AesKeyString, const char* GuidString = nullptr);
 	bool LoadTypeMappings(std::string UsmapFilePath);
 	std::future<bool> LoadTypeMappingsAsync(std::string UsmapFilePath);
 
+	/* GETTERS AND SETTERS */
+
 	std::vector<TSharedPtr<IDiskFile>> GetMountedFiles();
 	TMap<FGuid, std::string> GetUnmountedPaks();
-	void Test(FGameFilePath Path);
-	void Test(FFileEntryInfo& Entry);
 	FDirectoryIndex Files();
 	TMap<std::string, UObjectPtr> GetObjectArray();
 	FPakDirectory GetDirectory(std::string InDirectory);
 	std::optional<FPakDirectory> TryGetDirectory(std::string InDirectory);
 	void SetVersionUE5(int Version);
 	void SetVersionUE4(int Version);
+
+	/* LOADING */
 
 	template <typename T>
 	TSharedPtr<T> SerializeFile(FGameFilePath FilePath)
@@ -72,6 +76,22 @@ public:
 		SerializeFileInternal(Ret);
 
 		return Ret;
+	}
+
+	// TODO: make this templated
+	UPackagePtr LoadPackage(FGameFilePath Path);
+	UObjectPtr LoadObject(FGameFilePath Path);
+
+	std::optional<UPackagePtr> TryLoadPackage(FGameFilePath Path)
+	{
+		auto Ret = LoadPackage(Path);
+		return Ret ? std::optional<UPackagePtr>(Ret) : std::nullopt;
+	}
+
+	std::optional<UObjectPtr> TryLoadObject(FGameFilePath Path)
+	{
+		auto Ret = LoadObject(Path);
+		return Ret ? std::optional<UObjectPtr>(Ret) : std::nullopt;
 	}
 };
 

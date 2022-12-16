@@ -54,10 +54,15 @@ UObjectPtr UZenPackage::IndexToObject(FZenPackageHeaderData& Header, std::vector
 	{
 		if (Index.IsScriptImport())
 		{
-			auto Ret = CreateScriptObject<T>(Context, Index);
+			auto ContextLock = Context.lock();
 
-			if (!Context->ObjectArray.contains(Ret->GetName()))
-				Context->ObjectArray.insert_or_assign(Ret->GetName(), Ret); // TODO: refactor this to use weak ptr
+			if (!ContextLock)
+				return nullptr;
+
+			auto Ret = CreateScriptObject<T>(ContextLock, Index);
+
+			if (!ContextLock->ObjectArray.contains(Ret->GetName()))
+				ContextLock->ObjectArray.insert_or_assign(Ret->GetName(), Ret); // TODO: refactor this to use weak ptr
 
 			return Ret;
 		}
@@ -90,8 +95,6 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 
 	for (size_t i = 0; i < Header.ExportBundleHeaders.size(); i++)
 	{
-		// TODO: Ar.SetUEVer(Package->LinkerRoot->GetLinkerPackageVersion());
-
 		auto& ExportBundle = Header.ExportBundleHeaders[i];
 
 		for (size_t ExportBundleIndex = 0; ExportBundleIndex < ExportBundle.EntryCount; ExportBundleIndex++)
@@ -109,7 +112,9 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 				continue;
 
 			PackageData.Reader->Seek(ExportOffset);
-			SerializeExport(PackageData, BundleEntry.LocalExportIndex);
+
+			Exports.push_back(
+				SerializeExport(PackageData, BundleEntry.LocalExportIndex));
 
 			ExportOffset += ExportMapEntry.CookedSerialSize;
 		}
@@ -151,16 +156,14 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 			Struct->SetSuper(IndexToObject<UStruct>(Header, Exports, Export.SuperIndex).As<UStruct>());
 	}
 
-	Object->ObjectFlags = UObject::Flags(Export.ObjectFlags | RF_NeedLoad | RF_NeedPostLoad | RF_NeedPostLoadSubobjects | RF_WasLoaded);
+	Object->ObjectFlags = UObject::Flags(Export.ObjectFlags | RF_NeedLoad | RF_NeedPostLoad | RF_NeedPostLoadSubobjects | RF_WasLoaded); // TODO; remove flags lol idk why i put this here
 }
 
-void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
+UObjectPtr& UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
 {
 	auto& Export = PackageData.Header.ExportMap[LocalExportIndex];
 	auto& ExportObject = PackageData.Exports[LocalExportIndex];
 	UObjectPtr& Object = ExportObject.Object;
-
-	// TODO: struct casting maybe? idk
 
 	Object->ClearFlags(RF_NeedLoad);
 
@@ -168,10 +171,11 @@ void UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExp
 	{
 		TRACE_CPUPROFILER_EVENT_SCOPE(SerializeDefaultObject);
 		Object->GetClass()->SerializeDefaultObject(Object, Ar);
-	}
-	else*/
+	}*/
 
 	Object->Serialize(*PackageData.Reader);
 
 	Log("Serialized export %s", Object->Name.c_str());
+
+	return Object;
 }

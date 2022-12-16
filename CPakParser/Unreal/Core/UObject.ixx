@@ -21,12 +21,6 @@ public:
 	{
 	}
 
-	TObjectPtr operator=(TSharedPtr<ObjectType> Other)
-	{
-		Val = Other;
-		return *this;
-	}
-
 	TObjectPtr(TSharedPtr<ObjectType> InObject) : Val(InObject)
 	{
 	}
@@ -35,12 +29,22 @@ public:
 	{
 	}
 
+	TObjectPtr(std::nullptr_t Null) : Val(nullptr)
+	{
+	}
+	
+	__forceinline TObjectPtr operator=(TSharedPtr<ObjectType> Other)
+	{
+		Val = Other;
+		return *this;
+	}
+
 	__forceinline ObjectType* operator->()
 	{
 		return Val.get();
 	}
 
-	operator bool() const
+	__forceinline operator bool() const
 	{
 		return Val.operator bool();
 	}

@@ -13,7 +13,6 @@
     <ClCompile Include="Unreal\Files\IOStore\Misc\IoStoreReader.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoStoreToc.cpp" />
     <ClCompile Include="Unreal\Files\IOStore\Toc\IoTocResource.cpp" />
-    <ClCompile Include="Unreal\Files\Loading.cpp" />
     <ClCompile Include="Unreal\Misc\Compression\Oodle.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakFile.cpp" />
     <ClCompile Include="Unreal\Files\Paks\PakReader.cpp" />
@@ -72,7 +71,6 @@
     <ClCompile Include="Unreal\Files\SerializableFile.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
-    <ClCompile Include="Unreal\Files\Loader.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\PackageSummary.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\PackageFlags.ixx" />
     <ClCompile Include="Unreal\Files\Packaging\PackageObjectIndex.ixx" />

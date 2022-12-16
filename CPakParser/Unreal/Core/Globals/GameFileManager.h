@@ -9,7 +9,7 @@ import CPakParser.Files.FileEntry;
 import CPakParser.Serialization.FArchive;
 import CPakParser.Files.GameFilePath;
 
-#define HASH_DIRECTORY_INDEX 0
+#define HASH_DIRECTORY_INDEX 1
 
 #if HASH_DIRECTORY_INDEX
 
@@ -25,13 +25,12 @@ typedef parallel_flat_hash_map<std::string, FPakDirectory> FDirectoryIndex;
 
 #endif
 
-class FGameFileManager // TODO: FDirectoryIterator
+class FGameFileManager // TODO: FDirectoryIterator, FGameFileViewer
 {
 public:
 
 	void Reserve(size_t Count);
 
-	
 	FFileEntryInfo FindFile(std::string& Directory, std::string& FileName);
 	FFileEntryInfo FindFile(FGameFilePath& Path);
 	FPakDirectory GetDirectory(std::string& Directory);
