@@ -3,6 +3,8 @@
 #include <memory>
 #include <intrin.h>
 
+#pragma warning(disable: 3344)
+
 #define EXTENSIVE_LOGGING 1
 
 #define memcpyfst(d, s, c) __movsb((unsigned char*)d, s, c)

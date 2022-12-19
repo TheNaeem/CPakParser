@@ -9,6 +9,11 @@ public:
 
 	FTopLevelAssetPath() = default;
 
+	FTopLevelAssetPath(const FTopLevelAssetPath& Other)
+		: PackageName(Other.PackageName), AssetName(Other.AssetName)
+	{
+	}
+
 	FTopLevelAssetPath(FName& Name)
 	{
 		auto NameStr = Name.ToString();

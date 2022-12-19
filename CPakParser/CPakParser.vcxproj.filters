@@ -117,6 +117,7 @@
     <ClCompile Include="Unreal\Misc\Versioning\CustomVersions\UE5MainStreamObjectVersion.ixx" />
     <ClCompile Include="Unreal\Misc\MathUtil.ixx" />
     <ClCompile Include="Unreal\Structs\Curves\SimpleCurve.ixx" />
+    <ClCompile Include="Unreal\Core\TObjectPtr.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

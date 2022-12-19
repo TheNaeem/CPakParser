@@ -8,6 +8,7 @@ import CPakParser.Reflection.FProperty;
 import CPakParser.Serialization.FArchive;
 import <string>;
 import <vector>;
+import CPakParser.Core.FName;
 
 export struct FReflectedEnum // traits that can be shared across multiple instances of the same enum property
 {
@@ -28,11 +29,21 @@ public:
 
 		__forceinline bool IsAcceptableType(EPropertyType Type) override
 		{
-			return Type == EPropertyType::EnumProperty;
+			return
+				Type == EPropertyType::StrProperty or
+				Type == EPropertyType::NameProperty;
 		}
 
 		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
 		{
+			if (Type == EPropertyType::NameProperty)
+			{
+				*((FName*)OutBuffer) = EnumName;
+			}
+			else if (Type == EPropertyType::StrProperty)
+			{
+				*((std::string*)OutBuffer) = EnumName;
+			}
 		}
 	};
 

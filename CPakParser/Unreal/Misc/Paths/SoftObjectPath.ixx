@@ -3,7 +3,7 @@ export module CPakParser.Paths.SoftObjectPath;
 import CPakParser.Paths.TopLevelAssetPath;
 import CPakParser.Serialization.FArchive;
 
-export class FSoftObjectPath
+export class FSoftObjectPath // TODO: context weak ptr
 {
 public:
 
@@ -35,9 +35,14 @@ public:
 	__forceinline FTopLevelAssetPath GetAssetPath() { return AssetPath; }
 	__forceinline std::string GetSubPath() { return SubPathString; }
 
+	__forceinline void operator=(FSoftObjectPath& Other)
+	{
+		AssetPath = Other.AssetPath;
+		SubPathString = Other.SubPathString;
+	}
+
 	void Reset()
 	{
-
 		SubPathString = {};
 	}
 

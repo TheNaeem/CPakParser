@@ -7,82 +7,7 @@ export module CPakParser.Core.UObject;
 import CPakParser.Reflection.FProperty;
 import <string>;
 import <vector>;
-
-export template <typename ObjectType>
-class TObjectPtr
-{
-	//static_assert(std::is_base_of<UObject, ObjectType>::value, "Type passed into UObjectPtr must be a UObject type");
-
-	TSharedPtr<ObjectType> Val;
-
-public:
-
-	TObjectPtr() : Val(nullptr)
-	{
-	}
-
-	TObjectPtr(TSharedPtr<ObjectType> InObject) : Val(InObject)
-	{
-	}
-
-	TObjectPtr(TSharedPtr<ObjectType>& InObject) : Val(InObject)
-	{
-	}
-
-	TObjectPtr(std::nullptr_t Null) : Val(nullptr)
-	{
-	}
-	
-	__forceinline TObjectPtr operator=(TSharedPtr<ObjectType> Other)
-	{
-		Val = Other;
-		return *this;
-	}
-
-	__forceinline ObjectType* operator->()
-	{
-		return Val.get();
-	}
-
-	__forceinline operator bool() const
-	{
-		return Val.operator bool();
-	}
-
-	__forceinline ObjectType* Get()
-	{
-		return Val.get();
-	}
-
-	__forceinline ObjectType& operator*()
-	{
-		return *Get();
-	}
-
-	template <typename T>
-	__forceinline bool IsA()
-	{
-		return std::dynamic_pointer_cast<T>(Val);
-	}
-
-	template <typename T>
-	__forceinline TSharedPtr<T> As()
-	{
-		return std::dynamic_pointer_cast<T>(Val);
-	}
-
-	template <typename T>
-	__forceinline operator TObjectPtr<T>() const
-	{
-		return TObjectPtr<T>(std::dynamic_pointer_cast<T>(Val));
-	}
-
-	template <typename T>
-	__forceinline operator TObjectPtr<T>()
-	{
-		return TObjectPtr<T>(std::dynamic_pointer_cast<T>(Val));
-	}
-};
+export import CPakParser.Core.TObjectPtr;
 
 export typedef TObjectPtr<class UObject> UObjectPtr;
 export typedef TObjectPtr<class UClass> UClassPtr;
@@ -216,6 +141,24 @@ public:
 	virtual void Load() { }
 
 	virtual void Serialize(class FArchive& Ar);
+
+	template <typename T>
+	std::optional<T> TryGetProperty(std::string PropertyName)
+	{
+		for (auto& Prop : PropertyValues)
+		{
+			if (Prop.first == PropertyName) 
+				return Prop.second.get()->TryGetValue<T>();
+		}
+
+		return std::nullopt;
+	}
+
+	template <typename T>
+	inline T GetProperty(std::string PropertyName)
+	{
+		return TryGetProperty<T>(PropertyName).value();
+	}
 };
 
 // put structs and objects in the same file cause module forward declarations are finicky

@@ -22,6 +22,16 @@ public:
 	{
 	}
 
+	__forceinline void operator=(std::string const& Other)
+	{
+		Val = Other;
+	}
+
+	__forceinline void operator=(FName const& Other) 
+	{
+		Val = Other.Val;
+	}
+
 	bool operator==(FName const& Other) const
 	{
 		return Val == Other.Val;

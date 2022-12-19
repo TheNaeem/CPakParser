@@ -1,8 +1,22 @@
 export module CPakParser.Reflection.PropertyValue;
 
 export import <optional>;
+import <string>;
+import <vector>;
 
-#define RUNTIME_TYPE(type, propType) if constexpr (std::is_same<T, type>()) return propType
+import CPakParser.Core.TObjectPtr;
+
+template <class, template <class> class>
+struct is_t : public std::false_type {};
+
+template <class T, template <class> class U>
+struct is_t<U<T>, U> : public std::true_type {};
+
+template <typename T>
+struct is_vector : std::false_type {};
+
+template <typename T, typename Alloc>
+struct is_vector<std::vector<T, Alloc>> : std::true_type {};
 
 export enum class EPropertyType : uint8_t
 {
@@ -41,31 +55,37 @@ export enum class EPropertyType : uint8_t
 export template <typename T>
 constexpr EPropertyType GetPropertyType()
 {
-	//RUNTIME_TYPE(uint8_t, EPropertyType::ByteProperty);
-	//RUNTIME_TYPE(bool, EPropertyType::BoolProperty);
-	//RUNTIME_TYPE(int32_t, EPropertyType::IntProperty);
-	//RUNTIME_TYPE(float, EPropertyType::FloatProperty);
-	//RUNTIME_TYPE(class UObjectPtr, EPropertyType::ObjectProperty);
-	////RUNTIME_TYPE(class FName, EPropertyType::NameProperty);
-	////RUNTIME_TYPE(FScriptDelegate, EPropertyType::DelegateProperty);
-	//RUNTIME_TYPE(double, EPropertyType::DoubleProperty);
-	////RUNTIME_TYPE(std::string, EPropertyType::StrProperty);
-	////RUNTIME_TYPE(class FText, EPropertyType::TextProperty);
-	////RUNTIME_TYPE(FMulticastScriptDelegate, EPropertyType::MulticastDelegateProperty);
-	//RUNTIME_TYPE(uint64_t, EPropertyType::UInt64Property);
-	//RUNTIME_TYPE(uint32_t, EPropertyType::UInt32Property);
-	//RUNTIME_TYPE(uint16_t, EPropertyType::UInt16Property);
-	//RUNTIME_TYPE(int64_t, EPropertyType::Int64Property);
-	//RUNTIME_TYPE(int16_t, EPropertyType::Int16Property);
-	//RUNTIME_TYPE(int8_t, EPropertyType::Int8Property);
+	if constexpr (std::is_same<T, uint8_t>()) return  EPropertyType::ByteProperty;
+	if constexpr (std::is_same<T, bool>()) return  EPropertyType::BoolProperty;
+	if constexpr (std::is_same<T, float>()) return  EPropertyType::FloatProperty;
+	if constexpr (is_t<T, TObjectPtr>::value) return  EPropertyType::ObjectProperty;
+	if constexpr (std::is_same<T, class FName>()) return  EPropertyType::NameProperty;
+	if constexpr (std::is_same<T, class FScriptDelegate>()) return  EPropertyType::DelegateProperty;
+	if constexpr (std::is_same<T, class FSoftObjectPath>()) return  EPropertyType::SoftObjectProperty;
+	if constexpr (std::is_same<T, double>()) return  EPropertyType::DoubleProperty;
+	if constexpr (std::is_same<T, std::string>()) return  EPropertyType::StrProperty;
+	if constexpr (std::is_same<T, class FText>()) return  EPropertyType::TextProperty;
+	if constexpr (std::is_same<T, class FMulticastScriptDelegate>()) return  EPropertyType::MulticastDelegateProperty;
+	if constexpr (std::is_same<T, uint64_t>()) return  EPropertyType::UInt64Property;
+	if constexpr (std::is_same<T, uint32_t>()) return  EPropertyType::UInt32Property;
+	if constexpr (std::is_same<T, uint16_t>()) return  EPropertyType::UInt16Property;
+	if constexpr (std::is_same<T, int64_t>()) return  EPropertyType::Int64Property;
+	if constexpr (std::is_same<T, int16_t>()) return  EPropertyType::Int16Property;
+	if constexpr (std::is_same<T, int8_t>()) return  EPropertyType::Int8Property;
 
-	// TODO: array, struct, map, set, enum, delegate, and field path support
+	if constexpr (is_vector<T>::value) return EPropertyType::ArrayProperty;
+
+	if constexpr (std::is_class<T>::value) return EPropertyType::StructProperty;
 
 	return EPropertyType::Unknown;
 }
 
 export class IPropValue
 {
+protected:
+
+	int ValueTypeSize = 0;
+
 public:
 
 	virtual bool IsAcceptableType(EPropertyType Type) = 0;
@@ -74,13 +94,22 @@ public:
 	template <typename T>
 	std::optional<T> TryGetValue()
 	{
-		auto RuntimeType = GetPropertyType<T>();
+		constexpr auto RuntimeType = GetPropertyType<T>();
 
 		if (!IsAcceptableType(RuntimeType))
 			return std::nullopt;
 
+		ValueTypeSize = sizeof(T);
 		T Val;
-		PlaceValue(RuntimeType, &Val);
+
+		if constexpr (RuntimeType == EPropertyType::ArrayProperty)
+		{
+			using ElementType = typename T::value_type;
+			ValueTypeSize = sizeof(ElementType);
+
+			PlaceValue(GetPropertyType<ElementType>(), &Val);
+		}
+		else PlaceValue(RuntimeType, &Val);
 
 		return std::optional<T>(Val);
 	}

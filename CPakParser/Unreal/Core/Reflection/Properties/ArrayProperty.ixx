@@ -27,7 +27,18 @@ public:
 
 		__forceinline void PlaceValue(EPropertyType Type, void* OutBuffer) override
 		{
-			// TODO:
+			auto& ArrBytes = *(std::vector<uint8_t>*)OutBuffer;
+			ArrBytes.resize(ValueTypeSize * Array.size());
+
+			for (size_t i = 0; i < Array.size(); i++)
+			{
+				auto& Prop = Array[i];
+
+				if (!Prop->IsAcceptableType(Type))
+					continue;
+
+				Prop->PlaceValue(Type, ArrBytes.data() + (i * ValueTypeSize));
+			}
 		}
 	};
 
