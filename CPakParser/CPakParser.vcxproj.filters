@@ -124,6 +124,7 @@
     <ClCompile Include="Unreal\Files\ExportState.ixx" />
     <ClCompile Include="Unreal\Structs\Math\IntPoint.ixx" />
     <ClCompile Include="Unreal\Structs\Math\PerPlatform.ixx" />
+    <ClCompile Include="Unreal\Misc\Textures\BulkData.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

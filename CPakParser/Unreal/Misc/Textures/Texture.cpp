@@ -20,6 +20,34 @@ void FTexturePlatformData::Serialize(FArchive& Ar, UTexture* Owner)
 {
 	bool bUsingDerivedData = false;
 	Ar.Serialize(&bUsingDerivedData, sizeof(bool));
+
+	if (bUsingDerivedData)
+	{
+		// TODO: derived data serialization 
+	}
+
+	constexpr int64_t PlaceholderDerivedDataSize = 15;
+	Ar.SeekCur(PlaceholderDerivedDataSize);
+
+	Ar << SizeX;
+	Ar << SizeY;
+	Ar << PackedData;
+
+	std::string PixelFormatString;
+	Ar << PixelFormatString;
+
+	PixelFormat = PixelStringMap[PixelFormatString];
+
+	if (GetHasOptData())
+	{
+		OptData.Serialize(Ar);
+	}
+
+	int32_t FirstMipToSerialize = 0;
+	Ar.SeekCur<int32_t>();
+
+	int32_t NumMips = 0;
+	Ar << NumMips;
 }
 
 void UTexture::SerializeCookedPlatformData(FArchive& Ar)

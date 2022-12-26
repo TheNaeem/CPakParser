@@ -3,6 +3,7 @@ export module CPakParser.Texture;
 export import CPakParser.Core.UObject;
 import CPakParser.Serialization.FArchive;
 import <cstdint>;
+import CPakParser.Misc.BulkData;
 
 export class FStripDataFlags
 {
@@ -96,12 +97,60 @@ export enum EPixelFormat : uint8_t
 	PF_MAX = 86
 };
 
+export struct FTexture2DMipMap
+{
+	int32_t SizeX = 0;
+	int32_t SizeY = 0;
+	int32_t SizeZ = 0;
+	FByteBulkData BulkData;
+
+	FTexture2DMipMap() = default;
+
+	void Serialize(FArchive& Ar, UObject* Owner, int32_t MipIndex)
+	{
+		BulkData.Serialize(Ar, Owner);
+
+		Ar << SizeX;
+		Ar << SizeY;
+		Ar << SizeZ;
+	}
+};
+
 export struct FTexturePlatformData
 {
+	struct FOptData
+	{
+		uint32_t ExtData;
+		uint32_t NumMipsInTail;
+
+		FOptData()
+			: ExtData(0)
+			, NumMipsInTail(0)
+		{}
+
+		inline bool operator == (FOptData const& RHS) const
+		{
+			return ExtData == RHS.ExtData
+				&& NumMipsInTail == RHS.NumMipsInTail;
+		}
+
+		inline bool operator != (FOptData const& RHS) const
+		{
+			return !(*this == RHS);
+		}
+
+		void Serialize(FArchive& Ar)
+		{
+			Ar << ExtData;
+			Ar << NumMipsInTail;
+		}
+	};
+
 	int32_t SizeX;
 	int32_t SizeY;
 	uint32_t PackedData;
 	EPixelFormat PixelFormat;
+	FOptData OptData;
 
 	FTexturePlatformData()
 		: SizeX(0)

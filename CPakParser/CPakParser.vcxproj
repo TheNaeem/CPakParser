@@ -117,6 +117,7 @@
     <ClCompile Include="Unreal\Misc\MathUtil.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\SoftObjectPath.ixx" />
     <ClCompile Include="Unreal\Misc\Paths\TopLevelAssetPath.ixx" />
+    <ClCompile Include="Unreal\Misc\Textures\BulkData.ixx" />
     <ClCompile Include="Unreal\Misc\Textures\Texture.cpp" />
     <ClCompile Include="Unreal\Misc\Textures\Texture.ixx" />
     <ClCompile Include="Unreal\Misc\Textures\Texture2D.ixx" />
