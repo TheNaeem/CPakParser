@@ -21,14 +21,7 @@ int main()
 	Core.Initialize();
 	MappingsTask.wait();
 
-	UObjectPtr Keleritas = Core.LoadPackage("FortniteGame/Content/Athena/Items/Cosmetics/Characters/Character_BariumDemon.uasset")->GetFirstExport();
-
-	auto BaseCharacterParts = Keleritas->GetProperty<std::vector<FSoftObjectPath>>("BaseCharacterParts");
-
-	for (FSoftObjectPath& CP : BaseCharacterParts)
-	{
-		std::cout << CP.GetAssetPath().ToString() << std::endl;
-	}
+	auto Obj = Core.LoadObject("FortniteGame/Content/Athena/Items/Cosmetics/Characters/Character_Ballerina");
 
 	Sleep(-1);
 }

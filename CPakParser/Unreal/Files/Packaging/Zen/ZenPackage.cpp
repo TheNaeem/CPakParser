@@ -104,7 +104,7 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 
 			if (BundleEntry.CommandType == FExportBundleEntry::ExportCommandType_Create)
 			{
-				CreateExport(Header, PackageData.Exports, BundleEntry.LocalExportIndex);
+				CreateExport(PackageData, PackageData.Exports, BundleEntry.LocalExportIndex);
 				continue;
 			}
 
@@ -113,20 +113,35 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 
 			PackageData.Reader->Seek(ExportOffset);
 
-			Exports.push_back(
-				SerializeExport(PackageData, BundleEntry.LocalExportIndex));
+			auto Export = TrySerializeExport(PackageData, BundleEntry.LocalExportIndex);
+
+			if (Export.has_value())
+			{
+				Exports.push_back(Export.value());
+			}
 
 			ExportOffset += ExportMapEntry.CookedSerialSize;
 		}
 	}
 }
 
-void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExportObject>& Exports, int32_t LocalExportIndex) // TODO: make it return object of passed in type
+void UZenPackage::CreateExport(FZenPackageData& PackageData, std::vector<FExportObject>& Exports, int32_t LocalExportIndex) // TODO: make it return object of passed in type
 {
+	auto& Header = PackageData.Header;
 	auto& Export = Header.ExportMap[LocalExportIndex];
+	auto& ObjectName = Header.NameMap.GetName(Export.ObjectName);
+
+	bool IsTargetObject = ObjectName == PackageData.ExportState.TargetObjectName;
+
+	if (IsTargetObject)
+	{
+		Exports[LocalExportIndex].Object = PackageData.ExportState.TargetObject;
+	}
+	else if (PackageData.ExportState.LoadTargetOnly)
+		return;
+	
 	UObjectPtr& Object = Exports[LocalExportIndex].Object;
 	auto& TemplateObject = Exports[LocalExportIndex].TemplateObject;
-	auto& ObjectName = Header.NameMap.GetName(Export.ObjectName);
 
 	TemplateObject = IndexToObject(Header, Exports, Export.TemplateIndex);
 
@@ -159,11 +174,14 @@ void UZenPackage::CreateExport(FZenPackageHeaderData& Header, std::vector<FExpor
 	Object->ObjectFlags = UObject::Flags(Export.ObjectFlags | RF_NeedLoad | RF_NeedPostLoad | RF_NeedPostLoadSubobjects | RF_WasLoaded); // TODO; remove flags lol idk why i put this here
 }
 
-UObjectPtr& UZenPackage::SerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
+std::optional<UObjectPtr> UZenPackage::TrySerializeExport(FZenPackageData& PackageData, int32_t LocalExportIndex)
 {
 	auto& Export = PackageData.Header.ExportMap[LocalExportIndex];
 	auto& ExportObject = PackageData.Exports[LocalExportIndex];
 	UObjectPtr& Object = ExportObject.Object;
+
+	if (PackageData.ExportState.LoadTargetOnly and Object != PackageData.ExportState.TargetObject)
+		return std::nullopt;
 
 	Object->ClearFlags(RF_NeedLoad);
 

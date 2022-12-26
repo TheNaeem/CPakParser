@@ -1,6 +1,7 @@
 export module CPakParser.Files.GameFilePath;
 
 export import <string>;
+import <optional>;
 
 export struct FGameFilePath
 {
@@ -15,6 +16,7 @@ public:
 	FGameFilePath(std::string InFileDirectory, std::string InFileName);
 
 	bool IsValid();
+	FGameFilePath WithExtension(std::string Extension);
 
 	/*
 	* FPackagePath has to have null terminated directory and filename strings in order to grab
@@ -23,4 +25,5 @@ public:
 
 	std::string Directory;
 	std::string FileName;
+	std::string ExportName;
 };

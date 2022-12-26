@@ -35,6 +35,18 @@ public:
 		return *this;
 	}
 
+	template <typename T>
+	__forceinline bool operator==(TObjectPtr<T>& Other)
+	{
+		return Val == Other.Val;
+	}
+
+	template <typename T>
+	__forceinline bool operator!=(TObjectPtr<T>& Other)
+	{
+		return !operator==(Other);
+	}
+
 	__forceinline ObjectType* operator->()
 	{
 		return Val.get();

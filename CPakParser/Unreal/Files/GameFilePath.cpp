@@ -19,15 +19,27 @@ FGameFilePath::FGameFilePath(const char* FileDirectory, const char* FileName)
 
 FGameFilePath::FGameFilePath(std::string InFilePath)
 {
-	auto idx = InFilePath.find_last_of('/');
+	auto FileNameIndex = InFilePath.find_last_of('/');
 
-	if (idx == std::string::npos)
+	if (FileNameIndex == std::string::npos)
 		return;
 
-	idx++;
+	FileNameIndex++;
+	
+	Directory = InFilePath.substr(0, FileNameIndex);
 
-	FileName = InFilePath.substr(idx);
-	Directory = InFilePath.substr(0, idx);
+	auto ExportIndex = InFilePath.find_last_of('.');
+
+	if (ExportIndex != std::string::npos)
+	{
+		FileName = InFilePath.substr(FileNameIndex, ExportIndex - FileNameIndex);
+		ExportName = InFilePath.substr(ExportIndex + 1);
+	}
+	else
+	{
+		FileName = InFilePath.substr(FileNameIndex);
+		ExportName = FileName;
+	}
 
 	if (!Directory.starts_with(BaseMountPoint)) // TODO: a better less lazier way
 		Directory = BaseMountPoint + Directory;
@@ -46,4 +58,9 @@ FGameFilePath::FGameFilePath(std::string InFileDirectory, std::string InFileName
 bool FGameFilePath::IsValid()
 {
 	return (!Directory.empty() && !FileName.empty());
+}
+
+FGameFilePath FGameFilePath::WithExtension(std::string Extension)
+{
+	return FGameFilePath(Directory, FileName + Extension);
 }

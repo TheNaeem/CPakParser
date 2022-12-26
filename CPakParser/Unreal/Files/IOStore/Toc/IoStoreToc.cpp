@@ -11,6 +11,7 @@ import CPakParser.Zen.Package;
 import CPakParser.Zen.Data;
 import CPakParser.Serialization.MemoryReader;
 import CPakParser.Core.FName;
+import CPakParser.Files.ExportState;
 
 class FIoExportArchive : public FMemoryReader
 {
@@ -223,9 +224,10 @@ static FZenPackageHeaderData ReadZenPackageHeader(FArchive& Ar, FFileIoStoreCont
 	return Header;
 }
 
-UPackagePtr FIoStoreToc::CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context) // TODO: micro optimizations
+UPackagePtr FIoStoreToc::CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context, FExportState& ExportState) // TODO: micro optimizations
 {
 	FZenPackageData PackageData;
+	PackageData.ExportState = ExportState;
 	PackageData.Header = ReadZenPackageHeader(Ar, Reader->GetContainer());
 
 	auto ExportDataSize = Ar.TotalSize() - (PackageData.Header.AllExportDataPtr - static_cast<uint8_t*>(Ar.Data()));

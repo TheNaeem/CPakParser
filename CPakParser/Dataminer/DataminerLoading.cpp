@@ -30,7 +30,16 @@ void Dataminer::SerializeFileInternal(FGameFilePath& FilePath, TSharedPtr<ISeria
 
 UPackagePtr Dataminer::LoadPackage(FGameFilePath Path)
 {
-	auto Entry = Context->FilesManager.FindFile(Path);
+	FExportState State;
+	State.LoadTargetOnly = false;
+
+	return LoadPackage(Path, State);
+}
+
+UPackagePtr Dataminer::LoadPackage(FGameFilePath Path, FExportState& State)
+{
+	auto AssetPath = Path.WithExtension(".uasset");
+	auto Entry = Context->FilesManager.FindFile(AssetPath);
 
 	if (!Entry.IsValid())
 		return nullptr;
@@ -43,16 +52,5 @@ UPackagePtr Dataminer::LoadPackage(FGameFilePath Path)
 		return nullptr;
 	}
 
-	return Entry.GetAssociatedFile()->CreatePackage(*Reader, Context);
-}
-
-UObjectPtr Dataminer::LoadObject(FGameFilePath Path)
-{
-	auto Package = LoadPackage(Path);
-
-	if (!Package)
-		return nullptr;
-
-	// TODO ASAP: get export name from FGameFilePath if there is one provided
-	return Package->GetExportByName(Package->GetName());
+	return Entry.GetAssociatedFile()->CreatePackage(*Reader, Context, State);
 }

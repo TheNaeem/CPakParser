@@ -9,6 +9,7 @@ import CPakParser.Files.GameFilePath;
 import CPakParser.Files.SerializableFile;
 import CPakParser.Misc.FGuid;
 import CPakParser.Encryption.AES; 
+import CPakParser.Files.ExportState;
 
 class Dataminer
 {
@@ -78,9 +79,26 @@ public:
 		return Ret;
 	}
 
-	// TODO: make this templated
 	UPackagePtr LoadPackage(FGameFilePath Path);
-	UObjectPtr LoadObject(FGameFilePath Path);
+	UPackagePtr LoadPackage(FGameFilePath Path, FExportState& State);
+
+	template <typename T = UObject>
+	TObjectPtr<T> LoadObject(FGameFilePath Path)
+	{
+		static_assert(std::is_base_of<UObject, T>::value, "Type passed into LoadObject must be a UObject type");
+
+		FExportState State;
+		State.TargetObject = std::make_unique<T>();
+		State.TargetObjectName = Path.ExportName;
+		State.LoadTargetOnly = true;
+
+		auto Package = LoadPackage(Path, State);
+
+		if (!Package)
+			return nullptr;
+
+		return Package->GetExportByName(Path.ExportName).As<T>();
+	}
 
 	std::optional<UPackagePtr> TryLoadPackage(FGameFilePath Path)
 	{
@@ -88,10 +106,13 @@ public:
 		return Ret ? std::optional<UPackagePtr>(Ret) : std::nullopt;
 	}
 
-	std::optional<UObjectPtr> TryLoadObject(FGameFilePath Path)
+	template <typename T = UObject>
+	std::optional<TObjectPtr<T>> TryLoadObject(FGameFilePath Path)
 	{
-		auto Ret = LoadObject(Path);
-		return Ret ? std::optional<UObjectPtr>(Ret) : std::nullopt;
+		static_assert(std::is_base_of<UObject, T>::value, "Type passed into TryLoadObject must be a UObject type");
+
+		auto Ret = LoadObject<T>(Path);
+		return Ret ? std::optional<TObjectPtr<T>>(Ret) : std::nullopt;
 	}
 };
 

@@ -118,6 +118,9 @@
     <ClCompile Include="Unreal\Misc\MathUtil.ixx" />
     <ClCompile Include="Unreal\Structs\Curves\SimpleCurve.ixx" />
     <ClCompile Include="Unreal\Core\TObjectPtr.ixx" />
+    <ClCompile Include="Unreal\Misc\Textures\Texture.ixx" />
+    <ClCompile Include="Unreal\Misc\Textures\Texture2D.ixx" />
+    <ClCompile Include="Unreal\Misc\Textures\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

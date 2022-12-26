@@ -25,7 +25,7 @@ public:
 
 	FIoOffsetAndLength GetOffsetAndLength(FIoChunkId& ChunkId); 
 	std::vector<uint8_t> ReadEntry(struct FFileEntryInfo& Entry) override;
-	UPackagePtr CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context) override;
+	UPackagePtr CreatePackage(FArchive& Ar, TSharedPtr<class GContext> Context, class FExportState& ExportState) override;
 
 private:
 

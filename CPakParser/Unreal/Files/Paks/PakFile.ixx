@@ -79,7 +79,7 @@ public:
 		return Readers.BorrowReader();
 	}
 
-	UPackagePtr CreatePackage(class FArchive& Ar, TSharedPtr<class GContext> Context) override
+	UPackagePtr CreatePackage(class FArchive& Ar, TSharedPtr<class GContext> Context, class FExportState& ExportState) override
 	{
 		return nullptr; // TODO:
 	}
