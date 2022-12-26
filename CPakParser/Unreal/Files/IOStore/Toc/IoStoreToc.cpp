@@ -236,6 +236,7 @@ UPackagePtr FIoStoreToc::CreatePackage(FArchive& Ar, TSharedPtr<class GContext> 
 
 	PackageData.Reader = std::make_unique<FIoExportArchive>(PackageData.Header.AllExportDataPtr, ExportDataSize, PackageData);
 	PackageData.Reader->SetUnversionedProperties(PackageData.HasFlags(PKG_UnversionedProperties));
+	PackageData.Reader->SetFilterEditorOnly(PackageData.HasFlags(PKG_FilterEditorOnly));
 
 	Log("Loading package %s", PackageData.Header.PackageName.c_str());
 

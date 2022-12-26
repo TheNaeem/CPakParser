@@ -88,7 +88,7 @@ public:
 		static_assert(std::is_base_of<UObject, T>::value, "Type passed into LoadObject must be a UObject type");
 
 		FExportState State;
-		State.TargetObject = std::make_unique<T>();
+		State.TargetObject = std::make_shared<T>();
 		State.TargetObjectName = Path.ExportName;
 		State.LoadTargetOnly = true;
 

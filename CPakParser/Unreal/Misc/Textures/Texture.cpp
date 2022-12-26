@@ -16,14 +16,34 @@ static __forceinline TMap<std::string, EPixelFormat> InitPixelFmtStringMap() {
 
 static TMap<std::string, EPixelFormat> PixelStringMap = InitPixelFmtStringMap();
 
+void FTexturePlatformData::Serialize(FArchive& Ar, UTexture* Owner)
+{
+	bool bUsingDerivedData = false;
+	Ar.Serialize(&bUsingDerivedData, sizeof(bool));
+}
+
 void UTexture::SerializeCookedPlatformData(FArchive& Ar)
 {
 	FName PixelFormatName;
 	Ar << PixelFormatName;
 
-	while (PixelFormatName.GetString().empty())
+	PlatformData = FTexturePlatformData();
+
+	while (!PixelFormatName.GetString().empty())
 	{
 		auto PixelFormatValue = PixelStringMap[PixelFormatName.GetString()];
 		const auto PixelFormat = (PixelFormatValue and PixelFormatValue < PF_MAX) ? PixelFormatValue : PF_Unknown;
+
+		auto SkipOffsetLoc = Ar.Tell();
+		int64_t SkipOffset = 0;
+		Ar << SkipOffset;
+
+		if (PlatformData.PixelFormat == PF_Unknown)
+		{
+			PlatformData.Serialize(Ar, this);
+		}
+		else Ar.Seek(SkipOffsetLoc + SkipOffset);
+
+		Ar << PixelFormatName;
 	}
 }

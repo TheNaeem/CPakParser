@@ -18,6 +18,8 @@ import CPakParser.AI.Navigation;
 import CPakParser.Names.SmartName;
 import CPakParser.Curves.RichCurve;
 import CPakParser.Curves.SimpleCurve;
+import CPakParser.Math.IntPoint;
+import CPakParser.Math.PerPlatform;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -39,9 +41,12 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "FrameNumber", SerializeNativeStruct<FFrameNumber> },
 	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "Guid", SerializeNativeStruct<FGuid> },
+	{ "IntPoint", SerializeNativeStruct<FIntPoint> },
 	{ "LinearColor", SerializeNativeStruct<FLinearColor> },
 	{ "NavAgentSelector", SerializeNativeStruct<FNavAgentSelector> },
+	{ "NavAgentSelector", SerializeNativeStruct<FNavAgentSelector> },
 	{ "RichCurveKey", SerializeNativeStruct<FRichCurveKey> },
+	{ "PerPlatformFloat", SerializeNativeStruct<FPerPlatformFloat> },
 	{ "SimpleCurveKey", SerializeNativeStruct<FSimpleCurveKey> },
 	{ "SmartName", SerializeNativeStruct<FSmartName> },
 	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },

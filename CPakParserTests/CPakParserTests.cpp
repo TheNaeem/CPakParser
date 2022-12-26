@@ -1,5 +1,6 @@
 import CPakParser.Logging;
 import CPakParser.Paths.SoftObjectPath;
+import CPakParser.Texture2D;
 
 #include <iostream>
 #include <fstream>
@@ -21,7 +22,7 @@ int main()
 	Core.Initialize();
 	MappingsTask.wait();
 
-	auto Obj = Core.LoadObject("FortniteGame/Content/Athena/Items/Cosmetics/Characters/Character_Ballerina");
+	auto Obj = Core.LoadObject<UTexture2D>("FortniteGame/Content/UI/Foundation/Textures/BattleRoyale/FeaturedItems/Outfit/T-AthenaSoldiers-CID-478-Athena-Commando-F-WorldCup");
 
 	Sleep(-1);
 }

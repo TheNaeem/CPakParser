@@ -14,6 +14,7 @@ export class FArchive
 {
 private:
 
+	bool ArIsFilterEditorOnly = false;
 	bool bUseUnversionedProperties = false;
 	FPackageFileVersion Version;
 	class FCustomVersionContainer* CustomVersions = nullptr; // gotta use a raw ptr cause of forward decl :/
@@ -145,6 +146,16 @@ public:
 	__forceinline void SetUnversionedProperties(bool IsUsingUnversionedProperties)
 	{
 		bUseUnversionedProperties = IsUsingUnversionedProperties;
+	}
+
+	__forceinline bool IsFilterEditorOnly() const
+	{
+		return ArIsFilterEditorOnly;
+	}
+
+	__forceinline void SetFilterEditorOnly(bool InFilterEditorOnly)
+	{
+		ArIsFilterEditorOnly = InFilterEditorOnly;
 	}
 
 	__forceinline FPackageFileVersion UEVer() const

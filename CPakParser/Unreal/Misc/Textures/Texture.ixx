@@ -96,7 +96,7 @@ export enum EPixelFormat : uint8_t
 	PF_MAX = 86
 };
 
-struct FTexturePlatformData
+export struct FTexturePlatformData
 {
 	int32_t SizeX;
 	int32_t SizeY;
@@ -119,7 +119,6 @@ private:
 public:
 
 	void Serialize(FArchive& Ar, class UTexture* Owner);
-	void SerializeCooked(FArchive& Ar, class UTexture* Owner, bool bStreamable);
 
 	inline void SetPackedData(int32_t InNumSlices, bool bInHasOptData, bool bInCubeMap)
 	{
