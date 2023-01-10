@@ -20,6 +20,8 @@ import CPakParser.Curves.RichCurve;
 import CPakParser.Curves.SimpleCurve;
 import CPakParser.Math.IntPoint;
 import CPakParser.Math.PerPlatform;
+import CPakParser.Math.Rotator;
+import CPakParser.Math.Quat;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -52,7 +54,9 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "SoftObjectPath", SerializeNativeStruct<FSoftObjectPath> },
 	{ "Vector", SerializeNativeStruct<FVector> },
 	{ "Vector2D", SerializeNativeStruct<FVector2D> },
-	{ "Vector4", SerializeNativeStruct<FVector4> }
+	{ "Vector4", SerializeNativeStruct<FVector4> },
+	{ "Rotator", SerializeNativeStruct<FRotator> },
+	{ "Quat", SerializeNativeStruct<FQuat> }
 };
 
 TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)

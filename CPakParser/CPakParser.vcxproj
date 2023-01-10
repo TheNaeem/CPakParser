@@ -156,9 +156,12 @@
     <ClCompile Include="Unreal\Structs\Materials\MaterialExpression.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Box.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Color.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Math.ixx" />
     <ClCompile Include="Unreal\Structs\Math\FrameNumber.ixx" />
     <ClCompile Include="Unreal\Structs\Math\IntPoint.ixx" />
     <ClCompile Include="Unreal\Structs\Math\PerPlatform.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Quat.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Rotator.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Vector.ixx" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.ixx" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTag.ixx" />

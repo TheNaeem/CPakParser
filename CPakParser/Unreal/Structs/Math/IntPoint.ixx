@@ -23,6 +23,12 @@ struct TIntPoint
 		IntType XY[2];
 	};
 
+	/** An integer point with zeroed values. */
+	static const TIntPoint ZeroValue;
+
+	/** An integer point with INDEX_NONE values. */
+	static const TIntPoint NoneValue;
+
 	TIntPoint() = default;
 
 	TIntPoint(IntType InX, IntType InY)
@@ -34,6 +40,13 @@ struct TIntPoint
 	TIntPoint(IntType InXY)
 		: X(InXY)
 		, Y(InXY)
+	{
+	}
+
+	template <typename OtherIntType>
+	explicit TIntPoint(TIntPoint<OtherIntType> Other)
+		: X(IntCastChecked<IntType>(Other.X))
+		, Y(IntCastChecked<IntType>(Other.Y))
 	{
 	}
 
@@ -175,4 +188,10 @@ struct TIntPoint
 	}
 };
 
-export typedef TIntPoint<int> FIntPoint;
+export typedef TIntPoint<int32_t> FInt32Point;
+export typedef TIntPoint<int64_t> FInt64Point;
+export typedef TIntPoint<uint32_t> FUint32Point;
+export typedef TIntPoint<uint64_t> FUint64Point;
+
+export typedef FInt32Point FIntPoint;
+export typedef FUint32Point FUintPoint;
