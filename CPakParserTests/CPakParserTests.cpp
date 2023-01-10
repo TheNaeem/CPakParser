@@ -12,7 +12,7 @@ import CPakParser.Texture2D;
 
 int main()
 {
-	Dataminer::Options::WithLogging(false);
+	Dataminer::Options::WithLogging(true);
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
@@ -22,7 +22,22 @@ int main()
 	Core.Initialize();
 	MappingsTask.wait();
 
-	auto Obj = Core.LoadObject<UTexture2D>("FortniteGame/Content/UI/Foundation/Textures/BattleRoyale/FeaturedItems/Outfit/T-AthenaSoldiers-CID-478-Athena-Commando-F-WorldCup");
+	FPakDirectory Outfits = Core.GetDirectory("../../../FortniteGame/Content/Athena/Items/Cosmetics/Characters/"); // TODO: resolve mount point in function
+
+	for (auto& Outfit : Outfits)
+	{
+		auto Pkg = Core.LoadPackage(Outfit.second);
+
+		if (!Pkg)
+			continue;
+
+		auto Object = Pkg->GetFirstExport();
+
+		if (!Object)
+			continue;
+
+		Log("Loaded %s", Object->GetName().c_str());
+	}
 
 	Sleep(-1);
 }

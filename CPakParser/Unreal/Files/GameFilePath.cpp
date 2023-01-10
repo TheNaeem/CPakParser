@@ -1,6 +1,7 @@
 #include <string>
 
 import CPakParser.Files.GameFilePath;
+import CPakParser.Files.FileEntry;
 
 static const std::string BaseMountPoint("../../../");
 
@@ -64,3 +65,4 @@ FGameFilePath FGameFilePath::WithExtension(std::string Extension)
 {
 	return FGameFilePath(Directory, FileName + Extension);
 }
+

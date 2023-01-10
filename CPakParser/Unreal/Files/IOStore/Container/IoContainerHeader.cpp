@@ -48,7 +48,7 @@ FArchive& operator<<(FArchive& Ar, FIoContainerHeader& ContainerHeader)
 
 	for (size_t i = 0; i < PackageCount; i++)
 	{
-		ContainerHeader.PackageStore.insert_or_assign(ContainerHeader.PackageIds[i], StoreEntries[i]);
+		ContainerHeader.PackageStore.insert_or_assign(ContainerHeader.PackageIds[i], &StoreEntries[i]);
 	}
 
 	return Ar;

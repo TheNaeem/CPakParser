@@ -36,6 +36,14 @@ UPackagePtr Dataminer::LoadPackage(FGameFilePath Path)
 	return LoadPackage(Path, State);
 }
 
+UPackagePtr Dataminer::LoadPackage(FFileEntryInfo& Entry)
+{
+	FExportState State;
+	State.LoadTargetOnly = false;
+
+	return LoadPackage(Entry, State);
+}
+
 UPackagePtr Dataminer::LoadPackage(FGameFilePath Path, FExportState& State)
 {
 	auto AssetPath = Path.WithExtension(".uasset");
@@ -44,11 +52,16 @@ UPackagePtr Dataminer::LoadPackage(FGameFilePath Path, FExportState& State)
 	if (!Entry.IsValid())
 		return nullptr;
 
+	return LoadPackage(Entry, State);
+}
+
+UPackagePtr Dataminer::LoadPackage(FFileEntryInfo& Entry, FExportState& State)
+{
 	auto Reader = Entry.CreateReader();
 
 	if (!Reader)
 	{
-		LogError("Could not create reader for %s", Path.FileName.c_str());
+		LogError("Could not create reader");
 		return nullptr;
 	}
 

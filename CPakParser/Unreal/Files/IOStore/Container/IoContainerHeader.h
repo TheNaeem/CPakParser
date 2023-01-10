@@ -67,7 +67,7 @@ struct FIoContainerHeader
 		Latest = LatestPlusOne - 1
 	};
 
-	TMap<FPackageId, FFilePackageStoreEntry> PackageStore;
+	TMap<FPackageId, FFilePackageStoreEntry*> PackageStore;
 	FIoContainerId ContainerId;
 	std::vector<FPackageId> PackageIds;
 	std::vector<FPackageId> OptionalSegmentPackageIds;

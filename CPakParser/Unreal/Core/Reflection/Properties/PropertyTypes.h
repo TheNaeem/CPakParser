@@ -12,3 +12,4 @@ import CPakParser.Reflection.ObjectProperty;
 import CPakParser.Reflection.SetProperty;
 import CPakParser.Reflection.SoftObjectProperty;
 import CPakParser.Reflection.StructProperty;
+import CPakParser.Reflection.StrProperty;

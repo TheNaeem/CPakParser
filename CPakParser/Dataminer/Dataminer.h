@@ -80,7 +80,9 @@ public:
 	}
 
 	UPackagePtr LoadPackage(FGameFilePath Path);
+	UPackagePtr LoadPackage(FFileEntryInfo& Entry);
 	UPackagePtr LoadPackage(FGameFilePath Path, FExportState& State);
+	UPackagePtr LoadPackage(FFileEntryInfo& Entry, FExportState& State);
 
 	template <typename T = UObject>
 	TObjectPtr<T> LoadObject(FGameFilePath Path)

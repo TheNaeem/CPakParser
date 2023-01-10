@@ -203,7 +203,7 @@ static FZenPackageHeaderData ReadZenPackageHeader(FArchive& Ar, FFileIoStoreCont
 
 	if (Container.Header.PackageStore.contains(PackageId))
 	{
-		auto& StoreEntry = Container.Header.PackageStore[PackageId];
+		auto& StoreEntry = *Container.Header.PackageStore[PackageId];
 
 		Header.ExportCount = StoreEntry.ExportCount;
 

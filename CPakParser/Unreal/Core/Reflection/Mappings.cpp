@@ -132,6 +132,7 @@ class FPropertyFactory
 		case EPropertyType::TextProperty: Ret = new FTextProperty; break;
 		case EPropertyType::BoolProperty: Ret = new FBoolProperty; break;
 		case EPropertyType::SoftObjectProperty: Ret = new FSoftObjectProperty; break;
+		case EPropertyType::StrProperty: Ret = new FStrProperty; break;
 		case EPropertyType::DelegateProperty: Ret = new FDelegateProperty; break;
 		case EPropertyType::MulticastDelegateProperty: Ret = new FMulticastDelegateProperty; break;
 		default: Ret = new FProperty; break;
