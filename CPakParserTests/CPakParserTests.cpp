@@ -12,7 +12,7 @@ import CPakParser.Texture2D;
 
 int main()
 {
-	Dataminer::Options::WithLogging(true);
+	Dataminer::Options::WithLogging(false);
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
@@ -23,6 +23,9 @@ int main()
 	MappingsTask.wait();
 
 	FPakDirectory Outfits = Core.GetDirectory("../../../FortniteGame/Content/Athena/Items/Cosmetics/Characters/"); // TODO: resolve mount point in function
+
+	auto Start = std::chrono::steady_clock::now();
+	int i = 0;
 
 	for (auto& Outfit : Outfits)
 	{
@@ -36,8 +39,12 @@ int main()
 		if (!Object)
 			continue;
 
-		Log("Loaded %s", Object->GetName().c_str());
+		i++;
 	}
+
+	auto End = std::chrono::steady_clock::now();
+
+	printf("[=] Fully loaded %d AthenaCosmeticItemDefinition packages in %.02f ms\n", i, (End - Start).count() / 1000000.);
 
 	Sleep(-1);
 }
