@@ -3,6 +3,7 @@
 #include "Core/Defines.h"
 #include "Core/Globals/GameFileManager.h"
 #include <future>
+#include <xlocinfo>
 
 import CPakParser.Package;
 import CPakParser.Files.GameFilePath;
