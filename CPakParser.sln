@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPakParser", "CPakParser\CP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPakParserTests", "CPakParserTests\CPakParserTests.vcxproj", "{FEAA6BEF-1284-43BC-B5C7-EA7C0E26B2E0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPakParserDLL", "CPakParserDLL\CPakParserDLL.vcxproj", "{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{FEAA6BEF-1284-43BC-B5C7-EA7C0E26B2E0}.Release|x64.Build.0 = Release|x64
 		{FEAA6BEF-1284-43BC-B5C7-EA7C0E26B2E0}.Release|x86.ActiveCfg = Release|Win32
 		{FEAA6BEF-1284-43BC-B5C7-EA7C0E26B2E0}.Release|x86.Build.0 = Release|Win32
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Debug|x64.ActiveCfg = Debug|x64
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Debug|x64.Build.0 = Debug|x64
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Debug|x86.ActiveCfg = Debug|Win32
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Debug|x86.Build.0 = Debug|Win32
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Release|x64.ActiveCfg = Release|x64
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Release|x64.Build.0 = Release|x64
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Release|x86.ActiveCfg = Release|Win32
+		{F49A5A31-8BDB-4A4A-A9B2-B4DBCE17151B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
