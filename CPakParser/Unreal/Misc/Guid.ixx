@@ -4,7 +4,7 @@ import <string>;
 import <sstream>;
 import CPakParser.Serialization.FArchive;
 
-static uint32_t ConvertHexStringToInt(std::string hexString)
+uint32_t ConvertHexStringToInt(std::string hexString)
 {
 	uint32_t ret;
 	std::stringstream ss;
