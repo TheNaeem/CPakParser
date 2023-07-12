@@ -164,6 +164,7 @@
     <ClCompile Include="Unreal\Structs\Math\Rotator.ixx" />
     <ClCompile Include="Unreal\Structs\Math\Vector.ixx" />
     <ClCompile Include="Unreal\Structs\Misc\DateTime.ixx" />
+    <ClCompile Include="Unreal\Structs\Misc\InstancedStruct.ixx" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTag.ixx" />
     <ClCompile Include="Unreal\Structs\Tags\GameplayTagContainer.ixx" />
   </ItemGroup>

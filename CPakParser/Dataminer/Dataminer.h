@@ -149,3 +149,5 @@ public:
 
 #define UE5_0 1004
 #define UE5_1 1006
+#define UE5_2 1008
+#define UE5_3 1009

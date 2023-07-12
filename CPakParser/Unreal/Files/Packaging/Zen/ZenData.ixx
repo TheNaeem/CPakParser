@@ -8,6 +8,7 @@ import CPakParser.Names.NameMap;
 import CPakParser.Core.FName;
 import CPakParser.Versions.PackageFileVersion;
 import CPakParser.Versioning.CustomVersion;
+import CPakParser.Package.Index;
 
 export enum class EExportFilterFlags : uint8_t
 {
@@ -27,6 +28,12 @@ export struct FExportBundleEntry
 
 	uint32_t LocalExportIndex;
 	uint32_t CommandType;
+};
+
+export struct FDependencyBundleHeader
+{
+	int32_t FirstEntryIndex;
+	uint32_t EntryCount[FExportBundleEntry::ExportCommandType_Count][FExportBundleEntry::ExportCommandType_Count];
 };
 
 export struct FExportBundleHeader
@@ -49,6 +56,15 @@ export struct FExportMapEntry
 	UObject::Flags ObjectFlags = UObject::Flags::RF_NoFlags;
 	EExportFilterFlags FilterFlags = EExportFilterFlags::None;
 	uint8_t Pad[3] = {};
+};
+
+export struct FBulkDataMapEntry
+{
+	int64_t SerialOffset;
+	int64_t DuplicateSerialOffset;
+	int64_t SerialSize;
+	uint32_t Flags;
+	uint32_t Pad;
 };
 
 export enum class EZenPackageVersion : uint32_t
@@ -80,12 +96,15 @@ export struct FZenPackageSummary
 	int32_t ImportMapOffset;
 	int32_t ExportMapOffset;
 	int32_t ExportBundleEntriesOffset;
-	int32_t GraphDataOffset;
+	int32_t DependencyBundleHeadersOffset;
+	int32_t DependencyBundleEntriesOffset;
+	int32_t ImportedPackageNamesOffset;
 };
 
 export struct FZenPackageHeaderData
 {
 	uint32_t ExportCount = 0;
+	uint8_t* AllExportDataPtr;
 	FZenPackageVersioningInfo VersioningInfo;
 	FNameMap NameMap;
 	std::string PackageName;
@@ -95,9 +114,11 @@ export struct FZenPackageHeaderData
 	std::vector<FExportMapEntry> ExportMap;
 	std::vector<FPackageId> ImportedPackageIds;
 	std::vector<FName> ImportedPackageNames;
-	std::vector<FExportBundleHeader> ExportBundleHeaders;
 	std::vector<FExportBundleEntry> ExportBundleEntries;
-	uint8_t* AllExportDataPtr;
+	std::vector<FBulkDataMapEntry> BulkDataMap;
+	std::vector<FDependencyBundleHeader> DependencyBundleHeaders;
+	std::vector<FPackageIndex> DependencyBundleEntries;
+
 
 	__forceinline bool HasFlags(uint32_t Flags)
 	{

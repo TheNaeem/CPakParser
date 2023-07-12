@@ -93,34 +93,25 @@ void UZenPackage::ProcessExports(FZenPackageData& PackageData)
 	auto& Header = PackageData.Header;
 	auto ExportOffset = 0;
 
-	for (size_t i = 0; i < Header.ExportBundleHeaders.size(); i++)
+	for (size_t i = 0; i < Header.ExportBundleEntries.size(); i++)
 	{
-		auto& ExportBundle = Header.ExportBundleHeaders[i];
+		auto& ExportBundle = Header.ExportBundleEntries[i];
+		auto& LocalExport = PackageData.Exports[ExportBundle.LocalExportIndex];
 
-		for (size_t ExportBundleIndex = 0; ExportBundleIndex < ExportBundle.EntryCount; ExportBundleIndex++)
+		if (ExportBundle.CommandType == FExportBundleEntry::ExportCommandType_Create)
 		{
-			const auto& BundleEntry = Header.ExportBundleEntries[ExportBundle.FirstEntryIndex + ExportBundleIndex];
-			const auto& ExportMapEntry = Header.ExportMap[BundleEntry.LocalExportIndex];
+			CreateExport(PackageData, PackageData.Exports, ExportBundle.LocalExportIndex);
+			continue;
+		}
 
-			if (BundleEntry.CommandType == FExportBundleEntry::ExportCommandType_Create)
-			{
-				CreateExport(PackageData, PackageData.Exports, BundleEntry.LocalExportIndex);
-				continue;
-			}
+		if (ExportBundle.CommandType != FExportBundleEntry::ExportCommandType_Serialize)
+			continue;
 
-			if (BundleEntry.CommandType != FExportBundleEntry::ExportCommandType_Serialize)
-				continue;
+		auto Export = TrySerializeExport(PackageData, ExportBundle.LocalExportIndex);
 
-			PackageData.Reader->Seek(ExportOffset);
-
-			auto Export = TrySerializeExport(PackageData, BundleEntry.LocalExportIndex);
-
-			if (Export.has_value())
-			{
-				Exports.push_back(Export.value());
-			}
-
-			ExportOffset += ExportMapEntry.CookedSerialSize;
+		if (Export.has_value())
+		{
+			Exports.push_back(Export.value());
 		}
 	}
 }

@@ -52,11 +52,11 @@ struct FUnversionedHeader
 
 			Header.Fragments.push_back(Fragment);
 
-			if (Fragment.bHasAnyZeroes)
+			/*if (Fragment.bHasAnyZeroes)
 				ZeroMaskNum += Fragment.ValueNum;
-			else UnmaskedNum += Fragment.ValueNum;
+			else UnmaskedNum += Fragment.ValueNum;*/
 
-			//(Fragment.bHasAnyZeroes ? ZeroMaskNum : UnmaskedNum) += Fragment.ValueNum;
+			(Fragment.bHasAnyZeroes ? ZeroMaskNum : UnmaskedNum) += Fragment.ValueNum;
 
 			if (Fragment.bIsLast)
 				break;

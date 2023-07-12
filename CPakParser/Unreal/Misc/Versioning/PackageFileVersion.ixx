@@ -1,6 +1,6 @@
 export module CPakParser.Versions.PackageFileVersion;
 
-export enum class EUnrealEngineObjectUE5Version : __int32
+export enum class EUnrealEngineObjectUE5Version : unsigned __int32
 {
 	// Note that currently the oldest loadable package version is EUnrealEngineObjectUEVersion::VER_UE4_OLDEST_LOADABLE_PACKAGE
 	// this can be enabled should we ever deprecate UE4 versions entirely
@@ -30,8 +30,12 @@ export enum class EUnrealEngineObjectUE5Version : __int32
 	// Replace FName asset path in FSoftObjectPath with (package name, asset name) pair FTopLevelAssetPath
 	FSOFTOBJECTPATH_REMOVE_ASSET_PATH_FNAMES,
 
+
 	// Add a soft object path list to the package summary for fast remap
 	ADD_SOFTOBJECTPATH_LIST,
+
+	// Added bulk/data resource table
+	DATA_RESOURCES,
 
 	// -----<new versions can be added before this line>-------------------------------------------------
 	// - this needs to be the last line (see note below)

@@ -126,6 +126,10 @@
     <ClCompile Include="Unreal\Structs\Math\PerPlatform.ixx" />
     <ClCompile Include="Unreal\Misc\Textures\BulkData.ixx" />
     <ClCompile Include="Unreal\Core\Reflection\Properties\StrProperty.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Math.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Quat.ixx" />
+    <ClCompile Include="Unreal\Structs\Math\Rotator.ixx" />
+    <ClCompile Include="Unreal\Structs\Misc\InstancedStruct.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataminer\Dataminer.h" />

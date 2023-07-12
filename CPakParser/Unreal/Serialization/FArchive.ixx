@@ -30,6 +30,16 @@ public:
 		return *this;
 	}
 
+	inline FArchive& operator<<(UClassPtr& Value)
+	{
+		return *this << reinterpret_cast<UObjectPtr&>(Value);
+	}
+
+	inline FArchive& operator<<(UStructPtr& Value)
+	{
+		return *this << reinterpret_cast<UObjectPtr&>(Value);
+	}
+
 	virtual FArchive& operator<<(class FName& Value)
 	{
 		return *this;

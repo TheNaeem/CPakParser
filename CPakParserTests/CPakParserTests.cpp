@@ -16,7 +16,7 @@ int main()
 	Dataminer::Options::WithOodleDecompressor("oo2core_9_win64.dll");
 
 	auto Core = Dataminer("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Content\\Paks");
-	Core.SetVersionUE5(1008);
+	Core.SetVersionUE5(UE5_3);
 
 	auto MappingsTask = Core.LoadTypeMappingsAsync("C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64\\Mappings.usmap");
 	Core.Initialize();
@@ -27,7 +27,7 @@ int main()
 	auto Start = std::chrono::steady_clock::now();
 	int i = 0;
 
-	for (auto& Outfit : Outfits)
+	for (auto& Outfit : Outfits) 
 	{
 		auto Pkg = Core.LoadPackage(Outfit.second);
 

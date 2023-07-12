@@ -188,6 +188,7 @@ public:
 	}
 
 	void SerializeScriptProperties(class FArchive& Ar, UObjectPtr Object);
+	TUniquePtr<IPropValue> SerializeItem(class FArchive& Ar);
 };
 
 

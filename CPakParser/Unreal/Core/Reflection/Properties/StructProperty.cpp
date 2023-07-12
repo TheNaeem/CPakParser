@@ -3,6 +3,7 @@
 #include <functional>
 
 import CPakParser.Logging;
+import CPakParser.Core.UObject;
 import CPakParser.Reflection.PropertyValue;
 import CPakParser.Reflection.StructProperty;
 import CPakParser.Misc.FGuid;
@@ -22,6 +23,7 @@ import CPakParser.Math.IntPoint;
 import CPakParser.Math.PerPlatform;
 import CPakParser.Math.Rotator;
 import CPakParser.Math.Quat;
+import InstancedStruct;
 
 template <typename StructType>
 static __forceinline TUniquePtr<IPropValue> SerializeNativeStruct(FArchive& Ar)
@@ -43,6 +45,7 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "FrameNumber", SerializeNativeStruct<FFrameNumber> },
 	{ "GameplayTagContainer", SerializeNativeStruct<FGameplayTagContainer> },
 	{ "Guid", SerializeNativeStruct<FGuid> },
+	{ "InstancedStruct", SerializeNativeStruct<FInstancedStruct> },
 	{ "IntPoint", SerializeNativeStruct<FIntPoint> },
 	{ "LinearColor", SerializeNativeStruct<FLinearColor> },
 	{ "NavAgentSelector", SerializeNativeStruct<FNavAgentSelector> },
@@ -59,9 +62,9 @@ static TMap<std::string, std::function<TUniquePtr<IPropValue>(FArchive&)>> Nativ
 	{ "Quat", SerializeNativeStruct<FQuat> }
 };
 
-TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
+TUniquePtr<IPropValue> UStruct::SerializeItem(FArchive& Ar)
 {
-	auto StructName = Struct->GetName();
+	auto StructName = GetName();
 
 #if EXTENSIVE_LOGGING
 	Log("Serializing struct property of type %s", StructName.c_str());
@@ -72,12 +75,13 @@ TUniquePtr<IPropValue> FStructProperty::Serialize(FArchive& Ar)
 		return std::move(NativeStructs[StructName](Ar));
 	}
 
-	auto Ret = std::make_unique<Value>();
+	auto Ret = std::make_unique<FStructProperty::Value>();
+	auto ThisClass = This<UClass>();
 
 	Ret->StructObject = std::make_shared<UObject>();
-	Ret->StructObject->SetClass(Struct);
+	Ret->StructObject->SetClass(ThisClass);
 
-	Struct->SerializeScriptProperties(Ar, Ret->StructObject);
+	SerializeScriptProperties(Ar, Ret->StructObject);
 
 	return std::move(Ret);
 }

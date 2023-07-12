@@ -189,6 +189,15 @@ static FZenPackageHeaderData ReadZenPackageHeader(FArchive& Ar, FFileIoStoreCont
 	Header.NameMap.Serialize(Ar, FMappedName::EType::Package);
 	Header.PackageName = Header.NameMap.GetName(Summary.Name);
 
+	if (!Summary.bHasVersioningInfo || Header.VersioningInfo.PackageVersion >= EUnrealEngineObjectUE5Version::DATA_RESOURCES)
+	{
+		int64_t BulkDataMapSize = 0;
+		Ar << BulkDataMapSize;
+
+		if (BulkDataMapSize)
+			Ar.BulkSerializeArray(Header.BulkDataMap, BulkDataMapSize / sizeof(FBulkDataMapEntry));
+	}
+
 	Ar.Seek(PackageDataOffset + Summary.ImportMapOffset);
 	Ar.BulkSerializeArray(Header.ImportMap,
 		(Summary.ExportMapOffset - Summary.ImportMapOffset) / sizeof(FPackageObjectIndex));
@@ -197,27 +206,26 @@ static FZenPackageHeaderData ReadZenPackageHeader(FArchive& Ar, FFileIoStoreCont
 	Ar.BulkSerializeArray(Header.ExportMap,
 		(Summary.ExportBundleEntriesOffset - Summary.ExportMapOffset) / sizeof(FExportMapEntry));
 
-	// TODO: do we really need the arcs data?
+	Header.ExportCount = Header.ExportMap.size();
 
-	auto PackageId = FPackageId(Header.PackageName);
+	auto ExportBundleEntriesCount = static_cast<int32_t>(Summary.DependencyBundleHeadersOffset - Summary.ExportBundleEntriesOffset) / sizeof(FExportBundleEntry);
 
-	if (Container.Header.PackageStore.contains(PackageId))
+	if (ExportBundleEntriesCount != Header.ExportCount * FExportBundleEntry::ExportCommandType_Count)
 	{
-		auto& StoreEntry = *Container.Header.PackageStore[PackageId];
-
-		Header.ExportCount = StoreEntry.ExportCount;
-
-		auto ImportedPackagesCount = StoreEntry.ImportedPackages.Num();
-
-		Header.ImportedPackageIds.resize(ImportedPackagesCount);
-		memcpy(Header.ImportedPackageIds.data(), StoreEntry.ImportedPackages.Data(), sizeof(FPackageId) * ImportedPackagesCount);
-
-		Ar.Seek(PackageDataOffset + Summary.GraphDataOffset);
-		Ar.BulkSerializeArray(Header.ExportBundleHeaders, StoreEntry.ExportBundleCount);
-
-		Ar.Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
-		Ar.BulkSerializeArray(Header.ExportBundleEntries, StoreEntry.ExportCount * FExportBundleEntry::ExportCommandType_Count);
+		LogError("Corrupt Zen header in package %s", Header.PackageName.c_str());
+		return Header;
 	}
+
+	Ar.Seek(PackageDataOffset + Summary.ExportBundleEntriesOffset);
+	Ar.BulkSerializeArray(Header.ExportBundleEntries, ExportBundleEntriesCount);
+
+	Ar.Seek(PackageDataOffset + Summary.DependencyBundleHeadersOffset);
+	Ar.BulkSerializeArray(Header.DependencyBundleHeaders,
+		(Summary.DependencyBundleEntriesOffset - Summary.DependencyBundleHeadersOffset) / sizeof(FDependencyBundleHeader));
+
+	Ar.Seek(PackageDataOffset + Summary.DependencyBundleEntriesOffset);
+	Ar.BulkSerializeArray(Header.DependencyBundleEntries,
+		(Summary.ImportedPackageNamesOffset - Summary.DependencyBundleEntriesOffset) / sizeof(FPackageIndex));
 
 	Header.AllExportDataPtr = PackageHeaderDataPtr + Summary.HeaderSize; // archive being used here should ALWAYS be a memory reader
 

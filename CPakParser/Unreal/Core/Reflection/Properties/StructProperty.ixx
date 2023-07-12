@@ -48,7 +48,10 @@ public:
 		}
 	};
 
-	TUniquePtr<IPropValue> Serialize(class FArchive& Ar) override;
+	TUniquePtr<IPropValue> Serialize(class FArchive& Ar) override
+	{
+		return Struct->SerializeItem(Ar);
+	}
 
 private:
 
